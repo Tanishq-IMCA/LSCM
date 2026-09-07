@@ -5,7 +5,7 @@
 > This community framework, along with the associated methodologies and services, constitutes the proprietary and strictly confidential intellectual property of LSCM and IMCA.
 > UNAUTHORIZED USE IS STRICTLY PROHIBITED. You may not copy, distribute, transmit, reproduce, publish, modify, or create derivative works from this source material without the explicit, documented authorization of the chief development team (@𝐍𝐞𝐨).
 > Any unauthorized replication, reverse engineering, or dissemination of these proprietary systems will be subject to immediate blacklisting and aggressive prosecution under applicable rules.
-> This repository does NOT grant an open-source license. All rights are explicitly reserved, along with all the rest of that f***ing legal Mambo Jambo.
+> This repository does NOT grant an open-source license. All rights are explicitly reserved.
 
 <p align="center">
 <img src="https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next JS">
