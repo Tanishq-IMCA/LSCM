@@ -1,0 +1,1 @@
+- [Preview UI mode](preview-ui-mode.md) — DevAudit frontend is intentionally self-contained while auth and backend services are deferred.
