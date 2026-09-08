@@ -1,0 +1,84 @@
+The bigger structural thing: your UI is way ahead of your backend
+
+This is the important one for you specifically, since your whole plan is "real analysis, AI only where necessary." Right now:
+
+
+
+
+
+mergeScannerResults() in useScan.ts — the function that turns real scanner output into the scan object the dashboard renders — hardcodes architectureScore: 50, skillScore: 0, dependencies: {upToDate: 0, outdated: 0, vulnerable: 0}, and linesOfCode/testCoverage/avgComplexity/duplication all at 0.
+
+
+
+Meanwhile scanData.ts has genuinely well-designed mock data (mockNeuralSearchScan, mockFastApiGatewayScan) with rich architectureDetails.couplingGraph, layerBreakdown, detectedPatterns — this is what you were designing the UI against, and it's good design. It's just not connected to anything real yet.
+
+So the Architecture tab, the Skills tab, and the Dependency Health panel are currently beautiful shells with nothing behind them in a live scan. That's not a criticism of the work — the frontend is legitimately well-built — it's just the actual gap between what exists and what's wired up. Good news: closing this gap is mostly "run one more CLI tool and map its output," not new architecture.
+
+Tool-by-tool: what to bolt on to make those panels real (all local, no AI needed)
+
+Mapped directly to the tabs you already built:
+
+Code Quality tab → complexity & duplication (currently zeroed)
+
+
+
+
+
+radon (you already listed it in the README) — cyclomatic complexity + maintainability index for Python. radon cc -j and radon mi -j give you exactly avgComplexity in JSON.
+
+
+
+lizard — same idea but multi-language (JS, TS, Go, Rust, Java, C++) in one binary. Given you're polyglot, this is probably the better single tool than radon+eslint-complexity-plugin separately.
+
+
+
+jscpd — copy-paste/duplication detector, works across languages, gives you a real duplication percentage instead of a hardcoded 0.
+
+
+
+cloc — trivial, but gives you accurate linesOfCode and language breakdown in milliseconds.
+
+Architecture tab → coupling/dependency graph (currently mocked)
+
+
+
+
+
+madge — generates a real import/dependency graph for JS/TS, can output JSON or even a circular-dependency list directly (madge --circular). This maps almost one-to-one onto your couplingGraph shape.
+
+
+
+pydeps — same idea for Python.
+
+
+
+Combine both and you can compute a real coupling/cohesion score instead of a static object.
+
+Architecture tab → Dependency Health (currently all zeros)
+
+
+
+
+
+osv-scanner (Google) — single static binary, scans package-lock.json, requirements.txt, go.mod, etc. against the OSV database in one pass, multi-ecosystem. Probably your best bang-for-buck here over juggling npm audit + pip-audit separately.
+
+
+
+If you want npm-specific detail too: npm audit --json / pip-audit --format json are fine as a fallback per-language.
+
+Security tab → secrets (not currently scanned at all)
+
+
+
+
+
+gitleaks — scans the full git history, not just the working tree, for leaked keys/tokens/passwords. This is a genuinely high-value addition given your whole pitch is "audit the developer," and leaked secrets in git history is one of the most common real findings.
+
+A tab you don't have yet, and probably should: "Hotspots"
+
+
+
+
+
+Pure git log parsing (no external tool needed) — cross-reference file change frequency against complexity (from lizard/radon). Files that change constantly and are complex are your highest-risk refactor targets. This is the kind of insight that feels "AI-powered" but is 100% deterministic and cheap — good showcase feature for exactly the philosophy you described (local-first, AI only when you truly can't do it locally).
+

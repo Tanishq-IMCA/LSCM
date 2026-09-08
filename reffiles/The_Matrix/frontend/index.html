@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Matrix</title>
+  </head>
+  <body>
+    <!-- The canvas background will render here -->
+    <canvas id="kinetic-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;"></canvas>
+
+    <!-- React will mount the UI inside this div -->
+    <div id="root"></div>
+
+    <script type="module" src="/src/main.jsx"></script>
+    <!-- Removed duplicate canvas.js script tag since it's now imported in main.jsx -->
+  </body>
+</html>

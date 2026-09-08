@@ -1,0 +1,25 @@
+before proceeding with our changes here make sure to make a roadmap md file which shows all done features all planned phases and then mark down the completion aka checkbox it right threre in md files. keep the report intricate and follow the same format as our readme file.s have the same warning, and same cards showing the tech stack. once done execute each "phase" of development for adding individual features to avoid running into agent limitations for credits mid way development. ask mebefore starting each phase. get started with phase 1.
+
+thx. also:
+
+currently only semgrip has been done so improve it, complete it, integrate it with our frontend, and don't add other backend planned stuff atm. just do the completion of our current system, that's it.
+
+GitHub has been implemented in backend as per say. needa connect it to the front end.
+login needed with google (optional, can be done w email only) (fix the part saying login with GitHub as GitHub is js a token addition in the settings)
+onboarding page is not working when we sign up using email. only works when we do GitHub which we needa change to continue with GitHub anwyays)
+onboarding needs to take in manual info abt user if the user dosent upload his resume so its a choice so make a button present which reads his reume aka a drop zome where the resume can be dragged n dropped for analysis.. so add appropriate form with proper categories within itself for inputting remove the input for adding linkedin profile.
+schemas are present for backend but lack more info that we are otherwise inputting on frontend UI for both onboarding and general user section where all the info is.
+multiple scanning fucks up the ui where we see glimpses rapidly blinking of both scan progression report.
+Audit Engine Active screen / panel. so prohibit the scan to one at a time only for each repo. so only one repo at a time.  also make sure to add a small progress bar of 0/3 scans which we are allowing 3 scans per 48 hours. so add a progress bar in both user profile settings and right beside the repositories title in dashboard page. 
+make sure the user can view this ratelimitation info in their user settings w a timer ticking down the time where their limit refereshes.
+add missing endpoints in the backend as well btw. so far we have stuff like analysis,
+feel free to add more dependencies if needed, for ex we haven't done websockets for front-backend so do that. we need real time progress of scans getting in results getting processed in real time. users should be able to not necessarily connect GitHub and also upload their repos directly, but limit that to around 100mb? that too should be only in user side and not in our servers obv. so like browser cache should have it im guessing. (erased on reload of page ofc) but then also make sure to add a button to do so.
+
+
+use integrated repl.it postgresql db for storing all user details, their emails age name, choices for techstack, their manual input of resume/ profile if they add one, include all data such as their analysis of each scan and such per repo. if a repo is missing then m ention that but grey out the scan in scan history and have like kinda a slashed over them design to show that that specific dir is no longer found. also add the user details that are entered like mentione before such as resume details if uploaded at all. btw when we upload resume, scan text. categorize them and autofill the form that we provided for manual input anwyays. should have sleek animation.
+
+
+also add a feature where dir can be manually uploaded. im talking abt the directories list int he dashboard page ofc.
+
+
+database- transfer to PostgreSQL (repl) 

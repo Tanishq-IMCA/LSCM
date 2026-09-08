@@ -1,0 +1,95 @@
+2026-07-14T12:46:42Z info: Deployment: 3788d2e2-d20e-457e-9810-3407a04e3341
+2026-07-14T12:46:42Z info: Build: 35c49a6a-b08d-4514-ba91-f1dde4a2d9e1
+2026-07-14T12:46:44Z info: Running Security Scan
+2026-07-14T12:46:48Z info: Installing packages
+--> npm install
+
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@prisma/streams-local@0.1.2',
+npm warn EBADENGINE   required: { bun: '>=1.3.6', node: '>=22.0.0' },
+npm warn EBADENGINE   current: { node: 'v20.20.0', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@prisma/streams-local@0.1.2',
+npm warn EBADENGINE   required: { bun: '>=1.3.6', node: '>=22.0.0' },
+npm warn EBADENGINE   current: { node: 'v20.20.0', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@prisma/streams-local@0.1.2',
+npm warn EBADENGINE   required: { bun: '>=1.3.6', node: '>=22.0.0' },
+npm warn EBADENGINE   current: { node: 'v20.20.0', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+
+up to date, audited 241 packages in 3s
+
+
+36 packages are looking for funding
+  run `npm fund` for details
+
+
+7 vulnerabilities (3 moderate, 4 high)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 12.0.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.1
+npm notice To update run: npm install -g npm@12.0.1
+npm notice
+
+--> uv lock
+
+--> uv lock
+
+Using 
+3
+.
+Resolved 
+10 packages
+CPython
+ 
+ Downloading pygments
+
+ Downloading ruff
+
+Prepared 8 packages in 380ms
+
+Installed 8 packages in 22ms
+ + 
+==0.15.21
+ + stevedore==5.9.0
+
+2026-07-14T12:46:55Z info: Starting Build
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@prisma/streams-local@0.1.2',
+npm warn EBADENGINE   required: { bun: '>=1.3.6', node: '>=22.0.0' },
+npm warn EBADENGINE   current: { node: 'v20.20.0', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@prisma/streams-local@0.1.2',
+npm warn EBADENGINE   required: { bun: '>=1.3.6', node: '>=22.0.0' },
+npm warn EBADENGINE   current: { node: 'v20.20.0', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+
+up to date, audited 270 packages in 4s
+
+50 packages are looking for funding
+  run `npm fund` for details
+
+
+3 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+sh: 1: cd: can't cd to frontend

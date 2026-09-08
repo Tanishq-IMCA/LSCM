@@ -1,0 +1,110 @@
+REPOSIGHT: AI-Powered Developer Audit — Frontend Build Prompt
+You are building the frontend for RepoSight, an AI-powered developer audit platform. Read the attached README for full context on the product vision, architecture, and brand philosophy.
+Design Mandate:
+Build a frontend that feels like a developer tool, not a SaaS dashboard. Think command-line elegance meets modern glassmorphism. Bold, catchy, visually arresting — the kind of interface that makes a developer open it and immediately think "this is built by people who get it." We're drawing inspiration from the aesthetic of CODEGNITION's brand (bold taglines, refusing mediocrity, making a difference) but translating it into a fluid, responsive web experience.
+Tech Stack (Locked):
+
+Next.js 18+ with React for component architecture
+TailwindCSS for styling (glassmorphism-first design tokens)
+Framer Motion for all animations (micro-interactions, state transitions, cinematic reveals)
+TanStack Query for frontend data syncing with the backend
+TypeScript for all components
+
+Onboarding & Core Pages — Build in This Order:
+1. Splash / Landing Page (PRIMARY FOCUS)
+This is the first thing users see. Make it memorable.
+
+Header: Minimal, clean. Logo on left (REPOSIGHT wordmark), a single CTA button top-right ("Begin Audit" or "Start Scanning" — pick the one that feels more premium). No nav clutter.
+Hero Section: Large, bold headline (something like "Know Your Code. Know Yourself." or "Your Codebase. Audited. Honestly."). Subheading that's punchy and specific (e.g., "AI-powered analysis meets real developer insights. See what you're actually building."). The tagline should feel like CODEGNITION's DNA — refusing ordinary, making a difference.
+Visual Element: A dynamic, animated code snippet display running in the background (like a subtle terminal or floating code blocks with glassmorphism cards). Use Framer Motion to make these blocks fade in, shift, and highlight syntax in real time as the page loads. This should feel alive, not static.
+CTA Button: Large, glassmorphic, with a hover state that subtly animates (slight scale, glow effect, color shift). Text: "Begin Audit" or similar. On click → navigate to login/signup flow.
+Footer: Minimal. Copyright, maybe a link to docs or GitHub repo. Nothing that distracts.
+
+Design Language:
+
+Color Palette: Dark mode primary (near-black background #0a0e27), accent colors (electric blue #00d9ff, soft purple #a78bfa), with glassmorphism overlays (semi-transparent white/blue on darker backgrounds).
+Typography: Bold, modern serif or sans-serif combo (Geist or similar). Large headings (48-64px), readable body text (16-18px).
+Glassmorphism: All cards, buttons, and overlays should use frosted-glass effects — backdrop-filter: blur(10px) with semi-transparent backgrounds. This is not optional, it's the aesthetic.
+Spacing & Grid: Generous whitespace. 8px base grid. Align everything to a clean 12-column grid.
+Animations: All transitions should be smooth (300-400ms easing). Hover states should feel responsive but not overdone. Loading states should use subtle Framer Motion spinners or skeleton screens, never jarring jumps.
+
+2. Login / Signup Page
+
+Simple, centered, minimal. Reuse the glassmorphism design from the landing page.
+Email input, password input (with show/hide toggle), and a single CTA button.
+Link to forgot password / sign up (whichever the user isn't on).
+Optional: "Sign in with GitHub" button to make things faster.
+Keep it elegant and fast — no unnecessary flourishes.
+
+3. Onboarding Flow (OOTB Experience)
+This is the "get to know the user" phase described in the README. Multi-step form with smooth transitions between steps.
+
+Step 1: Name, Age, Occupation (with radio buttons or dropdown: Student / Professional / Freelancer / Other).
+Step 2: Tech Stack Selection (multi-select checkboxes: Python, JavaScript, Rust, Go, Java, C++, etc.). This informs the AI's audit tone later.
+Step 3: Resume / Skills Input (text area for pasting resume text, or file upload for PDF/DOCX). Optional LinkedIn profile link.
+Step 4: GitHub Setup (GitHub username for public repos, or optional PAT for private repos, with clear warnings about security).
+Progress Indicator: A horizontal progress bar at the top showing which step the user is on (1/4, 2/4, etc.). Use Framer Motion to animate the bar filling as they progress.
+Transitions: As the user moves between steps, fade out the current step and fade in the next with a subtle slide animation. Make it feel fluid, not clunky.
+
+4. Dashboard / Scan Results Page
+This is where the magic happens after the user submits their GitHub username.
+
+Left Sidebar: Repo list (scrollable, with repo names, language tags, last scan date). Highlight the currently-selected repo. On hover, show a quick "scan" button.
+Main Content Area:
+
+Scan Status / Progress: If a scan is in progress, show a beautiful progress indicator with real-time updates (using WebSocket streaming from the backend). Animate repo names as they're being analyzed. Maybe a checkmark appears next to each repo as it finishes.
+Results Display (Post-Scan): Organized tabs or sections for:
+
+Overview: Summary stats (complexity score, security issues found, architecture notes).
+Code Quality: Detailed findings (bugs, code smells, maintainability issues).
+Security: Vulnerabilities, with severity badges (critical, high, medium, low).
+Architecture: Pros and cons of the codebase structure.
+Skills Cross-Reference: Side-by-side comparison of stated skills (from resume/LinkedIn) vs. actual code complexity. Highlight mismatches in a friendly but honest way.
+
+
+File Tree & Snippets: Expandable file tree on the left showing repo structure. On click, display the relevant code snippet with syntax highlighting. Use Framer Motion to animate the snippet appearing/disappearing.
+Animations: As results load, use staggered animations (each result item fades in slightly delayed). Charts and graphs should animate in when they first appear (bars growing, pie slices appearing, etc.).
+
+
+
+5. Settings / Profile Page
+
+User profile info (name, email, occupation, tech stack).
+GitHub token management (revoke, update PAT if needed).
+Preferences (scan frequency, email alerts, etc.).
+Sign out button.
+Clean, organized, minimal. No surprises.
+
+General Animation & Interaction Rules:
+
+Page Transitions: Fade in/out, or slide slightly on X-axis. Keep it smooth (300-400ms). Don't be disorienting.
+Button Interactions: Hover → slight scale (1.05x), color shift, maybe a subtle glow. Active → held scale (0.98x). Click → quick feedback (color flash or ripple).
+Loading States: Use Framer Motion spinners or animated skeleton screens. Never show a blank page.
+Error States: If something fails, show a toast notification (top-right, glassmorphic card) with a clear message and a retry button.
+Responsive Design: Mobile-first. Stack sidebar under main content on screens < 768px. Keep touch targets at least 48px. Test on iPhone, iPad, desktop.
+
+What NOT to Do:
+
+No bloated animations that slow things down.
+No dark mode toggle — go full dark mode from the start (it's on-brand).
+No cluttered navigation. Every page should have a clear, single focal point.
+No placeholder text or "coming soon" sections. Everything built should be functional.
+
+Deliverables:
+
+Full Next.js project structure with all pages and components.
+Framer Motion animations for all transitions and micro-interactions.
+TailwindCSS styled components with glassmorphism design tokens (usable across the whole app).
+Responsive design (mobile, tablet, desktop).
+TypeScript types for all components.
+A components/ folder organized by feature (Onboarding, Dashboard, Settings, etc.).
+A hooks/ folder for custom React hooks (useAuth, useScan, etc.).
+Placeholder API calls (using TanStack Query) to the backend (we'll wire up the real backend later).
+
+Questions for you before we finalize:
+
+Splash page tone: Should the headline be more technical ("Audit Your Repositories") or more aspirational ("Know Your Code")? Which feels more you?
+Color accent: Electric blue (#00d9ff) or should we explore a different accent color (neon green, purple, etc.)?
+File display: In the dashboard, do you want to show full file snippets or just highlights (key lines with issues)? Storage/performance tradeoff.
+Scan animations: As the backend scans repos, should we show repo names being "processed" with checkmarks, or a single progress bar, or both?
+Skills comparison: How harsh should the skill-vs-code comparison be? Honest and direct, or softened with encouraging language?

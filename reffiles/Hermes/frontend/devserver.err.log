@@ -1,0 +1,24 @@
+(node:7108) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:7108) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:7108) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+ERROR in src/App.test.tsx:3:17
+TS2307: Cannot find module './App' or its corresponding type declarations.
+  [0m [90m 1 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+   [90m 2 |[39m [36mimport[39m { render[33m,[39m screen } [36mfrom[39m [32m'@testing-library/react'[39m[33m;[39m
+  [31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m [33mApp[39m [36mfrom[39m [32m'./App'[39m[33m;[39m
+   [90m   |[39m                 [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+   [90m 4 |[39m
+   [90m 5 |[39m test([32m'renders the Hermes workspace shell'[39m[33m,[39m () [33m=>[39m {
+   [90m 6 |[39m   render([33m<[39m[33mApp[39m [33m/[39m[33m>[39m)[33m;[39m[0m
+
+ERROR in src/index.tsx:4:17
+TS2307: Cannot find module './App' or its corresponding type declarations.
+  [0m [90m 2 |[39m [36mimport[39m [33mReactDOM[39m [36mfrom[39m [32m'react-dom/client'[39m[33m;[39m
+   [90m 3 |[39m [36mimport[39m [32m'./index.css'[39m[33m;[39m
+  [31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m [33mApp[39m [36mfrom[39m [32m'./App'[39m[33m;[39m
+   [90m   |[39m                 [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+   [90m 5 |[39m [36mimport[39m reportWebVitals [36mfrom[39m [32m'./reportWebVitals'[39m[33m;[39m
+   [90m 6 |[39m
+   [90m 7 |[39m [36mconst[39m root [33m=[39m [33mReactDOM[39m[33m.[39mcreateRoot([0m
+

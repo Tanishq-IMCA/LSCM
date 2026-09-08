@@ -1,0 +1,38 @@
+solar_predictive_project/
+│
+├── backend/                              # Python Backend (Modules 1 & 2)
+│   ├── data/
+│   │   ├── generator.py                  # Module 1: Script to generate the realistic CSVs
+│   │   ├── training_data.csv             # Generated CSV for training the model
+│   │   └── dashboard_data.csv            # Generated CSV for the dashboard display
+│   │
+│   ├── model/
+│   │   ├── train_model.py                # Module 2: Script to train the Random Forest/Time-series model
+│   │   └── saved_model.pkl               # The exported, trained model
+│   │
+│   ├── api/
+│   │   ├── app.py                        # FastAPI/Flask server connecting the model to the frontend
+│   │   └── requirements.txt              # Python dependencies (pandas, scikit-learn, flask, etc.)
+│   │
+│   └── utils/
+│       └── helpers.py                    # Helper functions for data cleaning and formatting
+│
+├── frontend/                             # React Frontend (Module 3)
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── assets/                       # Images, icons, background for glassmorphism
+│   │   ├── components/
+│   │   │   ├── DashboardLayout.jsx       # Main glassmorphism container
+│   │   │   ├── EnergyChart.jsx           # The actual chart component (handles dotted lines & red zones)
+│   │   │   └── FilterButtons.jsx         # Buttons for Day/Week/Month filtering
+│   │   │
+│   │   ├── styles/
+│   │   │   └── main.css                  # CSS for glassmorphism and minimal rounded edges
+│   │   │
+│   │   ├── App.jsx                       # Main React application file
+│   │   └── index.js                      # React entry point
+│   │
+│   └── package.json                      # Node.js dependencies (react, chart.js, axios, etc.)
+│
+└── README.md                             # Project setup instructions

@@ -1,0 +1,216 @@
+2026-07-13T15:49:41Z info: Deployment: 3788d2e2-d20e-457e-9810-3407a04e3341
+2026-07-13T15:49:41Z info: Build: fa5b4afa-7c8f-4b6c-a40c-b0eda460ad35
+2026-07-13T15:49:43Z info: Running Security Scan
+2026-07-13T15:49:46Z info: Installing packages
+--> pnpm install
+
+Lockfile is up to date, resolution step is skipped
+
+Progress: resolved 1, reused 0, downloaded 0, added 0
+
+Packages: +154
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+   ╭──────────────────────────────────────────╮
+   │                                          │
+   │   Update available! 10.26.1 → 11.12.0.   │
+   │   Changelog: https://pnpm.io/v/11.12.0   │
+   │     To update, run: pnpm add -g pnpm     │
+   │                                          │
+   ╰──────────────────────────────────────────╯
+
+
+Progress: resolved 154, reused 0, downloaded 26, added 26
+
+Progress: resolved 154, reused 0, downloaded 29, added 29
+
+Progress: resolved 154, reused 0, downloaded 35, added 35
+
+Progress: resolved 154, reused 0, downloaded 41, added 40
+
+Progress: resolved 154, reused 0, downloaded 47, added 47
+
+Progress: resolved 154, reused 0, downloaded 48, added 47
+
+Progress: resolved 154, reused 0, downloaded 50, added 50
+
+Progress: resolved 154, reused 0, downloaded 53, added 53
+
+Progress: resolved 154, reused 0, downloaded 72, added 72
+
+Progress: resolved 154, reused 0, downloaded 85, added 85
+
+Progress: resolved 154, reused 0, downloaded 87, added 87
+
+Progress: resolved 154, reused 0, downloaded 88, added 87
+
+Progress: resolved 154, reused 0, downloaded 88, added 88
+
+Progress: resolved 154, reused 0, downloaded 94, added 94
+
+Progress: resolved 154, reused 0, downloaded 95, added 94
+
+Progress: resolved 154, reused 0, downloaded 95, added 95
+
+Progress: resolved 154, reused 0, downloaded 98, added 98
+
+Progress: resolved 154, reused 0, downloaded 111, added 109
+
+Progress: resolved 154, reused 0, downloaded 132, added 132
+
+Progress: resolved 154, reused 0, downloaded 133, added 133
+
+2026-07-13T15:50:13Z info: Security Scan Complete
+Progress: resolved 154, reused 0, downloaded 134, added 133
+
+Progress: resolved 154, reused 0, downloaded 135, added 135
+
+Progress: resolved 154, reused 0, downloaded 136, added 136
+
+Progress: resolved 154, reused 0, downloaded 137, added 136
+
+Progress: resolved 154, reused 0, downloaded 138, added 138
+
+Progress: resolved 154, reused 0, downloaded 139, added 139
+
+Progress: resolved 154, reused 0, downloaded 144, added 144
+
+Progress: resolved 154, reused 0, downloaded 150, added 150
+
+Progress: resolved 154, reused 0, downloaded 151, added 150
+
+Progress: resolved 154, reused 0, downloaded 151, added 151
+
+Progress: resolved 154, reused 0, downloaded 152, added 152
+
+Progress: resolved 154, reused 0, downloaded 153, added 152
+
+Progress: resolved 154, reused 0, downloaded 154, added 154, done
+
+
+dependencies:
++ eslint 10.7.0
++ jszip 3.10.1
++ mammoth 1.12.0
++ pdfjs-dist 4.0.379
+
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: canvas@2.11.2.                                      │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 40.7s using pnpm v10.26.1
+
+--> uv lock
+
+--> uv lock
+
+Using CPython 3.12.12 interpreter at: /nix/store/sj74dzrygwdxpb54fv7zc6ry75ay4f3n-python-wrapped-0.1.0/bin/python3
+
+Using CPython 3.12.12 interpreter at: /nix/store/sj74dzrygwdxpb54fv7zc6ry75ay4f3n-python-wrapped-0.1.0/bin/python3
+
+Resolved 10 packages in 0.77ms
+
+Resolved 10 packages in 0.77ms
+
+--> uv sync
+
+--> uv sync
+
+Using CPython 3.12.12 interpreter at: /nix/store/sj74dzrygwdxpb54fv7zc6ry75ay4f3n-python-wrapped-0.1.0/bin/python3
+
+Using CPython 3.12.12 interpreter at: /nix/store/sj74dzrygwdxpb54fv7zc6ry75ay4f3n-python-wrapped-0.1.0/bin/python3
+
+Creating virtual environment at: .pythonlibs
+
+Creating virtual environment at: .pythonlibs
+
+Resolved 10 packages in 0.50ms
+
+Resolved 10 packages in 0.50ms
+
+Downloading ruff (11.0MiB)
+
+Downloading ruff (11.0MiB)
+
+Downloading pygments (1.2MiB)
+
+Downloading pygments (1.2MiB)
+
+ Downloading pygments
+
+ Downloading pygments
+
+ Downloading ruff
+
+ Downloading ruff
+
+Prepared 8 packages in 393ms
+
+Prepared 8 packages in 393ms
+
+Installed 8 packages in 18ms
+
+Installed 8 packages in 18ms
+
+ + bandit==1.9.4
+ + markdown-it-py==4.2.0
+ + mdurl==0.1.2
+ + pygments==2.20.0
+ + pyyaml==6.0.3
+ + rich==15.0.0
+ + ruff==0.
+ + bandit==1.9.4
+ + markdown-it-py==4.2.0
+ + mdurl==0.1.2
+ + pygments==2.20.0
+ + pyyaml==6.0.3
+ + rich==15.0.0
+ + ruff==0.
+15.21
+ + stevedore==5.9.0
+
+15.21
+ + stevedore==5.9.0
+
+2026-07-13T15:50:30Z info: Starting Build
+
+> reposight-frontend@0.1.0 build
+> next build
+
+
+ ⚠ You are using a non-standard "NODE_ENV" value in your environment. This creates inconsistencies in the project and is strongly advised against. Read more: https://nextjs.org/docs/messages/non-standard-node-env
+
+   ▲ Next.js 15.5.20
+
+   Creating an optimized production build ...
+
+ ✓ Compiled successfully in 15.5s
+
+   Linting and checking validity of types ...
+
+   Collecting page data ...
+
+   Generating static pages (0/9) ...
+
+Error: <Html> should not be imported outside of pages/_document.
+Read more: https://nextjs.org/docs/messages/no-document-import-in-page
+    at x (.next/server/chunks/611.js:6:1351)
+Error occurred prerendering page "/404". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: <Html> should not be imported outside of pages/_document.
+Read more: https://nextjs.org/docs/messages/no-document-import-in-page
+    at x (.next/server/chunks/611.js:6:1351)
+Export encountered an error on /_error: /404, exiting the build.
+
+ ⨯ Next.js build worker exited with code: 1 and signal: null
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 12.0.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.1
+npm notice To update run: npm install -g npm@12.0.1
+npm notice

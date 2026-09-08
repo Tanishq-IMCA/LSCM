@@ -1,0 +1,53 @@
+
+
+this is the prompt i added when iw as working before. the previous repl.it agent ran outta credits before it could finish the job. so it got interrupted halfway. do me a favour and see where he got interrupted and pick up where it left off.
+
+also im still getting the error of imnx artifact crashed it says. happened when loading the page for landing.
+
+imnx artifact crashed it says. happened when loading the page for landing.
+
+Prompt given before begins: 
+clicking on reposight when logged in logsus out as it take sus ot the dashboard rather than showing a user card or something.
+
+Refer to the one in imnx old project in attached assets for a good accurate depiction. maybe even use code from there as the layout is identical.
+
+for saving tech stack in settings user it says save failed http 400.
+
+adding resume in user profile settings instantly redirectsus to education page while not even adding anything in it.
+
+it should do loading bar animation within its tile as planned...
+
+then show inputting fields... or js tiles fading in view as the info is added...
+
+if info already exists then move onto to what isnt added...
+
+when adding over existing info it should ask overrite or update prompt in user settings...
+
+if uploaded resume looks nothing like resume it should throw the Wrong file message we discussed earlier.
+
+i tried throwing a random pdf or sum.. it didnt say shit and js accepted it too.. didnt add anything either when i did add a resume.
+
+This is the case in signed in user profile settings panel.
+
+not sure abt onboarding..
+the sign in button header is fucked up btw.
+
+adding resume in user profile settings instantly redirectsus to education page while not even adding anything in it.
+
+it should do loading bar animation within its tile as planned...
+
+then show inputting fields... or js tiles fading in view as the info is added...
+
+if info already exists then move onto to what isnt added...
+
+when adding over existing info it should ask overrite or update prompt in user settings...
+
+if uploaded resume looks nothing like resume it should throw the Wrong file message we discussed earlier.
+
+i tried throwing a random pdf or sum.. it didnt say shit and js accepted it too.. didnt add anything either when i did add a resume.
+
+This is the case in signed in user profile settings panel.
+
+
+
+not sure abt onboarding..

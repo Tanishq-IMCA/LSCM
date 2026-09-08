@@ -1,0 +1,221 @@
+/* Reset default margins and prevent scrolling */
+@font-face {
+  font-family: 'Bourgeois';
+  src: url('./assets/fonts/Bourgeois-Book.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*
+  ======================================================
+  CSS VARIABLES (Theme Configuration)
+  ======================================================
+*/
+:root {
+  --accent-color: #888888; /* Changed from orange to a sleek, neutral gray */
+  --accent-glow: rgba(136, 136, 136, 0.4);
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* A dark fallback background before the canvas loads */
+  background-color: #0a0a0a;
+
+  /*
+    CUSTOM CURSOR SETUP
+    Using the custom provided cursors.
+  */
+  cursor: url('./assets/cursors/Cursor Normal.png') 0 0, auto;
+}
+
+/* Also apply the custom pointer cursor when hovering over interactive elements */
+a, button, [role="button"], input[type="submit"], input[type="button"], .clickable {
+  cursor: url('./assets/cursors/Cursor Point.png') 0 0, pointer;
+}
+
+/*
+  Fallback for Webkit browsers to force cursor scaling if the native url() fails to scale
+*/
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  body, html {
+      cursor: -webkit-image-set(url('./assets/cursors/Cursor Normal.png') 1x) 0 0, auto;
+  }
+  a, button, [role="button"], input[type="submit"], input[type="button"], .clickable {
+      cursor: -webkit-image-set(url('./assets/cursors/Cursor Point.png') 1x) 0 0, pointer;
+  }
+}
+
+
+#root {
+  /* Ensure the React root sits on top of the fixed canvas */
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/*
+  ======================================================
+  GLOBAL GLASS MORPHISM SYSTEM
+  ======================================================
+*/
+.glass-panel {
+  /* Dynamic sizing so it can be used for any component */
+  width: 100%;
+  height: 100%;
+
+  /* Core Glass Properties - Locked to perfectly transparent settings */
+  background: transparent;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  border-radius: 20px;
+
+  /* Borders and Shadows */
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.01),
+    inset 0 0 20px 10px rgba(255, 255, 255, 0.005);
+
+  position: relative;
+  overflow: hidden;
+
+  color: white;
+  font-family: sans-serif;
+}
+
+/* The top horizontal light glare - Universal */
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  pointer-events: none; /* Ensure glares don't block clicks */
+}
+
+/* The left vertical light glare - Universal */
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15),
+    transparent,
+    rgba(255, 255, 255, 0.02)
+  );
+  pointer-events: none; /* Ensure glares don't block clicks */
+}
+
+/*
+  Specific layout class for the initial boot screen
+*/
+.boot-card {
+  width: 400px;
+  height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.title-font {
+  font-family: 'Bourgeois', sans-serif;
+  text-transform: uppercase;
+}
+
+/*
+  ======================================================
+  NEXUS TITLE ANIMATIONS
+  ======================================================
+*/
+.title-underline-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+}
+
+.dashboard-title {
+  font-size: 2.5rem;
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: rgba(211, 211, 211, 0.65); /* Base text visibility */
+  text-transform: uppercase;
+  width: fit-content;
+  position: relative;
+  display: inline-block;
+  margin: 0;
+}
+
+/* The Shine Effect on the Text */
+.dashboard-title::after {
+  content: "MATRIX OS";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(110deg, transparent 49%, rgba(255, 255, 255, 1) 50%, transparent 51%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine-text 12s infinite linear;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+}
+
+@keyframes shine-text {
+  0% { background-position: 250% 0; }
+  100% { background-position: -150% 0; }
+}
+
+/* The Glowing Animated Line Below */
+.themed-wave-line {
+  width: 100%;
+  height: 4px;
+  background: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-glow);
+  margin-top: 5px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.themed-wave-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,1) 50%, transparent 60%);
+  animation: wave-slide 12s infinite linear;
+  display: block;
+}
+
+@keyframes wave-slide {
+  0% { transform: translateX(-200%); }
+  100% { transform: translateX(200%); }
+}
