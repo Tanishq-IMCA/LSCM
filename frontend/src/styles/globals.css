@@ -205,8 +205,9 @@ body::-webkit-scrollbar { display: none; }
   height: 100%;
   object-fit: cover;
   opacity: 0.48;
-  filter: saturate(0.78) contrast(1.08);
-  transition: opacity 350ms ease;
+  transform: scale(1.06);
+  filter: blur(18px) saturate(0.72) contrast(1.05);
+  transition: opacity 350ms ease, filter 350ms ease;
   pointer-events: none;
 }
 
