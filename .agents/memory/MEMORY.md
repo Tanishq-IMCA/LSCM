@@ -1,1 +1,2 @@
 - [Preview UI mode](preview-ui-mode.md) — DevAudit frontend is intentionally self-contained while auth and backend services are deferred.
+- [Nested frontend installs](nested-frontend-installs.md) — Imported apps with a frontend package root need dependencies installed from that nested directory.
