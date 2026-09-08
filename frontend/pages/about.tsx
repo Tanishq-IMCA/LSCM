@@ -476,7 +476,7 @@ export default function AboutPage() {
             className="text-[10px] uppercase tracking-[0.44em] mb-5"
             style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}
           >
-            About RepoSight
+            About LSCM
           </motion.p>
           <motion.h1
             custom={1}
@@ -500,7 +500,7 @@ export default function AboutPage() {
             className="mt-7 max-w-2xl text-sm leading-7 text-white/40"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            RepoSight is an AI-powered developer audit platform. It scans your GitHub repositories,
+              LSCM is an independent GTA V modding community. We coordinate account services,
             measures code quality, security exposure and complexity, then cross-references your
             actual work against the skills you claim. The result is an honest, evidence-based
             assessment of where you stand — and where to improve.
@@ -542,13 +542,13 @@ export default function AboutPage() {
             className="space-y-5"
           >
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
-              We believe static analysis should not be reserved for enterprise teams. RepoSight
+              We believe premium GTA V services should feel clear and community-led. LSCM
               brings production-grade auditing to individual developers, students and hiring teams
               — with clear severity levels, real-time scan progress, and exportable reports.
             </p>
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
               The problem is simple: resumes lie, portfolios are curated, and interviewers rarely
-              have time to read real code. RepoSight solves this by reading the code for them,
+              have time to search through confusing service menus. LSCM solves this with a clear catalogue,
               surfacing bugs, architectural patterns and security risks in seconds.
             </p>
           </motion.div>
@@ -578,7 +578,7 @@ export default function AboutPage() {
               className="text-2xl md:text-4xl text-white tracking-[0.07em] uppercase"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              <GlitchyText text="How RepoSight was made" />
+              <GlitchyText text="How LSCM operates" />
             </h2>
           </motion.div>
           <motion.div
@@ -589,7 +589,7 @@ export default function AboutPage() {
             className="space-y-5"
           >
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
-              RepoSight was built as a full-stack audit pipeline. A Next.js frontend handles the user experience and dashboard, while an Express backend powered by Prisma and PostgreSQL manages authentication, repository metadata, and scan state. GitHub OAuth and PAT flows allow users to import repositories without storing source code — only metadata and scan results are persisted.
+              LSCM is operated as an independent community. Management coordinates service availability, confirms requests, and supports members through the community Discord. The store is a catalogue only for now; no cart or automated checkout is active.
             </p>
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
               The analysis engine combines deterministic static checks with an AI summary layer. It measures complexity, security exposure, and maintainability across the repository, then cross-references the findings against the skills listed in the developer profile. The result is an evidence-based audit that highlights strengths, exposes gaps, and produces a professional, exportable report.
@@ -679,9 +679,8 @@ export default function AboutPage() {
             </span>
           </h2>
           <p className="text-sm leading-7 text-white/35" style={{ fontFamily: "var(--font-body)" }}>
-            RepoSight is a self-funded, independent project. We are shipping features fast, keeping the
-            design minimal, and making the audit experience honest. If you want to follow the build,
-            reach out — we read every email.
+            LSCM is an independent community built around custom GTA V services, clear communication and
+            support that stays close to the players. Join the Discord to follow availability and request help.
           </p>
           <Link
             href="/"

@@ -89,6 +89,14 @@ const sections = [
   },
 ];
 
+const displaySections = sections.map(section => ({
+  ...section,
+  content: section.content
+    .replaceAll('REPOSIGHT', 'LSCM')
+    .replaceAll('repository analysis', 'service coordination')
+    .replaceAll('repository audit', 'service request'),
+}));
+
 export default function LegalPage() {
   const { scrollYProgress } = useScroll();
   const fillHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
@@ -101,11 +109,11 @@ export default function LegalPage() {
           className="absolute top-0 left-0 w-full bg-[var(--accent)]"
           style={{ height: fillHeight, borderRadius: '1px' }}
         />
-        {sections.map((section, i) => (
+        {displaySections.map((section, i) => (
           <div
             key={section.title}
             className="absolute left-0 w-full h-[1px] bg-white/30"
-            style={{ top: `${(i / (sections.length - 1)) * 100}%` }}
+            style={{ top: `${(i / (displaySections.length - 1)) * 100}%` }}
           />
         ))}
       </div>
@@ -138,7 +146,7 @@ export default function LegalPage() {
           className="mt-6 text-sm leading-7 text-white/40"
           style={{ fontFamily: 'var(--font-body)' }}
         >
-          The following documents govern your access to and use of the REPOSIGHT platform. By using this site, creating an account, or initiating a repository audit, you agree to be bound by these terms and all applicable intellectual property protections described herein. Please read these documents carefully before proceeding.
+          The following documents govern your access to and use of the LSCM community services. By using this site, browsing the catalogue, or requesting a service, you agree to be bound by these terms. Please read these documents carefully before proceeding.
         </motion.p>
       </section>
 
@@ -148,7 +156,7 @@ export default function LegalPage() {
 
       <section className="max-w-4xl mx-auto px-6 py-20">
         <div className="space-y-16">
-          {sections.map((section, i) => (
+          {displaySections.map((section, i) => (
             <motion.div
               key={section.title}
               initial={{ opacity: 0, y: 20 }}
@@ -175,8 +183,8 @@ export default function LegalPage() {
               </div>
               {i === 0 ? (
                 <div className="text-sm leading-7 text-red-400/90" style={{ fontFamily: 'var(--font-body)' }}>
-                  <p>REPOSIGHT is a proprietary software platform developed, operated, and maintained by Tanishq Giri under the IMCA (Software, Game & Server Solutions) business entity. The entire codebase, including but not limited to the Next.js frontend application, the Express backend API, the Prisma database schema, the PostgreSQL data layer, all analysis algorithms, scanner integrations, user-interface designs, brand assets, documentation, and any derivative works, is the exclusive intellectual property of Tanishq Giri and IMCA. All rights are reserved worldwide and in perpetuity.</p>
-                  <p className="mt-4">No individual, organization, or automated system is granted any license, express or implied, to use, reproduce, distribute, modify, decompile, reverse-engineer, translate, create derivative works from, sublicense, sell, rent, lease, or otherwise exploit any portion of the REPOSIGHT platform, its code, its architecture, or its visual identity without the prior written consent of the owner.</p>
+                  <p>LSCM is an independent GTA V modding community operated by its management team. It is not affiliated with, endorsed by, or sponsored by Rockstar Games or Take-Two Interactive.</p>
+                  <p className="mt-4">The LSCM name, catalogue, graphics, copy and service operations are proprietary to the community. Do not copy, redistribute or impersonate the community or its operators.</p>
                   <p className="mt-4">
                     <span
                       className="underline decoration-red-400/40 underline-offset-2"

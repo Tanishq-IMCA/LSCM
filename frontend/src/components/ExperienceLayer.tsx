@@ -56,7 +56,7 @@ export default function ExperienceLayer() {
 
   return (
     <>
-      <audio ref={musicRef} src="/bg.mp4" loop preload="auto" aria-hidden="true" />
+      <audio ref={musicRef} src="/lscm-theme.mp3" loop preload="auto" aria-hidden="true" />
       <audio ref={clickRef} src="/click.mp3" preload="auto" aria-hidden="true" />
       {!isHidden && (
         <div className={`loader-screen ${isFading ? 'loader-screen--fading' : ''}`} aria-label="Loading LSCM">
@@ -70,14 +70,14 @@ export default function ExperienceLayer() {
             preload="auto"
           />
           <div className="loader-screen__shade" />
-          <div className="loader-screen__brand">
-            <span className="loader-screen__eyebrow">LSCM // LOS SANTOS CAR MODDERS</span>
-            <strong>NEO</strong>
-            <span className="loader-screen__status">LOADING COMMUNITY SERVICES</span>
-          </div>
           <div className="loader-screen__progress">
+            <div className="loader-screen__brand">
+              <span className="loader-screen__eyebrow">LSCM // LOS SANTOS CAR MODDERS</span>
+              <strong>WE ARE LSCM</strong>
+              <span className="loader-screen__status">STACKED ACCOUNTS // MODDED BUILDS // COMMUNITY FIRST</span>
+            </div>
             <div className="loader-screen__progress-meta">
-              <span>INITIALIZING</span>
+              <span>LOADING THE CITY</span>
               <span>{Math.round(progress).toString().padStart(3, '0')}%</span>
             </div>
             <div className="loader-screen__bar">

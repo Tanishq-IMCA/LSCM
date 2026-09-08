@@ -1,2 +1,3 @@
 - [Preview UI mode](preview-ui-mode.md) — DevAudit frontend is intentionally self-contained while auth and backend services are deferred.
 - [Nested frontend installs](nested-frontend-installs.md) — Imported apps with a frontend package root need dependencies installed from that nested directory.
+- [Dev/build cache overlap](dev-build-cache-overlap.md) — Running Next dev and production build concurrently can corrupt .next and requires one clean workflow restart.

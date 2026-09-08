@@ -12,6 +12,30 @@ import { LegalCyclingText } from '@/components/Landing/LegalCyclingText';
 import GlitchyText from '@/components/ui/GlitchyText';
 
 export default function AuthPage() {
+  return (
+    <main className="min-h-screen flex items-center justify-center px-6 py-20" style={{ fontFamily: 'var(--font-display)' }}>
+      <div className="glass-panel w-full max-w-lg p-8 text-center md:p-12">
+        <p className="text-[10px] uppercase tracking-[0.42em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>
+          LSCM // COMMUNITY ACCESS
+        </p>
+        <h1 className="mt-6 text-4xl uppercase tracking-[0.1em] text-white md:text-6xl">Join through Discord</h1>
+        <p className="mx-auto mt-5 max-w-md text-sm leading-7 text-white/45" style={{ fontFamily: 'var(--font-body)' }}>
+          Account sign-in is not part of the community experience yet. Join the Discord to view availability, receive support and coordinate services with management.
+        </p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a href="https://discord.com" target="_blank" rel="noreferrer" className="px-6 py-3 text-[10px] uppercase tracking-[0.24em] text-black" style={{ backgroundColor: 'var(--accent)' }}>
+            Open Discord
+          </a>
+          <Link href="/" className="border border-white/[0.12] px-6 py-3 text-[10px] uppercase tracking-[0.24em] text-white/60 transition hover:border-white/30 hover:text-white">
+            Back to homepage
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function LegacyAuthPage() {
   const router = useRouter();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [showPassword, setShowPassword] = useState(false);

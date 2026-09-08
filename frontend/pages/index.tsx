@@ -16,10 +16,10 @@ import { MacWindow } from "@/components/Landing/MacWindow";
 // ─── DATA ───────────────────────────────────────────────────────────────────
 
 const CLI_LINES = [
-  { text: "> reposight audit engine v1.0.0", delay: 0 },
-  { text: "> connecting to github api...", delay: 350 },
-  { text: "> neural analysis modules loaded", delay: 700 },
-  { text: "> all systems nominal ✓", delay: 1050, accent: true },
+  { text: "> lscm community system v1.0.0", delay: 0 },
+  { text: "> connecting to management...", delay: 350 },
+  { text: "> service catalogue loaded", delay: 700 },
+  { text: "> all systems ready ✓", delay: 1050, accent: true },
 ];
 
 const SAMPLE_SCORES = [
@@ -105,11 +105,11 @@ function FeatureVisual({ type }: { type: string }) {
           className="absolute inset-0 p-3 text-[7px] leading-4"
           style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}
         >
-          <div>{"const audit = new"}</div>
-          <div>{"  RepoSight(repo);"}</div>
-          <div className="opacity-50">{"await audit.analyze({"}</div>
-          <div className="opacity-50">{"  deep: true"}</div>
-          <div className="opacity-50">{"});"}</div>
+      <div>{"const crew = new"}</div>
+      <div>{"  LSCMService();"}</div>
+      <div className="opacity-50">{"await crew.prepare({"}</div>
+      <div className="opacity-50">{"  custom: true"}</div>
+      <div className="opacity-50">{"});"}</div>
         </div>
       </div>
     );
@@ -430,10 +430,10 @@ export default function LandingPage() {
               <div className="mb-7">
                 <TypewriterHeadline
                   phrases={[
-                    "YOUR CODE. NOWHERE TO HIDE.",
-                    "AUDIT YOUR CRAFT.",
-                    "SCAN THE UNSEEN.",
-                    "PROVE THE WORK.",
+                    "WE ARE LSCM.",
+                    "STACK THE ACCOUNT.",
+                    "MOD THE MOMENT.",
+                    "RUN THE CITY.",
                   ]}
                   className="block leading-[1.04] tracking-[0.04em] uppercase"
                   style={{
@@ -458,15 +458,14 @@ export default function LandingPage() {
                     color: "var(--accent)",
                   }}
                 >
-                  AI-Powered Repository Audit
+                   GTA V MODDING COMMUNITY
                 </p>
                 <p
                   className="text-sm text-white/32 leading-[1.8] max-w-md"
                   style={{ fontFamily: "var(--font-body)" }}
                 >
-                  Static analysis across every line. Honest skill assessment
-                  against your actual commit history. Security findings that
-                  matter. Know what your codebase really says about you.
+                   Account boosts, custom modded builds, premium heists and VIP
+                   access — coordinated through the LSCM community.
                 </p>
               </motion.div>
 
@@ -489,7 +488,7 @@ export default function LandingPage() {
                   >
                     <polygon points="5,3 19,12 5,21" />
                   </svg>
-                  Begin Free Audit
+                   Explore Services
                 </AccentButton>
 
                 <GhostButton
@@ -568,7 +567,7 @@ export default function LandingPage() {
                 Capabilities
               </p>
               <GlitchyText
-                text="WHAT WE EXPOSE"
+                 text="WHAT WE OFFER"
                 as="h2"
                 className="text-4xl md:text-6xl text-white tracking-[0.07em] uppercase"
                 style={
@@ -579,8 +578,8 @@ export default function LandingPage() {
                 className="text-sm text-white/28 leading-relaxed max-w-lg mt-4"
                 style={{ fontFamily: "var(--font-body)" }}
               >
-                Twelve dimensions of code quality, measured with the same tools
-                serious engineering teams use — not watered-down approximations.
+                 Practical GTA V services, custom requests and community support built
+                 for players who want more from every session.
               </p>
             </motion.div>
           </div>
@@ -612,7 +611,7 @@ export default function LandingPage() {
                 Process
               </p>
               <GlitchyText
-                text="THREE STEPS. FULL AUDIT."
+                 text="THREE STEPS. GET LOADED."
                 as="h2"
                 className="text-4xl md:text-6xl text-white tracking-[0.07em] uppercase"
                 style={
@@ -625,21 +624,21 @@ export default function LandingPage() {
             {[
               {
                 step: "01",
-                cmd: "$ connect --github",
-                title: "CONNECT",
-                desc: "Link your GitHub account and select repositories to include in the audit.",
+                 cmd: "$ join --discord",
+                 title: "JOIN THE CREW",
+                 desc: "Join the community Discord to receive service support and see what is available.",
               },
               {
                 step: "02",
-                cmd: "$ audit --deep",
-                title: "ANALYZE",
-                desc: "Our engine clones, analyzes, and scores your codebase across 12+ dimensions simultaneously.",
+                 cmd: "$ choose --service",
+                 title: "CHOOSE YOUR SERVICE",
+                 desc: "Pick an account boost, custom car build, heist preparation, add-on or VIP tier.",
               },
               {
                 step: "03",
-                cmd: "$ export --report",
-                title: "DELIVER",
-                desc: "Receive a detailed report and shareable dashboard link within 90 seconds.",
+                 cmd: "$ deliver --lscm",
+                 title: "GET IT DONE",
+                 desc: "Management confirms timing, coordinates delivery and keeps support close by.",
               },
             ].map((item, i) => (
               <motion.div
@@ -717,20 +716,20 @@ export default function LandingPage() {
               className="text-[10px] tracking-[0.44em] uppercase mb-8"
               style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}
             >
-              Get Started
+               Enter the community
             </p>
             <h2
               className="text-5xl md:text-7xl tracking-[0.05em] uppercase mb-10"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              <GlitchyText
-                text="READY TO SEE"
+               <GlitchyText
+                 text="READY TO RUN"
                 as="span"
                 triggerOnMount
                 className="text-white"
               />{" "}
               <GlitchyText
-                text="THE TRUTH?"
+                 text="THE CITY?"
                 as="span"
                 triggerOnMount
                 style={{ color: "var(--accent)" } as React.CSSProperties}
@@ -741,8 +740,8 @@ export default function LandingPage() {
                 className="text-sm text-white/28 mb-10 max-w-sm mx-auto text-center leading-relaxed"
                 style={{ fontFamily: "var(--font-body)" }}
               >
-                No credit card required. Scan up to 3 repositories for free.
-                Professional reports in under 90 seconds.
+                 Browse the catalogue, join the Discord and let management
+                 coordinate your service.
               </p>
               <AccentButton
                 onClick={() => router.push("/auth")}
@@ -756,7 +755,7 @@ export default function LandingPage() {
                 >
                   <polygon points="5,3 19,12 5,21" />
                 </svg>
-                Begin Free Audit
+                 Visit the Store
               </AccentButton>
             </div>
           </motion.div>

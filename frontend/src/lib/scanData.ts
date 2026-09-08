@@ -49,7 +49,7 @@ export const mockNeuralSearchScan: LastScan = {
       title: 'CORS Misconfiguration Allows Credential Theft',
       description: 'CORS is configured with `allow_origins=["*"]` and `allow_credentials=True` in src/api/middleware.py:44. This enables cross-origin credential theft from any domain.',
       file: 'src/api/middleware.py', line: 44, tool: 'Semgrep',
-      recommendation: 'Whitelist explicit origins: `allow_origins=["https://app.reposight.dev"]`. Remove wildcard when credentials are enabled. Add a preflight cache TTL of 600s.'
+      recommendation: 'Whitelist explicit origins for your community service domain. Remove wildcard access when credentials are enabled. Add a preflight cache TTL of 600s.'
     },
     {
       id: 'f6', severity: 'low' as SeverityLevel,

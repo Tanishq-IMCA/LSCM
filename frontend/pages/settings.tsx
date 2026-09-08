@@ -596,7 +596,7 @@ export default function SettingsPage() {
             </Link>
             <div className="w-px h-4 bg-white/[0.08]" />
             <a href="/" className="text-sm uppercase tracking-[0.22em] text-white/40 hover:text-white/70 transition-colors smooth-glow">
-              REPOSIGHT
+              LSCM
             </a>
             <div className="text-white/15 text-sm">·</div>
             <span className="text-[11px] uppercase tracking-[0.22em] text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>Settings</span>
@@ -678,7 +678,7 @@ export default function SettingsPage() {
                     <div>
                       <p className="text-sm text-white" style={{ fontFamily: 'var(--font-display)' }}>{name || 'Anonymous'}</p>
                       <p className="text-[11px] text-white/30 mt-0.5" style={{ fontFamily: 'var(--font-mono)' }}>
-                        {authUser?.email || 'demo@reposight.dev'}
+                        {authUser?.email || 'member@lscm.community'}
                       </p>
                     </div>
                   </div>
@@ -975,7 +975,7 @@ export default function SettingsPage() {
                             <label className="text-[10px] uppercase tracking-[0.28em] text-white/30 mb-1.5 block" style={{ fontFamily: 'var(--font-mono)' }}>Project Name</label>
                             <input type="text" value={proj.name}
                               onChange={e => updateProject(proj.id, { name: e.target.value })}
-                              placeholder="e.g. RepoSight" className={inputClass} />
+                              placeholder="e.g. LSCM" className={inputClass} />
                           </div>
                           <div className="col-span-2">
                             <label className="text-[10px] uppercase tracking-[0.28em] text-white/30 mb-1.5 block" style={{ fontFamily: 'var(--font-mono)' }}>URL</label>

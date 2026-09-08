@@ -686,12 +686,12 @@ function FileUploadZone({
         return;
       }
       const root = await picker();
-      const temp = await root.getDirectoryHandle('reposight-temp', { create: true });
+      const temp = await root.getDirectoryHandle('lscm-temp', { create: true });
       const perm = await temp.queryPermission({ mode: 'readwrite' });
       setWorkspaceHandle(temp);
       setWorkspacePermission(perm);
       await updateWorkspaceSize(temp);
-      showNotice('WORKSPACE READY', `Selected ${root.name}/reposight-temp`, 'success');
+      showNotice('WORKSPACE READY', `Selected ${root.name}/lscm-temp`, 'success');
     } catch (err) {
       if ((err as any).name === 'AbortError' || (err as any).name === 'NotAllowedError') {
         showNotice('PERMISSION NEEDED', 'Allow disk access in the browser prompt to use the temp folder.', 'error');
@@ -1284,7 +1284,7 @@ export default function DashboardPage() {
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/dashboard" className="text-sm uppercase tracking-[0.22em] text-white/50 hover:text-white transition-colors smooth-glow">
-              REPOSIGHT
+              LSCM
             </Link>
             <div className="w-px h-4 bg-white/[0.1]" />
             <div className="flex items-center gap-2 text-white/25">
@@ -1397,7 +1397,7 @@ export default function DashboardPage() {
                   No Repositories Found
                 </div>
                 <p className="text-xs text-white/25 mb-4" style={{ fontFamily: 'var(--font-body)' }}>
-                  Connect your GitHub account or use the Local Upload above to drop files directly into RepoSight.
+                  Connect a repository or use the Local Upload above to inspect files directly in the LSCM workspace.
                 </p>
                 <button
                   onClick={() => router.push('/settings')}
@@ -1475,7 +1475,7 @@ export default function DashboardPage() {
                   <div className="px-5 py-3.5 border-b border-white/[0.05] flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'var(--accent)' }} />
                     <span className="text-[11px] uppercase tracking-[0.28em] text-white/40" style={{ fontFamily: 'var(--font-mono)' }}>
-                      Audit Engine Active
+                      Service Engine Active
                     </span>
                   </div>
                   <div className="p-5 space-y-2">

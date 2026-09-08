@@ -70,7 +70,7 @@ function HeaderGhostBtn({ children, onClick }: { children: React.ReactNode; onCl
   );
 }
 
-const authLabels = ['Sign In', 'Login'];
+const authLabels = ['Community', 'Access'];
 
 function AlphaBadge() {
   const [hovered, setHovered] = useState(false);
@@ -84,7 +84,7 @@ function AlphaBadge() {
         className="text-[11px] uppercase tracking-[0.22em] text-red-500/80 hover:text-red-400 transition-colors cursor-help"
         style={{ fontFamily: 'var(--font-display)' }}
       >
-        BETA
+        LSCM
       </span>
       <AnimatePresence>
         {hovered && (
@@ -96,7 +96,7 @@ function AlphaBadge() {
             className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 p-3.5 border border-white/[0.12] bg-white/[0.08] backdrop-blur-xl text-white/70 text-[10px] leading-relaxed z-50 shadow-2xl pointer-events-none"
             style={{ fontFamily: 'var(--font-body)', borderRadius: '2px' }}
           >
-            Beta release — RepoSight is under active development. Features, APIs, and the user experience are subject to change as we iterate toward a stable release.
+            LSCM community hub — services, availability and support are coordinated through management.
           </motion.div>
         )}
       </AnimatePresence>
@@ -148,7 +148,7 @@ export function Header() {
             className="flex items-center gap-3 text-lg uppercase tracking-[0.3em] text-white cursor-pointer select-none"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            <GlitchyText text="REPOSIGHT" triggerOnMount delay={200} />
+            <GlitchyText text="LSCM" triggerOnMount delay={200} />
             <span className="relative inline-flex items-center h-5 w-[2px] overflow-hidden">
               <span className="absolute inset-0 bg-white/30" />
               <span
@@ -160,41 +160,41 @@ export function Header() {
           </Link>
 
           <div className="flex items-center gap-10">
-            <a
-              href="#features"
+            <Link
+              href="/#features"
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               Features
-            </a>
-            <a
-              href="#how"
+            </Link>
+            <Link
+              href="/#how"
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               How It Works
-            </a>
-            <a
+            </Link>
+            <Link
               href="/about"
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               About
-            </a>
-            <a
+            </Link>
+            <Link
               href="/store"
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               Store
-            </a>
-            <a
+            </Link>
+            <Link
               href="/legal"
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               <LegalCyclingText />
-            </a>
+            </Link>
 
             <div className="flex items-center gap-3">
               {mounted && isAuthenticated && user ? (
@@ -232,7 +232,7 @@ export function Header() {
                       </motion.span>
                     </AnimatePresence>
                   </HeaderGhostBtn>
-                  <HeaderAccentBtn onClick={() => router.push('/auth')}>Begin Audit</HeaderAccentBtn>
+                  <HeaderAccentBtn onClick={() => router.push('/store')}>Store</HeaderAccentBtn>
                 </>
               )}
             </div>

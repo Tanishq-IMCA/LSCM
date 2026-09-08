@@ -95,7 +95,7 @@ const CYCLE_DURATION = 9500; // ms per scenario
 
 export function MacWindow() {
   const [cycle, setCycle] = useState(0);
-  const [activeTab, setActiveTab] = useState<"AUDIT ENGINE" | "RESULTS">("AUDIT ENGINE");
+  const [activeTab, setActiveTab] = useState<"SERVICE BOARD" | "LOADOUT">("SERVICE BOARD");
   const [scanning, setScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanDone, setScanDone] = useState(false);
@@ -123,7 +123,7 @@ export function MacWindow() {
       if (exitTimeoutRef.current) { clearTimeout(exitTimeoutRef.current); exitTimeoutRef.current = null; }
     };
 
-    setActiveTab("AUDIT ENGINE");
+    setActiveTab("SERVICE BOARD");
     setScanning(false);
     setScanProgress(0);
     setScanDone(false);
@@ -143,7 +143,7 @@ export function MacWindow() {
           }
           setScanning(false);
           setScanDone(true);
-          resultsTimeoutRef.current = setTimeout(() => setActiveTab("RESULTS"), 500);
+          resultsTimeoutRef.current = setTimeout(() => setActiveTab("LOADOUT"), 500);
         }
       }, 85);
     }, 1500);
@@ -163,7 +163,7 @@ export function MacWindow() {
     };
   }, [cycle]);
 
-  const TABS = ["AUDIT ENGINE", "RESULTS"] as const;
+  const TABS = ["SERVICE BOARD", "LOADOUT"] as const;
 
   const issueColor = scenario.severity === "high" ? "#ef4444" : scenario.severity === "medium" ? "#facc15" : "var(--accent)";
 
@@ -268,7 +268,7 @@ export function MacWindow() {
           </div>
 
           <AnimatePresence mode="wait">
-            {activeTab === "AUDIT ENGINE" ? (
+            {activeTab === "SERVICE BOARD" ? (
               <motion.div
                 key="audit"
                 initial={{ opacity: 0 }}
@@ -279,12 +279,12 @@ export function MacWindow() {
               >
                 <div className="space-y-1.5">
                   {[
-                    { t: `> scanning ${scenario.repo}`, c: "rgba(255,255,255,0.25)" },
-                    { t: `✓ fetched ${scenario.files.toLocaleString()} files (${fetchSeconds}s)`, c: "var(--accent)" },
-                    { t: `✓ resolved ${scenario.deps} dependencies`, c: "var(--accent)" },
-                    { t: "✓ security audit complete", c: "var(--accent)" },
-                    { t: `! ${scenario.issues} ${scenario.severity}-severity issues found`, c: issueColor },
-                    { t: "> generating report...", c: "rgba(255,255,255,0.25)" },
+                    { t: `> checking availability: ${scenario.repo}`, c: "rgba(255,255,255,0.25)" },
+                    { t: `✓ ${scenario.files.toLocaleString()} service slots indexed`, c: "var(--accent)" },
+                    { t: `✓ ${scenario.deps} custom requests ready`, c: "var(--accent)" },
+                    { t: "✓ management support online", c: "var(--accent)" },
+                    { t: `! ${scenario.issues} featured drops available`, c: issueColor },
+                    { t: "> preparing your loadout...", c: "rgba(255,255,255,0.25)" },
                   ].map((line, i) => (
                     <motion.div
                       key={i}
@@ -310,7 +310,7 @@ export function MacWindow() {
                     >
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] uppercase tracking-[0.28em] text-white/25" style={{ fontFamily: "var(--font-mono)" }}>
-                          Scanning
+                           Preparing
                         </span>
                         <span className="text-[10px]" style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}>
                           {Math.round(scanProgress)}%
@@ -342,7 +342,7 @@ export function MacWindow() {
                 className="p-5"
               >
                 <div className="text-[10px] tracking-[0.32em] uppercase text-white/20 mb-4" style={{ fontFamily: "var(--font-mono)" }}>
-                  Score Breakdown
+                   Loadout Breakdown
                 </div>
                 <div className="space-y-3">
                   {scenario.scores.map((s, i) => (
@@ -384,7 +384,7 @@ export function MacWindow() {
               {scenario.loc} LOC · {scenario.language}
             </span>
             <span className="text-[10px] tracking-[0.2em] uppercase" style={{ fontFamily: "var(--font-mono)", color: scanDone ? "var(--accent)" : "rgba(255,255,255,0.15)" }}>
-              {scanDone ? "✓ Complete" : "● Live"}
+               {scanDone ? "✓ Ready" : "● Live"}
             </span>
           </div>
         </div>

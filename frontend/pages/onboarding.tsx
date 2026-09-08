@@ -485,7 +485,7 @@ export default function OnboardingPage() {
         {/* Logo */}
         <div className="mb-12">
           <Link href="/" className="text-sm uppercase tracking-[0.24em] text-white/40 hover:text-white/70 transition-colors smooth-glow">
-            REPOSIGHT
+            LSCM
           </Link>
         </div>
 

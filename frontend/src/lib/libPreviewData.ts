@@ -5,7 +5,7 @@ export { mockNeuralSearchScan };
 export const mockUser = {
   id: 'preview-user',
   name: 'Alex Chen',
-  email: 'alex@reposight.dev',
+  email: 'member@lscm.community',
   occupation: 'professional' as const,
   techStack: ['Python', 'TypeScript', 'React', 'FastAPI'],
   githubUsername: 'alexchen',
