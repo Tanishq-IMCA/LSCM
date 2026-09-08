@@ -143,33 +143,33 @@ function DevelopmentTimeline() {
   const phases = [
     {
       phase: "01",
-      title: "Foundation & Architecture",
-      body: "Defined the system as a Next.js frontend, an Express/Prisma API, and a PostgreSQL database. Established the repository, user, and analysis models early so every later feature could anchor to a clean schema.",
+      title: "Join the Community",
+      body: "Start with the LSCM Discord, where management shares availability, support and live updates. Joining keeps you close to the community and gives you a clear place to ask about services, heists and custom cars.",
     },
     {
       phase: "02",
-      title: "Authentication & Security",
-      body: "Built JWT-based sessions with secure httpOnly cookies, added GitHub OAuth for frictionless repository access, and implemented PAT validation so users can grant scoped, revocable access without sharing passwords.",
+      title: "Welcome VIP Trial",
+      body: "New members receive VIP treatment while they are getting settled into the community. Look for the green clover beside your Discord username; the clover marks the active trial and its benefits.",
     },
     {
       phase: "03",
-      title: "Repository Integration",
-      body: "Connected to the GitHub API to fetch metadata, language stats, topics, and commit history. The backend stores only lightweight summaries; raw source is pulled on-demand and never persisted in our database.",
+      title: "Unlock Premium Heists",
+      body: "VIP perks include access to premium heists with limited slots. Add NEO using the Rockstar username NE0211 so you can join his heists and receive the community benefits when a slot opens.",
     },
     {
       phase: "04",
-      title: "Analysis Engine",
-      body: "Implemented deterministic static analysis across complexity, security, coupling, and maintainability dimensions. Results are scored by severity and normalized so they can be compared across repositories of any size.",
+      title: "Follow the Schedule",
+      body: "Heists are automated and announced live when slots become available, with up to 3 players at a time. Regular availability runs Monday–Friday, 9:00 AM–3:00 PM CST, including Diamond Heists and other rotating runs.",
     },
     {
       phase: "05",
-      title: "AI Summary Layer",
-      body: "Added an LLM-driven summary layer that turns raw scan metrics into human-readable findings. It classifies issues, suggests next steps, and compares the actual codebase against the skills claimed in the developer profile.",
+      title: "Modded Car Day",
+      body: "Every Thursday is Modded Car Day for custom car shop requests. Join the Discord for the day’s timing, available builds and a live message from management when the custom-car service is ready.",
     },
     {
       phase: "06",
-      title: "Dashboard & Reports",
-      body: "Shipped a real-time dashboard with scan progress, result cards, and an exportable PDF report. The interface uses glassmorphism, motion transitions, and responsive layouts to present audit data cleanly.",
+      title: "Stay Close to the Benefits",
+      body: "Keep an eye on the Discord and the green clover beside your username for updates. Management coordinates support, heist slots and service requests there so members always know what is available.",
     },
   ];
 
@@ -639,13 +639,19 @@ export default function AboutPage() {
               NEO
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.4em]" style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}>Founder // LSCM</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-[10px] uppercase tracking-[0.4em]" style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}>Founder // LSCM</p>
+                <span className="border border-[var(--accent)]/40 bg-[var(--accent)]/10 px-2 py-1 text-[9px] uppercase tracking-[0.18em] text-[var(--accent)]" style={{ fontFamily: "var(--font-mono)" }}>
+                  Rockstar username
+                </span>
+              </div>
               <h3 className="mt-3 text-3xl uppercase tracking-[0.1em] text-white" style={{ fontFamily: "var(--font-display)" }}>NEO</h3>
+              <p className="mt-2 text-xs uppercase tracking-[0.28em] text-white/55" style={{ fontFamily: "var(--font-mono)" }}>NE0211</p>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45" style={{ fontFamily: "var(--font-body)" }}>
                 Independent operator behind the Los Santos Car Modders Community. Services, support and availability are coordinated through the community channels.
               </p>
               <a href="https://socialclub.rockstargames.com/" target="_blank" rel="noreferrer" className="mt-6 inline-flex border border-white/[0.12] bg-white/[0.05] px-4 py-3 text-[10px] uppercase tracking-[0.28em] text-white/65 transition hover:border-[var(--accent)]/60 hover:text-white" style={{ fontFamily: "var(--font-mono)" }}>
-                Rockstar Games // NEO
+                Rockstar Games // NE0211
               </a>
             </div>
           </div>

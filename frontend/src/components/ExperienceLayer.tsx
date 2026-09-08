@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function ExperienceLayer() {
   const [isPaused, setIsPaused] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const clickRef = useRef<HTMLAudioElement>(null);

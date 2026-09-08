@@ -149,6 +149,9 @@ export function Header() {
             style={{ fontFamily: 'var(--font-display)' }}
           >
             <img src="/grayscalemini.png" alt="LSCM" className="h-8 w-auto object-contain opacity-80" />
+            <span className="text-[11px] tracking-[0.28em] text-white/75" style={{ fontFamily: 'var(--font-display)' }}>
+              LSCM
+            </span>
             <span className="relative inline-flex items-center h-5 w-[2px] overflow-hidden">
               <span className="absolute inset-0 bg-white/30" />
               <span
