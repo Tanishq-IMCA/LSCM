@@ -11,10 +11,10 @@ export function Footer() {
           REPOSIGHT
         </div>
         <div className="flex items-center gap-6">
-          {['Features', 'How It Works', 'About'].map((link) => (
+          {['Features', 'How It Works', 'About', 'Store'].map((link) => (
             <a
               key={link}
-              href={link === 'About' ? '/about' : `#${link.toLowerCase().replace(/\s/g, '')}`}
+              href={link === 'About' ? '/about' : link === 'Store' ? '/store' : `#${link.toLowerCase().replace(/\s/g, '')}`}
               className="text-[11px] uppercase tracking-[0.28em] text-white/18 hover:text-white/45 transition-colors"
               style={{ fontFamily: 'var(--font-display)' }}
             >
@@ -29,7 +29,7 @@ export function Footer() {
           className="text-[11px] tracking-[0.2em] text-white/15"
           style={{ fontFamily: 'var(--font-mono)' }}
         >
-          © 2026 — All rights reserved || By Tanishq Giri \ IMCA
+          © 2026 — LSCM COMMUNITY // ALL RIGHTS RESERVED
         </div>
       </div>
     </footer>

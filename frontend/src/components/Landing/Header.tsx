@@ -182,6 +182,13 @@ export function Header() {
               About
             </a>
             <a
+              href="/store"
+              className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              Store
+            </a>
+            <a
               href="/legal"
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}

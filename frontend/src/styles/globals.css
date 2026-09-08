@@ -23,27 +23,27 @@
 /* Registering these as animatable custom properties (CSS Houdini) is what
    actually makes the `transition` below take effect — plain custom
    properties are treated as opaque strings and never animate. */
-@property --accent { syntax: '<color>'; inherits: true; initial-value: #10b981; }
-@property --accent-dim { syntax: '<color>'; inherits: true; initial-value: rgba(16, 185, 129, 0.5); }
-@property --accent-glow { syntax: '<color>'; inherits: true; initial-value: rgba(16, 185, 129, 0.2); }
-@property --accent-2 { syntax: '<color>'; inherits: true; initial-value: #38bdf8; }
-@property --accent-2-dim { syntax: '<color>'; inherits: true; initial-value: rgba(56, 189, 248, 0.5); }
-@property --accent-2-glow { syntax: '<color>'; inherits: true; initial-value: rgba(56, 189, 248, 0.2); }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #a855f7; }
+@property --accent-dim { syntax: '<color>'; inherits: true; initial-value: rgba(168, 85, 247, 0.5); }
+@property --accent-glow { syntax: '<color>'; inherits: true; initial-value: rgba(168, 85, 247, 0.2); }
+@property --accent-2 { syntax: '<color>'; inherits: true; initial-value: #e879f9; }
+@property --accent-2-dim { syntax: '<color>'; inherits: true; initial-value: rgba(232, 121, 249, 0.5); }
+@property --accent-2-glow { syntax: '<color>'; inherits: true; initial-value: rgba(232, 121, 249, 0.2); }
 @property --blob-1 { syntax: '<color>'; inherits: true; initial-value: #4a148c; }
 @property --blob-2 { syntax: '<color>'; inherits: true; initial-value: #1e3a8a; }
 @property --blob-3 { syntax: '<color>'; inherits: true; initial-value: #881337; }
 @property --blob-4 { syntax: '<color>'; inherits: true; initial-value: #4a148c; }
 @property --blob-5 { syntax: '<color>'; inherits: true; initial-value: #b45309; }
-@property --blob-6 { syntax: '<color>'; inherits: true; initial-value: #0f9d58; }
+@property --blob-6 { syntax: '<color>'; inherits: true; initial-value: #7e22ce; }
 
 :root {
   --bg: #050816;
-  --accent: #10b981;
-  --accent-dim: rgba(16, 185, 129, 0.5);
-  --accent-glow: rgba(16, 185, 129, 0.2);
-  --accent-2: #38bdf8;
-  --accent-2-dim: rgba(56, 189, 248, 0.5);
-  --accent-2-glow: rgba(56, 189, 248, 0.2);
+  --accent: #a855f7;
+  --accent-dim: rgba(168, 85, 247, 0.5);
+  --accent-glow: rgba(168, 85, 247, 0.2);
+  --accent-2: #e879f9;
+  --accent-2-dim: rgba(232, 121, 249, 0.5);
+  --accent-2-glow: rgba(232, 121, 249, 0.2);
   --font-display: 'Bourgeois', sans-serif;
   --font-body: 'Bourgeois', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -53,7 +53,7 @@
   --blob-3: #881337;
   --blob-4: #4a148c;
   --blob-5: #b45309;
-  --blob-6: #0f9d58;
+  --blob-6: #7e22ce;
 }
 
 /* Smooth, slow theme transitions — accent + blob colour swaps react gently
@@ -108,6 +108,53 @@ body {
 
 body::-webkit-scrollbar { display: none; }
 ::-webkit-scrollbar { display: none; }
+
+.loader-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background: #090512;
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+}
+
+.loader-screen--fading { opacity: 0; pointer-events: none; }
+.loader-screen__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+  filter: saturate(0.7) contrast(1.08);
+  transition: filter 1s ease, transform 1s ease, opacity 1s ease;
+}
+.loader-screen__video--blurred { filter: blur(18px) saturate(0.8) contrast(1.05); transform: scale(1.06); opacity: 0.25; }
+.loader-screen__shade {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(168,85,247,0.12), transparent 42%), linear-gradient(180deg, rgba(5,2,12,0.42), rgba(5,2,12,0.82));
+}
+.loader-screen__brand {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: flex;
+  width: min(90vw, 620px);
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  text-align: center;
+}
+.loader-screen__brand strong { font-family: var(--font-display); font-size: clamp(3rem, 10vw, 7rem); letter-spacing: 0.18em; text-shadow: 0 0 35px rgba(168,85,247,0.45); }
+.loader-screen__eyebrow, .loader-screen__status, .loader-screen__progress { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: rgba(255,255,255,0.48); }
+.loader-screen__status { color: rgba(216,180,254,0.72); letter-spacing: 0.24em; }
+.loader-screen__progress { position: absolute; bottom: 34px; left: 34px; width: min(300px, calc(100vw - 68px)); color: rgba(255,255,255,0.42); }
+.loader-screen__progress-meta { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.loader-screen__bar { height: 1px; overflow: hidden; background: rgba(255,255,255,0.2); }
+.loader-screen__bar span { display: block; height: 100%; background: var(--accent); box-shadow: 0 0 12px var(--accent); transition: width 50ms linear; }
 
 ::selection {
   background: rgba(16, 185, 129, 0.2);
@@ -252,6 +299,85 @@ body::-webkit-scrollbar { display: none; }
   .glass-hover:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-panel {
+    background: linear-gradient(135deg, rgba(28, 15, 45, 0.78), rgba(9, 6, 18, 0.86));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 70px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .store-hero {
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+  }
+
+  .store-hero__glow {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    right: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.28), transparent 68%);
+    filter: blur(10px);
+  }
+
+  .store-filter {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.4);
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    transition: 220ms ease;
+  }
+
+  .store-filter:hover,
+  .store-filter--active {
+    color: white;
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+
+  .store-card {
+    min-height: 390px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: transform 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
+  }
+
+  .store-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-dim);
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22), 0 0 30px var(--accent-glow);
+  }
+
+  .store-card--featured {
+    border-color: rgba(216, 180, 254, 0.28);
+  }
+
+  .store-card__badge {
+    border: 1px solid rgba(216, 180, 254, 0.25);
+    background: rgba(168, 85, 247, 0.14);
+    color: #d8b4fe;
+    padding: 4px 7px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
   .input-glass {

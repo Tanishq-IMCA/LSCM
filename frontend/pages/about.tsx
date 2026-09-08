@@ -5,8 +5,8 @@ import { useRef, useEffect, useState } from "react";
 import { Header } from "@/components/Landing/Header";
 import { Footer } from "@/components/Landing/Footer";
 import GlitchyText from "@/components/ui/GlitchyText";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { getTechInfo } from "@/lib/techConfig";
 
 const fadeUp = {
@@ -606,7 +606,7 @@ export default function AboutPage() {
         <div className="h-px bg-white/[0.08]" />
       </div>
 
-      {/* Developers */}
+      {/* Community lead */}
       <section className="max-w-7xl mx-auto px-6 py-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -619,20 +619,33 @@ export default function AboutPage() {
             className="text-[10px] uppercase tracking-[0.44em] mb-4"
             style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}
           >
-            The Team
+            Community lead
           </p>
           <h2
             className="text-3xl md:text-4xl text-white tracking-[0.07em] uppercase"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            <GlitchyText text="The Developers Behind It" />
+            <GlitchyText text="The person behind LSCM" />
           </h2>
         </motion.div>
 
-        <div className="grid gap-6">
-          {DEVELOPERS.map((dev, i) => (
-            <InfoCard key={dev.name} dev={dev} index={i} />
-          ))}
+        <div className="glass-panel relative overflow-hidden p-8 md:p-12">
+          <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-purple-500/10 blur-3xl" />
+          <div className="relative z-10 grid gap-8 md:grid-cols-[180px_1fr] md:items-center">
+            <div className="flex h-36 w-36 items-center justify-center border border-[var(--accent)]/40 bg-[var(--accent)]/10 text-5xl tracking-[0.14em] text-white shadow-[0_0_35px_var(--accent-glow)]" style={{ fontFamily: "var(--font-display)" }}>
+              NEO
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.4em]" style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}>Founder // LSCM</p>
+              <h3 className="mt-3 text-3xl uppercase tracking-[0.1em] text-white" style={{ fontFamily: "var(--font-display)" }}>NEO</h3>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45" style={{ fontFamily: "var(--font-body)" }}>
+                Independent operator behind the Los Santos Car Modders Community. Services, support and availability are coordinated through the community channels.
+              </p>
+              <a href="https://socialclub.rockstargames.com/" target="_blank" rel="noreferrer" className="mt-6 inline-flex border border-white/[0.12] bg-white/[0.05] px-4 py-3 text-[10px] uppercase tracking-[0.28em] text-white/65 transition hover:border-[var(--accent)]/60 hover:text-white" style={{ fontFamily: "var(--font-mono)" }}>
+                Rockstar Games // NEO
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 

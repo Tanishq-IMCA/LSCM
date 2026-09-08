@@ -1,0 +1,38 @@
+
+play the bg video (this only happens when we visit the website for the first time aka when a ip visits it for the first time or whatever and but not when we reload the pages or the website) and blur it as soon the loading is done. (loading is shown at the bottom corner with a EXTREMELY THIN and small loading bar slowly filling up...
+
+after the loading bar is finished up loading (should be roughly 4-7 seconds randomly while this time is used to download assets and show things to avoid missing assets or live loading)
+
+have a react based js or sum techstack. have a homepage. the top bar would have login which pops up coming soon glassy frosted blurred panel.  keep the glass glossy and blurry everywhere. never clear.
+
+so homepage influenced by the readme file (only do intro on this)
+
+then shop at the top bar, 
+
+like mentioned before Login In/ SIgn Up (this text fades in and out and keeps switching)
+
+again coming soon panel will popup with a back to homepage button)
+
+the whole website is going to be carrying the same design from dev audit so carry over the whole design from dev audit folder from reffiles 1:1 and only edit it as according to our specifications like editing text, adding sections that match etc etc.
+
+
+okay so we have 3-4 pages in mind.
+
+One is homepage (homepage has a get started button which opens a new page where its all introduced on how the services work. Make it clear that they have to join the discord to Receive the services And support From the management. But don't make it sound harsh Or like a requirement but just mention Or rather introduce it as Step You know like how we did The system architecture chart where the line slowly was flowing down and the individual blocks were getting lit In the refiles folder For devaudit Where each and every single steps are shown you have stuff like Except we are using those individual panels Which are slowly flowing down getting illuminated As the line Goes through them and animates through them Yes that that page in dev audit We're going to be using that To show how things work So first introduce them In the first card And get them on board with the discord server With a button within the card Linked to the discord server invite Then the other card Excitingly reveals And tells the user As it gets animated They instantaneously get vip Treatment As a trial which lasts As long They Are new to the community In a short note under it within the car itself mentioned that a Green clover can be found beside their username upon joining the disc Server For them to know that they have the VIP treatment The VIP treatment lasts as long as the Clover is there And when it's The trial treatment ends. Again according to the rules Now move on to the next card and explain more But before you add other cards And cover up whatever is left that I haven't explained in this third card you're gonna tell them that The VIP perks Come with Premium heists But are limited Two heists Per 20 mins (in a small coloured badge mention the diamond heist as said in readme file and other heists w their limits if readme file mentions that) Underneath All the text within the same card include a small hyperlink text again obv Make it Purple Cause that's the theme of our website And link it to one Resources mentioned Or card Mentioned in the FAQ Page And it would say something like when do the heists begin And then it would be answered by Showing the schedule that the heists are automated  And are informed live ontime about available slots (3 at a time) and follow this timing Mon-Fri 9am-3pm CST
+, while mentioning Every Thursday Modded Car Day for custom car shop days with the timing.
+
+
+
+
+
+
+Add some more into the home page And also add the TOS And obviously the legal stuff That would keep us out of trouble like how we are not officially affiliated by rock star games Et cetera et cetera so we do not get sued Just make sure you put all the legal stuff in there. And that this is an independent Group Managing our own operations. Stuff like that. Then have pages like one is store, one is FAQ (faq already will be posted in this prompt on how to write it. rephrase it if u want but make it look neat while still retaining the meaning and whole sense of it. one is Contact us
+
+
+I mentioned before the account system Is not done yet And is coming soon and shows that But the shop system is here and by system I mean just a listing of products With the search bar That can The products with the names categegories Or their unique id that we are assigning every single product. For now Three cards We are making it so that we have three rows And then there are products In those rows which go down as long as we keep adding them. Now in here make sure to add a clickable Right under the search bar Which will enable Searching within those filters. Thefilters are as follows Before we proceed with this though when we open shop shop has multiple different pages Which can be accessed through the buttons which are first presented when shop is clicked. Again the buttons the panels that come after this the pages everything else Is presented beautifully in a frosty glass panel Which we already are using in dev audit website present in the reffiles folder The frosty glass panels are And refractive and not see through So we can read the text on it.
+
+
+
+
+Read me file has every thing Mentioned regarding the service. 
+

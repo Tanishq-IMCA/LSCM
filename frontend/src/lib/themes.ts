@@ -30,10 +30,10 @@ const raw: Array<Omit<Theme, 'accentDim' | 'accentGlow' | 'accent2Dim' | 'accent
   {
     id: 'spectre',
     name: 'SPECTRE',
-    tagline: 'Emerald surveillance',
-    accent: '#10b981',
-    accent2: '#38bdf8',
-    blobs: ['#4a148c', '#1e3a8a', '#881337', '#4a148c', '#b45309', '#0f9d58'],
+    tagline: 'Violet community signal',
+    accent: '#a855f7',
+    accent2: '#e879f9',
+    blobs: ['#4c1d95', '#2e1065', '#3b0764', '#4c1d95', '#7e22ce', '#a21caf'],
   },
   {
     id: 'neonova',
