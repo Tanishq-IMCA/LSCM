@@ -486,10 +486,10 @@ export default function AboutPage() {
             className="text-4xl md:text-6xl text-white tracking-[0.07em] uppercase leading-[1.08]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            <GlitchyText text="AUDIT YOUR CRAFT" />
+            <GlitchyText text="RUN LOS SANTOS" />
             <br />
             <span className="text-white/35">
-              <GlitchyText text="PROVE THE WORK" />
+              <GlitchyText text="WITH THE CREW" />
             </span>
           </motion.h1>
           <motion.p
@@ -500,10 +500,9 @@ export default function AboutPage() {
             className="mt-7 max-w-2xl text-sm leading-7 text-white/40"
             style={{ fontFamily: "var(--font-body)" }}
           >
-              LSCM is an independent GTA V modding community. We coordinate account services,
-            measures code quality, security exposure and complexity, then cross-references your
-            actual work against the skills you claim. The result is an honest, evidence-based
-            assessment of where you stand — and where to improve.
+            LSCM is an independent GTA V modding community for account boosts, custom modded
+            cars, premium heists, VIP access and player support. Availability, timing and delivery
+            are coordinated through management and the community Discord.
           </motion.p>
         </div>
       </section>
@@ -531,7 +530,7 @@ export default function AboutPage() {
               className="text-2xl md:text-4xl text-white tracking-[0.07em] uppercase"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              <GlitchyText text="Make every developer accountable to their own code" />
+              <GlitchyText text="Make every session worth remembering" />
             </h2>
           </motion.div>
           <motion.div
@@ -542,14 +541,14 @@ export default function AboutPage() {
             className="space-y-5"
           >
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
-              We believe premium GTA V services should feel clear and community-led. LSCM
-              brings production-grade auditing to individual developers, students and hiring teams
-              — with clear severity levels, real-time scan progress, and exportable reports.
+              We believe premium GTA V services should feel clear and community-led. LSCM brings
+              players together around reliable service coordination, custom garages, premium heists
+              and support that stays close to the crew.
             </p>
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
-              The problem is simple: resumes lie, portfolios are curated, and interviewers rarely
-              have time to search through confusing service menus. LSCM solves this with a clear catalogue,
-              surfacing bugs, architectural patterns and security risks in seconds.
+              Join Discord to see what is live, request an account setup or custom build, and get
+              informed when heist slots open. New members can receive VIP treatment while the green
+              clover is beside their username.
             </p>
           </motion.div>
         </div>
@@ -572,13 +571,13 @@ export default function AboutPage() {
               className="text-[10px] uppercase tracking-[0.44em] mb-4"
               style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}
             >
-              Development
+              How It Works
             </p>
             <h2
               className="text-2xl md:text-4xl text-white tracking-[0.07em] uppercase"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              <GlitchyText text="How LSCM operates" />
+              <GlitchyText text="From Discord to delivery" />
             </h2>
           </motion.div>
           <motion.div
@@ -589,10 +588,14 @@ export default function AboutPage() {
             className="space-y-5"
           >
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
-              LSCM is operated as an independent community. Management coordinates service availability, confirms requests, and supports members through the community Discord. The store is a catalogue only for now; no cart or automated checkout is active.
+              LSCM is operated as an independent community. Management coordinates availability,
+              confirms requests, and supports members through the community Discord. The store is a
+              catalogue only for now; service requests are handled directly by management.
             </p>
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
-              The analysis engine combines deterministic static checks with an AI summary layer. It measures complexity, security exposure, and maintainability across the repository, then cross-references the findings against the skills listed in the developer profile. The result is an evidence-based audit that highlights strengths, exposes gaps, and produces a professional, exportable report.
+              New members can enjoy VIP treatment while their green clover is active. Premium heists
+              are limited to two runs per 20 minutes, with live slots shared in Discord. Heists run
+              Monday–Friday, 9am–3pm CST, and Thursdays are reserved for modded car requests.
             </p>
           </motion.div>
         </div>

@@ -6,32 +6,32 @@ import { SegmentBar } from "@/components/ui/SegmentBar";
 
 const SCENARIOS = [
   {
-    repo: "neural-search@main",
-    language: "Python 78%",
-    loc: "14,382",
-    files: 1284,
-    deps: 47,
+    repo: "DIAMOND HEIST // FINISHED",
+    language: "PAYOUT 3.59M",
+    loc: "NEXT SLOT 20:00",
+    files: 3,
+    deps: 2,
     scores: [
-      { label: "OVERALL", value: 84 },
-      { label: "SECURITY", value: 73 },
-      { label: "COMPLEXITY", value: 91 },
-      { label: "COVERAGE", value: 68 },
-      { label: "MAINTAIN", value: 79 },
+        { label: "PAYOUT", value: 92 },
+        { label: "PREP", value: 84 },
+        { label: "SLOTS", value: 76 },
+        { label: "VIP", value: 91 },
+        { label: "CREW", value: 88 },
     ],
     metrics: [
-      { label: "Overall", value: "84", color: "var(--accent)" },
-      { label: "Issues", value: "3", color: "#facc15" },
-      { label: "LOC", value: "14.3k", color: "rgba(255,255,255,0.4)" },
+        { label: "Payout", value: "3.59M", color: "var(--accent)" },
+        { label: "Heists", value: "2", color: "#facc15" },
+        { label: "Slots", value: "3", color: "rgba(255,255,255,0.4)" },
     ],
     issues: 3,
     severity: "medium",
   },
   {
-    repo: "api-gateway@v2",
-    language: "TypeScript 92%",
-    loc: "8,905",
-    files: 642,
-    deps: 31,
+    repo: "PANTHER CAYO // READY",
+    language: "PAYOUT 2.0M",
+    loc: "NEXT SLOT 20:20",
+    files: 3,
+    deps: 1,
     scores: [
       { label: "OVERALL", value: 91 },
       { label: "SECURITY", value: 88 },
@@ -40,19 +40,19 @@ const SCENARIOS = [
       { label: "MAINTAIN", value: 85 },
     ],
     metrics: [
-      { label: "Overall", value: "91", color: "var(--accent)" },
-      { label: "Issues", value: "1", color: "#facc15" },
-      { label: "LOC", value: "8.9k", color: "rgba(255,255,255,0.4)" },
+        { label: "Payout", value: "2.0M", color: "var(--accent)" },
+        { label: "Heists", value: "1", color: "#facc15" },
+        { label: "Slots", value: "3", color: "rgba(255,255,255,0.4)" },
     ],
     issues: 1,
     severity: "low",
   },
   {
-    repo: "ledger-core@release",
-    language: "Rust 85%",
-    loc: "22,140",
-    files: 892,
-    deps: 54,
+    repo: "MODDED CAR DAY // THU",
+    language: "GARAGE REQUESTS",
+    loc: "09:00 — 15:00 CST",
+    files: 6,
+    deps: 4,
     scores: [
       { label: "OVERALL", value: 78 },
       { label: "SECURITY", value: 95 },
@@ -69,11 +69,11 @@ const SCENARIOS = [
     severity: "medium",
   },
   {
-    repo: "ml-pipeline@dev",
-    language: "Python 64%",
-    loc: "31,505",
-    files: 1450,
-    deps: 82,
+    repo: "VIP CREW // CLOVER ACTIVE",
+    language: "PRIORITY ACCESS",
+    loc: "MON — FRI",
+    files: 3,
+    deps: 5,
     scores: [
       { label: "OVERALL", value: 69 },
       { label: "SECURITY", value: 61 },
@@ -176,15 +176,6 @@ export function MacWindow() {
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="relative"
       >
-        {/* Ambient glow */}
-        <div
-          className="absolute -inset-8 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.07) 0%, transparent 70%)",
-            filter: "blur(24px)",
-          }}
-        />
-
         <div
           className="relative overflow-hidden backdrop-blur-xl"
           style={{
@@ -278,13 +269,13 @@ export function MacWindow() {
                 className="p-5 space-y-4"
               >
                 <div className="space-y-1.5">
-                  {[
-                    { t: `> checking availability: ${scenario.repo}`, c: "rgba(255,255,255,0.25)" },
-                    { t: `✓ ${scenario.files.toLocaleString()} service slots indexed`, c: "var(--accent)" },
-                    { t: `✓ ${scenario.deps} custom requests ready`, c: "var(--accent)" },
+                    {[
+                     { t: `> checking availability: ${scenario.repo}`, c: "rgba(255,255,255,0.25)" },
+                     { t: `✓ ${scenario.files.toLocaleString()} live slots available`, c: "var(--accent)" },
+                     { t: `✓ ${scenario.deps} management channels ready`, c: "var(--accent)" },
                     { t: "✓ management support online", c: "var(--accent)" },
                     { t: `! ${scenario.issues} featured drops available`, c: issueColor },
-                    { t: "> preparing your loadout...", c: "rgba(255,255,255,0.25)" },
+                     { t: "> preparing your service...", c: "rgba(255,255,255,0.25)" },
                   ].map((line, i) => (
                     <motion.div
                       key={i}
@@ -310,7 +301,7 @@ export function MacWindow() {
                     >
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] uppercase tracking-[0.28em] text-white/25" style={{ fontFamily: "var(--font-mono)" }}>
-                           Preparing
+                            Confirming
                         </span>
                         <span className="text-[10px]" style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}>
                           {Math.round(scanProgress)}%
@@ -342,7 +333,7 @@ export function MacWindow() {
                 className="p-5"
               >
                 <div className="text-[10px] tracking-[0.32em] uppercase text-white/20 mb-4" style={{ fontFamily: "var(--font-mono)" }}>
-                   Loadout Breakdown
+                    Service Breakdown
                 </div>
                 <div className="space-y-3">
                   {scenario.scores.map((s, i) => (
@@ -381,7 +372,7 @@ export function MacWindow() {
             }}
           >
             <span className="text-[10px] text-white/15 tracking-[0.2em] uppercase" style={{ fontFamily: "var(--font-mono)" }}>
-              {scenario.loc} LOC · {scenario.language}
+              {scenario.loc} · {scenario.language}
             </span>
             <span className="text-[10px] tracking-[0.2em] uppercase" style={{ fontFamily: "var(--font-mono)", color: scanDone ? "var(--accent)" : "rgba(255,255,255,0.15)" }}>
                {scanDone ? "✓ Ready" : "● Live"}

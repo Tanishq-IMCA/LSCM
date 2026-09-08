@@ -2,35 +2,23 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const LOADER_MIN = 5000;
-const LOADER_MAX = 10000;
-
 export default function ExperienceLayer() {
-  const [progress, setProgress] = useState(0);
-  const [isFading, setIsFading] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
-  const durationRef = useRef(LOADER_MIN + Math.floor(Math.random() * (LOADER_MAX - LOADER_MIN + 1)));
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const clickRef = useRef<HTMLAudioElement>(null);
+  const reverseRef = useRef(false);
+  const reverseFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const duration = durationRef.current;
-    const startedAt = performance.now();
-    const progressTimer = window.setInterval(() => {
-      setProgress(Math.min(((performance.now() - startedAt) / duration) * 100, 100));
-    }, 50);
-    const fadeTimer = window.setTimeout(() => setIsFading(true), duration - 1000);
-    const hideTimer = window.setTimeout(() => setIsHidden(true), duration);
-
     const unlockAudio = () => {
-      void musicRef.current?.play().catch(() => undefined);
+      if (!isMuted) void musicRef.current?.play().catch(() => undefined);
       document.removeEventListener('pointerdown', unlockAudio);
     };
     document.addEventListener('pointerdown', unlockAudio, { passive: true });
 
     void videoRef.current?.play().catch(() => undefined);
-    void musicRef.current?.play().catch(() => undefined);
 
     const playClickSound = (event: MouseEvent) => {
       const target = event.target;
@@ -41,51 +29,83 @@ export default function ExperienceLayer() {
       if (!interactive || !clickRef.current) return;
       clickRef.current.currentTime = 0;
       void clickRef.current.play().catch(() => undefined);
-      void musicRef.current?.play().catch(() => undefined);
+      if (!isMuted) void musicRef.current?.play().catch(() => undefined);
     };
     document.addEventListener('click', playClickSound, true);
 
     return () => {
-      window.clearInterval(progressTimer);
-      window.clearTimeout(fadeTimer);
-      window.clearTimeout(hideTimer);
+      if (reverseFrameRef.current) cancelAnimationFrame(reverseFrameRef.current);
       document.removeEventListener('pointerdown', unlockAudio);
       document.removeEventListener('click', playClickSound, true);
     };
-  }, []);
+  }, [isMuted]);
+
+  const reverseVideo = () => {
+    const video = videoRef.current;
+    if (!video || !video.duration) return;
+    video.pause();
+    reverseRef.current = true;
+    const stepBack = () => {
+      if (!reverseRef.current || !videoRef.current) return;
+      const current = videoRef.current.currentTime;
+      if (current <= 0.04) {
+        reverseRef.current = false;
+        videoRef.current.currentTime = 0;
+        void videoRef.current.play().catch(() => undefined);
+        return;
+      }
+      videoRef.current.currentTime = Math.max(0, current - 0.035);
+      reverseFrameRef.current = requestAnimationFrame(stepBack);
+    };
+    reverseFrameRef.current = requestAnimationFrame(stepBack);
+  };
+
+  const toggleVideo = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (isPaused) {
+      setIsPaused(false);
+      reverseRef.current = false;
+      void video.play().catch(() => undefined);
+    } else {
+      setIsPaused(true);
+      video.pause();
+    }
+  };
+
+  const toggleAudio = () => {
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    if (musicRef.current) {
+      musicRef.current.muted = nextMuted;
+      if (!nextMuted) void musicRef.current.play().catch(() => undefined);
+      else musicRef.current.pause();
+    }
+  };
 
   return (
     <>
-      <audio ref={musicRef} src="/lscm-theme.mp3" loop preload="auto" aria-hidden="true" />
+      <audio ref={musicRef} src="/lscm-theme.mp3" loop preload="auto" muted={isMuted} aria-hidden="true" />
       <audio ref={clickRef} src="/click.mp3" preload="auto" aria-hidden="true" />
-      {!isHidden && (
-        <div className={`loader-screen ${isFading ? 'loader-screen--fading' : ''}`} aria-label="Loading LSCM">
-          <video
-            ref={videoRef}
-            className={`loader-screen__video ${isFading ? 'loader-screen__video--blurred' : ''}`}
-            src="/bg.mp4"
-            autoPlay
-            muted
-            playsInline
-            preload="auto"
-          />
-          <div className="loader-screen__shade" />
-          <div className="loader-screen__progress">
-            <div className="loader-screen__brand">
-              <span className="loader-screen__eyebrow">LSCM // LOS SANTOS CAR MODDERS</span>
-              <strong>WE ARE LSCM</strong>
-              <span className="loader-screen__status">STACKED ACCOUNTS // MODDED BUILDS // COMMUNITY FIRST</span>
-            </div>
-            <div className="loader-screen__progress-meta">
-              <span>LOADING THE CITY</span>
-              <span>{Math.round(progress).toString().padStart(3, '0')}%</span>
-            </div>
-            <div className="loader-screen__bar">
-              <span style={{ width: `${progress}%` }} />
-            </div>
-          </div>
-        </div>
-      )}
+      <video
+        ref={videoRef}
+        className={`video-wallpaper ${isPaused ? 'video-wallpaper--paused' : ''}`}
+        src="/bg.mp4"
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        onEnded={reverseVideo}
+        aria-hidden="true"
+      />
+      <div className="wallpaper-controls" aria-label="Wallpaper controls">
+        <button type="button" onClick={toggleAudio} title={isMuted ? 'Unmute LSCM music' : 'Mute LSCM music'}>
+          {isMuted ? 'AUDIO OFF' : 'AUDIO ON'}
+        </button>
+        <button type="button" onClick={toggleVideo} title={isPaused ? 'Play background video' : 'Pause background video'}>
+          {isPaused ? 'PLAY WALLPAPER' : 'PAUSE WALLPAPER'}
+        </button>
+      </div>
     </>
   );
 }

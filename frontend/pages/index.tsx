@@ -16,10 +16,10 @@ import { MacWindow } from "@/components/Landing/MacWindow";
 // ─── DATA ───────────────────────────────────────────────────────────────────
 
 const CLI_LINES = [
-  { text: "> lscm community system v1.0.0", delay: 0 },
-  { text: "> connecting to management...", delay: 350 },
-  { text: "> service catalogue loaded", delay: 700 },
-  { text: "> all systems ready ✓", delay: 1050, accent: true },
+  { text: "HEIST FINISHED", delay: 0, accent: true },
+  { text: "PAYOUT 3.59M // DIAMONDS SECURED", delay: 350 },
+  { text: "NEXT SLOT // 20:00", delay: 700 },
+  { text: "MANAGEMENT ONLINE ✓", delay: 1050, accent: true },
 ];
 
 const SAMPLE_SCORES = [
@@ -31,35 +31,35 @@ const SAMPLE_SCORES = [
 ];
 
 const STATS = [
-  { value: "2.4M+", label: "Lines Analyzed" },
-  { value: "98%", label: "Accuracy Rate" },
-  { value: "<90s", label: "Avg Scan Time" },
-  { value: "12+", label: "Dimensions Measured" },
+  { value: "3.59M", label: "Featured Payout" },
+  { value: "20 MIN", label: "Heist Cooldown" },
+  { value: "3", label: "Live Slots" },
+  { value: "24/7", label: "Community Support" },
 ];
 
 const FEATURES = [
   {
-    tag: "01 — ANALYSIS",
-    heading: "DEEP CODE INTELLIGENCE",
-    body: "AST-level analysis across your entire codebase. Complexity, coupling, test coverage, and security surface — measured and reported with machine precision.",
+    tag: "01 — ACCOUNT BOOSTS",
+    heading: "STACK YOUR ACCOUNT",
+    body: "Starter, Premium and Deluxe account services with unlocks, stats, outfits, businesses and custom setups coordinated by management.",
     visual: "code",
   },
   {
-    tag: "02 — AUDIT",
-    heading: "HONEST SKILL ASSESSMENT",
-    body: "Cross-reference your resume claims against your actual commit history. We find the gaps before employers do.",
+    tag: "02 — MODDED BUILDS",
+    heading: "MAKE THE GARAGE YOURS",
+    body: "Request custom modded vehicles, garages, outfits and loadouts built around how you play Los Santos.",
     visual: "audit",
   },
   {
-    tag: "03 — SECURITY",
-    heading: "VULNERABILITY SURFACE",
-    body: "Static analysis for dependency vulnerabilities, injection vectors, secrets exposure, and insecure patterns across every file.",
+    tag: "03 — PREMIUM HEISTS",
+    heading: "RUN THE BIG SCORE",
+    body: "Diamond Casino, Panther Cayo and other premium heist support with live availability, prep coordination and payout guidance.",
     visual: "security",
   },
   {
-    tag: "04 — REPORTS",
-    heading: "AUDIT-GRADE REPORTS",
-    body: "Professional, exportable PDF reports you can attach to job applications or share with engineering leads.",
+    tag: "04 — VIP ACCESS",
+    heading: "GET PRIORITY TREATMENT",
+    body: "Join the crew, earn your green clover and unlock a VIP-first community experience while your trial is active.",
     visual: "report",
   },
 ];
@@ -220,6 +220,11 @@ function FeatureCard({
       }}
     >
       <FeatureVisual type={feature.visual} />
+      <img
+        src="/logo-dark-semi-colourised.png"
+        alt=""
+        className="pointer-events-none absolute bottom-5 right-5 h-10 w-auto opacity-20 grayscale transition duration-500 group-hover:opacity-40 group-hover:grayscale-0"
+      />
       {/* Hover accent bottom line */}
       <div
         className="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full transition-all duration-700"
@@ -388,11 +393,7 @@ export default function LandingPage() {
   const { isAuthenticated } = useAuth();
 
   const handleBeginAudit = () => {
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    } else {
-      router.push('/auth');
-    }
+    router.push('/store');
   };
 
   const handleSignIn = () => {
@@ -431,8 +432,8 @@ export default function LandingPage() {
                 <TypewriterHeadline
                   phrases={[
                     "WE ARE LSCM.",
-                    "STACK THE ACCOUNT.",
-                    "MOD THE MOMENT.",
+                    "HEIST FINISHED.",
+                    "PAYOUT 3.59M.",
                     "RUN THE CITY.",
                   ]}
                   className="block leading-[1.04] tracking-[0.04em] uppercase"
@@ -624,21 +625,24 @@ export default function LandingPage() {
             {[
               {
                 step: "01",
-                 cmd: "$ join --discord",
+                  cmd: "DISCORD // START HERE",
                  title: "JOIN THE CREW",
-                 desc: "Join the community Discord to receive service support and see what is available.",
+                  desc: "Join the Discord to meet the crew, see live availability and receive support from management.",
+                  href: "https://discord.gg/wy5ws9vVMs",
               },
               {
                 step: "02",
-                 cmd: "$ choose --service",
+                  cmd: "SERVICE // CHOOSE YOUR LOADOUT",
                  title: "CHOOSE YOUR SERVICE",
                  desc: "Pick an account boost, custom car build, heist preparation, add-on or VIP tier.",
+                  href: "/store",
               },
               {
                 step: "03",
-                 cmd: "$ deliver --lscm",
+                  cmd: "MANAGEMENT // GET IT DONE",
                  title: "GET IT DONE",
                  desc: "Management confirms timing, coordinates delivery and keeps support close by.",
+                  href: "https://discord.gg/wy5ws9vVMs",
               },
             ].map((item, i) => (
               <motion.div
@@ -681,7 +685,7 @@ export default function LandingPage() {
                     borderRadius: "2px",
                   }}
                 >
-                  {item.cmd}
+                   {item.cmd}
                 </div>
                 <GlitchyText
                   text={item.title}
@@ -697,6 +701,15 @@ export default function LandingPage() {
                 >
                   {item.desc}
                 </p>
+                <a
+                  href={item.href}
+                  target={item.href.startsWith("http") ? "_blank" : undefined}
+                  rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+                  className="mt-6 inline-flex border border-white/[0.12] px-4 py-2.5 text-[10px] uppercase tracking-[0.22em] text-white/60 transition hover:border-[var(--accent)] hover:text-white"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  {i === 0 ? "Join Discord" : i === 1 ? "Choose Service" : "Open Discord"}
+                </a>
               </motion.div>
             ))}
           </div>
@@ -744,7 +757,7 @@ export default function LandingPage() {
                  coordinate your service.
               </p>
               <AccentButton
-                onClick={() => router.push("/auth")}
+                onClick={() => router.push("/store")}
                 className="mx-auto px-12 py-5 text-[11px] uppercase tracking-[0.34em]"
               >
                 <svg

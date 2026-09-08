@@ -9,6 +9,7 @@ export default function BlobBackground() {
         <div className="blob blob-5" />
         <div className="blob blob-6" />
       </div>
+      <div className="video-wallpaper__shade" />
       <div className="frost-layer" />
     </>
   );

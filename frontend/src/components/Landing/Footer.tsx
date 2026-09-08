@@ -10,7 +10,7 @@ export function Footer() {
           className="text-sm tracking-[0.26em] uppercase text-white/22"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          LSCM
+          <img src="/grayscalemini.png" alt="LSCM" className="h-8 w-auto opacity-70" />
         </div>
         <div className="flex items-center gap-6">
           {['Features', 'How It Works', 'About', 'Store'].map((link) => (
@@ -31,7 +31,7 @@ export function Footer() {
           className="text-[11px] tracking-[0.2em] text-white/15"
           style={{ fontFamily: 'var(--font-mono)' }}
         >
-          © 2026 — LSCM COMMUNITY // ALL RIGHTS RESERVED
+          © 2026 — LOS SANTOS CAR MODDERS // ALL RIGHTS RESERVED
         </div>
       </div>
     </footer>

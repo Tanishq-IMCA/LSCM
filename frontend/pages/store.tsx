@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import GlitchyText from '@/components/ui/GlitchyText';
+import Link from 'next/link';
 
 type Product = {
   code: string;
@@ -107,6 +108,13 @@ const FILTER_PAGES = [
   { label: 'CUSTOM + ADD-ONS', value: 'Custom' },
 ] as const;
 
+const VEHICLE_CATEGORIES = [
+  { title: 'HEAVY VEHICLES', detail: 'Armored trucks, weaponized platforms and utility vehicles.' },
+  { title: 'LIGHT VEHICLES', detail: '2–4 seater hypercars, sedans, SUVs, jeeps and street builds.' },
+  { title: 'MOTORBIKES', detail: 'Street bikes, superbikes and custom two-wheel builds.' },
+  { title: 'OTHERS', detail: 'Special requests and unusual garage additions.' },
+];
+
 function matchesPage(product: Product, page: string) {
   if (page === 'Account') return product.type === 'Account Boosting' || product.type === 'VIP Membership';
   if (page === 'Custom') return product.type === 'Custom Services' || product.type === 'Add-ons' || product.type === 'Methods & Access';
@@ -115,6 +123,7 @@ function matchesPage(product: Product, page: string) {
 
 export default function StorePage() {
   const [activePage, setActivePage] = useState('All');
+  const [activeCatalog, setActiveCatalog] = useState<'services' | 'cars'>('services');
   const [activeType, setActiveType] = useState('All types');
   const [query, setQuery] = useState('');
 
@@ -149,18 +158,52 @@ export default function StorePage() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-2 border-b border-white/[0.08] pb-5">
-          {FILTER_PAGES.map((page) => (
-            <button
-              key={page.value}
-              type="button"
-              onClick={() => setActivePage(page.value)}
-              className={`store-filter ${activePage === page.value ? 'store-filter--active' : ''}`}
-            >
-              {page.label}
-            </button>
-          ))}
-        </div>
+         <div className="mt-8 flex flex-wrap gap-2 border-b border-white/[0.08] pb-5">
+           {[
+             { label: 'SERVICES', value: 'services' as const },
+             { label: 'CUSTOM CARS', value: 'cars' as const },
+           ].map((item) => (
+             <button key={item.value} type="button" onClick={() => setActiveCatalog(item.value)} className={`store-filter ${activeCatalog === item.value ? 'store-filter--active' : ''}`}>
+               {item.label}
+             </button>
+           ))}
+         </div>
+
+         {activeCatalog === 'cars' ? (
+           <section className="mt-10">
+             <div className="mb-8">
+               <p className="text-[10px] uppercase tracking-[0.4em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>Garage catalogue</p>
+               <h2 className="mt-2 text-2xl uppercase tracking-[0.1em] text-white" style={{ fontFamily: 'var(--font-display)' }}>Custom car requests</h2>
+               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>Vehicle listings are being prepared. Join Discord for custom requests and live modded car availability.</p>
+             </div>
+             <div className="grid gap-4 md:grid-cols-2">
+               {VEHICLE_CATEGORIES.map((category) => (
+                 <article key={category.title} className="store-card min-h-[250px]">
+                   <img src="/grayscalemini.png" alt="" className="mb-8 h-12 w-auto opacity-35 grayscale" />
+                   <div>
+                     <span className="store-card__badge">Coming soon</span>
+                     <h3 className="mt-5 text-xl uppercase tracking-[0.08em] text-white" style={{ fontFamily: 'var(--font-display)' }}>{category.title}</h3>
+                     <p className="mt-3 text-sm leading-6 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>{category.detail}</p>
+                   </div>
+                 </article>
+               ))}
+             </div>
+             <Link href="https://discord.gg/wy5ws9vVMs" target="_blank" className="mt-8 inline-flex border border-[var(--accent)]/50 px-5 py-3 text-[10px] uppercase tracking-[0.22em] text-white/70 hover:bg-[var(--accent)]/15 hover:text-white" style={{ fontFamily: 'var(--font-display)' }}>Request a car on Discord</Link>
+           </section>
+         ) : (
+           <>
+              <div className="mt-8 flex flex-wrap gap-2 border-b border-white/[0.08] pb-5">
+                {FILTER_PAGES.map((page) => (
+                  <button
+                    key={page.value}
+                    type="button"
+                    onClick={() => setActivePage(page.value)}
+                    className={`store-filter ${activePage === page.value ? 'store-filter--active' : ''}`}
+                  >
+                    {page.label}
+                  </button>
+                ))}
+              </div>
 
         <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
           <label className="glass-panel flex items-center gap-3 px-4 py-3">
@@ -224,9 +267,11 @@ export default function StorePage() {
           </div>
         )}
 
-        <p className="mt-10 max-w-2xl text-[11px] leading-6 text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>
+         <p className="mt-10 max-w-2xl text-[11px] leading-6 text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>
           Payments are handled manually through management. Join the community Discord to confirm availability, delivery timing and support before ordering.
         </p>
+           </>
+         )}
       </section>
       <Footer />
     </main>

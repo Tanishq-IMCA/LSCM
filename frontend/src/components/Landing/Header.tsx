@@ -84,7 +84,7 @@ function AlphaBadge() {
         className="text-[11px] uppercase tracking-[0.22em] text-red-500/80 hover:text-red-400 transition-colors cursor-help"
         style={{ fontFamily: 'var(--font-display)' }}
       >
-        LSCM
+        BETA
       </span>
       <AnimatePresence>
         {hovered && (
@@ -96,7 +96,7 @@ function AlphaBadge() {
             className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 p-3.5 border border-white/[0.12] bg-white/[0.08] backdrop-blur-xl text-white/70 text-[10px] leading-relaxed z-50 shadow-2xl pointer-events-none"
             style={{ fontFamily: 'var(--font-body)', borderRadius: '2px' }}
           >
-            LSCM community hub — services, availability and support are coordinated through management.
+            This website is in beta, so some instability or bugs may occur. If you spot one, please report it in the LSCM Discord server.
           </motion.div>
         )}
       </AnimatePresence>
@@ -148,7 +148,7 @@ export function Header() {
             className="flex items-center gap-3 text-lg uppercase tracking-[0.3em] text-white cursor-pointer select-none"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            <GlitchyText text="LSCM" triggerOnMount delay={200} />
+            <img src="/grayscalemini.png" alt="LSCM" className="h-8 w-auto object-contain opacity-80" />
             <span className="relative inline-flex items-center h-5 w-[2px] overflow-hidden">
               <span className="absolute inset-0 bg-white/30" />
               <span
@@ -165,21 +165,21 @@ export function Header() {
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              Features
+              Services
             </Link>
             <Link
               href="/#how"
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              How It Works
+              How To Join
             </Link>
             <Link
               href="/about"
               className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              About
+              Community
             </Link>
             <Link
               href="/store"
