@@ -21,11 +21,17 @@ const nextConfig = {
     '127.0.0.1',
     'localhost',
   ],
-  async rewrites() {
+  async redirects() {
     return [
       {
-        source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*',
+        source: '/dashboard',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/settings',
+        destination: '/',
+        permanent: false,
       },
     ];
   },

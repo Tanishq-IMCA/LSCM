@@ -470,8 +470,8 @@ export default function OnboardingPage() {
       githubUsername: data.githubUsername || undefined,
     });
 
-    showNotice('PROFILE CONFIGURED', 'Fetching your repositories...', 'success');
-    router.push('/dashboard');
+    showNotice('PROFILE CONFIGURED', 'Your LSCM account is ready.', 'success');
+    router.push('/account');
   };
 
   const progressPct = ((step - 1) / (TOTAL_STEPS - 1)) * 100;

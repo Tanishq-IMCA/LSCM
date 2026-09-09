@@ -156,7 +156,7 @@ export function Header() {
       >
         <div className="flex items-center justify-between px-8 py-5">
           <Link
-            href={isAuthenticated ? '/dashboard' : '/'}
+            href="/"
             className="flex items-center gap-3 text-lg uppercase tracking-[0.3em] text-white cursor-pointer select-none"
             style={{ fontFamily: 'var(--font-display)' }}
           >

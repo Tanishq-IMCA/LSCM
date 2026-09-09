@@ -398,8 +398,8 @@ export default function LandingPage() {
 
   const handleSignIn = () => {
     if (isAuthenticated) {
-      showNotice('ALREADY SIGNED IN', 'Redirecting to your dashboard...', 'system');
-      setTimeout(() => router.push('/dashboard'), 600);
+      showNotice('ALREADY SIGNED IN', 'Opening your LSCM account...', 'system');
+      setTimeout(() => router.push('/account'), 600);
     } else {
       router.push('/auth');
     }

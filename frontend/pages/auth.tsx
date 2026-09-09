@@ -124,8 +124,8 @@ function LegacyAuthPage() {
         router.push('/onboarding');
       } else {
         await login(email, password);
-        showNotice('ACCESS GRANTED', 'Initializing your workspace...', 'success');
-        router.push('/dashboard');
+        showNotice('ACCESS GRANTED', 'Opening your LSCM account...', 'success');
+        router.push('/account');
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Authentication failed';
