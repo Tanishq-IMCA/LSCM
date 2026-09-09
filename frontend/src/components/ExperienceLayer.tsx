@@ -10,11 +10,11 @@ export default function ExperienceLayer() {
   const [loadProgress, setLoadProgress] = useState(0);
   const [isScreensaver, setIsScreensaver] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isVideoFading, setIsVideoFading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const clickRef = useRef<HTMLAudioElement>(null);
-  const reverseRef = useRef(false);
-  const reverseFrameRef = useRef<number | null>(null);
+  const videoFadeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const unlockAudio = () => {
@@ -39,7 +39,7 @@ export default function ExperienceLayer() {
     document.addEventListener('click', playClickSound, true);
 
     return () => {
-      if (reverseFrameRef.current) cancelAnimationFrame(reverseFrameRef.current);
+      if (videoFadeTimerRef.current) window.clearTimeout(videoFadeTimerRef.current);
       document.removeEventListener('pointerdown', unlockAudio);
       document.removeEventListener('click', playClickSound, true);
     };
@@ -77,24 +77,14 @@ export default function ExperienceLayer() {
     return () => document.removeEventListener('fullscreenchange', syncFullscreenState);
   }, []);
 
-  const reverseVideo = () => {
+  const restartVideo = () => {
     const video = videoRef.current;
-    if (!video || !video.duration) return;
-    video.pause();
-    reverseRef.current = true;
-    const stepBack = () => {
-      if (!reverseRef.current || !videoRef.current) return;
-      const current = videoRef.current.currentTime;
-      if (current <= 0.04) {
-        reverseRef.current = false;
-        videoRef.current.currentTime = 0;
-        void videoRef.current.play().catch(() => undefined);
-        return;
-      }
-      videoRef.current.currentTime = Math.max(0, current - 0.035);
-      reverseFrameRef.current = requestAnimationFrame(stepBack);
-    };
-    reverseFrameRef.current = requestAnimationFrame(stepBack);
+    if (!video) return;
+    setIsVideoFading(true);
+    video.currentTime = 0;
+    void video.play().catch(() => undefined);
+    if (videoFadeTimerRef.current) window.clearTimeout(videoFadeTimerRef.current);
+    videoFadeTimerRef.current = window.setTimeout(() => setIsVideoFading(false), 80);
   };
 
   const toggleVideo = () => {
@@ -102,7 +92,6 @@ export default function ExperienceLayer() {
     if (!video) return;
     if (isPaused) {
       setIsPaused(false);
-      reverseRef.current = false;
       void video.play().catch(() => undefined);
     } else {
       setIsPaused(true);
@@ -147,13 +136,13 @@ export default function ExperienceLayer() {
       <audio ref={clickRef} src="/click.mp3" preload="auto" aria-hidden="true" />
       <video
         ref={videoRef}
-        className={`video-wallpaper ${isPaused ? 'video-wallpaper--paused' : ''} ${isScreensaver ? 'video-wallpaper--screensaver' : ''}`}
+        className={`video-wallpaper ${isPaused ? 'video-wallpaper--paused' : ''} ${isScreensaver ? 'video-wallpaper--screensaver' : ''} ${isVideoFading ? 'video-wallpaper--fading' : ''}`}
         src="/bg.mp4"
         autoPlay
         muted
         playsInline
         preload="auto"
-        onEnded={reverseVideo}
+        onEnded={restartVideo}
         aria-hidden="true"
       />
       <div className={`wallpaper-controls ${isScreensaver ? 'wallpaper-controls--hidden' : ''}`} aria-label="Wallpaper controls">
@@ -203,7 +192,11 @@ export default function ExperienceLayer() {
               <path d="m5 17 4-4 3 3 2-2 5 3" />
             </svg>
           </button>
-          <div className="screensaver-overlay__brand">LSCM</div>
+          <div className="screensaver-overlay__brand">
+            <img src="/official-logo.png" alt="Official GTA logo" />
+            <span className="screensaver-overlay__divider" aria-hidden="true" />
+            <span>LSCM</span>
+          </div>
         </div>
       )}
       {isLoading && (

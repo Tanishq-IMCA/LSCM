@@ -222,6 +222,10 @@ body::-webkit-scrollbar { display: none; }
   transform: scale(1.02);
   filter: brightness(1.08) saturate(0.92) contrast(1.04);
 }
+.video-wallpaper--fading {
+  opacity: 0.08;
+  transition: opacity 80ms ease-out;
+}
 
 .video-wallpaper__shade {
   position: fixed;
@@ -308,12 +312,30 @@ body.screensaver-active > #__next > :not(.experience-layer) {
   position: absolute;
   right: 30px;
   bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   color: #a855f7;
   font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 700;
   letter-spacing: 0.2em;
   line-height: 1;
+}
+
+.screensaver-overlay__brand img {
+  width: clamp(64px, 7vw, 104px);
+  height: clamp(46px, 5vw, 72px);
+  object-fit: contain;
+  opacity: 0.88;
+  -webkit-box-reflect: below 3px linear-gradient(transparent, rgba(255,255,255,0.12));
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.14));
+}
+
+.screensaver-overlay__divider {
+  width: 1px;
+  height: 42px;
+  background: rgba(255,255,255,0.36);
 }
 
 .frost-layer {
