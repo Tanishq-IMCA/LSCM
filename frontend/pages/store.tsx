@@ -115,6 +115,11 @@ const VEHICLE_CATEGORIES = [
   { title: 'OTHERS', detail: 'Special requests and unusual garage additions.' },
 ];
 
+const OUTFIT_CATEGORIES = [
+  { title: 'MALE OUTFITS', detail: 'Street-ready combinations, crew fits and rare modded looks.', href: '/store/outfits/male' },
+  { title: 'FEMALE OUTFITS', detail: 'A curated collection of character looks is being prepared.', href: '/store/outfits/female' },
+];
+
 function matchesPage(product: Product, page: string) {
   if (page === 'Account') return product.type === 'Account Boosting' || product.type === 'VIP Membership';
   if (page === 'Custom') return product.type === 'Custom Services' || product.type === 'Add-ons' || product.type === 'Methods & Access';
@@ -123,7 +128,7 @@ function matchesPage(product: Product, page: string) {
 
 export default function StorePage() {
   const [activePage, setActivePage] = useState('All');
-  const [activeCatalog, setActiveCatalog] = useState<'services' | 'cars'>('services');
+  const [activeCatalog, setActiveCatalog] = useState<'services' | 'cars' | 'outfits'>('services');
   const [activeType, setActiveType] = useState('All types');
   const [query, setQuery] = useState('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -173,6 +178,7 @@ export default function StorePage() {
            {[
              { label: 'SERVICES', value: 'services' as const },
              { label: 'CUSTOM CARS', value: 'cars' as const },
+              { label: 'MODDED OUTFITS', value: 'outfits' as const },
            ].map((item) => (
              <button key={item.value} type="button" onClick={() => setActiveCatalog(item.value)} className={`store-filter ${activeCatalog === item.value ? 'store-filter--active' : ''}`}>
                {item.label}
@@ -180,7 +186,7 @@ export default function StorePage() {
            ))}
          </div>
 
-         {activeCatalog === 'cars' ? (
+          {activeCatalog === 'cars' ? (
            <section className="mt-10">
              <div className="mb-8">
                <p className="text-[10px] uppercase tracking-[0.4em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>Garage catalogue</p>
@@ -201,6 +207,27 @@ export default function StorePage() {
              </div>
              <Link href="https://discord.gg/wy5ws9vVMs" target="_blank" className="mt-8 inline-flex border border-[var(--accent)]/50 px-5 py-3 text-[10px] uppercase tracking-[0.22em] text-white/70 hover:bg-[var(--accent)]/15 hover:text-white" style={{ fontFamily: 'var(--font-display)' }}>Request a car on Discord</Link>
            </section>
+          ) : activeCatalog === 'outfits' ? (
+            <section className="mt-10">
+              <div className="mb-8">
+                <p className="text-[10px] uppercase tracking-[0.4em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>Wardrobe catalogue</p>
+                <h2 className="mt-2 text-2xl uppercase tracking-[0.1em] text-white" style={{ fontFamily: 'var(--font-display)' }}>Modded outfits</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>Choose a collection to browse the current LSCM wardrobe catalogue.</p>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                {OUTFIT_CATEGORIES.map((category) => (
+                  <Link key={category.title} href={category.href} className="store-card min-h-[250px] transition hover:border-[var(--accent)]/40 hover:bg-white/[0.05]">
+                    <img src="/grayscalemini.png" alt="" className="mb-8 h-12 w-auto opacity-35 grayscale" />
+                    <div>
+                      <span className="store-card__badge">{category.title === 'FEMALE OUTFITS' ? 'In preparation' : '15 listings'}</span>
+                      <h3 className="mt-5 text-xl uppercase tracking-[0.08em] text-white" style={{ fontFamily: 'var(--font-display)' }}>{category.title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>{category.detail}</p>
+                      <span className="mt-6 inline-flex text-[10px] uppercase tracking-[0.24em] text-[var(--accent)]" style={{ fontFamily: 'var(--font-mono)' }}>Open collection →</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
          ) : (
            <>
               <div className="mt-8 flex flex-wrap gap-2 border-b border-white/[0.08] pb-5">
