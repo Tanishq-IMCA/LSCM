@@ -1,6 +1,7 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual, randomUUID } from 'crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { query } from './db';
+import { isAdminEmail } from './admin';
 
 export const SESSION_COOKIE = 'lscm_session';
 const SESSION_DAYS = 30;
@@ -11,6 +12,7 @@ export type StoredUser = {
   displayName: string;
   bio: string;
   rockstarTag: string;
+  role: 'admin' | 'user';
   createdAt: string;
 };
 
@@ -54,12 +56,14 @@ export function getSessionId(req: NextApiRequest) {
 }
 
 export function toUser(row: Record<string, unknown>): StoredUser {
+  const email = String(row.email || '').trim().toLowerCase();
   return {
     id: String(row.id),
-    email: String(row.email),
+    email,
     displayName: String(row.display_name || ''),
     bio: String(row.bio || ''),
     rockstarTag: String(row.rockstar_tag || ''),
+    role: isAdminEmail(email) && String(row.role || 'user') === 'admin' ? 'admin' : 'user',
     createdAt: new Date(String(row.created_at)).toISOString(),
   };
 }
@@ -78,7 +82,7 @@ export async function currentUser(req: NextApiRequest) {
   const sessionId = getSessionId(req);
   if (!sessionId) return null;
   const result = await query(
-    `SELECT u.id, u.email, u.display_name, u.bio, u.rockstar_tag, u.created_at
+    `SELECT u.id, u.email, u.display_name, u.bio, u.rockstar_tag, u.role, u.created_at
      FROM lscm_sessions s
      JOIN lscm_users u ON u.id = s.user_id
      WHERE s.id = $1 AND s.expires_at > CURRENT_TIMESTAMP`,
@@ -90,9 +94,9 @@ export async function currentUser(req: NextApiRequest) {
 export async function register(email: string, password: string, res: NextApiResponse) {
   const id = randomUUID();
   const result = await query(
-    `INSERT INTO lscm_users (id, email, password_hash, display_name)
-     VALUES ($1, $2, $3, $4)
-     RETURNING id, email, display_name, bio, rockstar_tag, created_at`,
+    `INSERT INTO lscm_users (id, email, password_hash, display_name, role)
+     VALUES ($1, $2, $3, $4, 'user')
+     RETURNING id, email, display_name, bio, rockstar_tag, role, created_at`,
     [id, email, hashPassword(password), email.split('@')[0] || 'LSCM Member'],
   );
   const user = toUser(result.rows[0]);
@@ -102,7 +106,7 @@ export async function register(email: string, password: string, res: NextApiResp
 
 export async function login(email: string, password: string, res: NextApiResponse) {
   const result = await query(
-    `SELECT id, email, password_hash, display_name, bio, rockstar_tag, created_at
+    `SELECT id, email, password_hash, display_name, bio, rockstar_tag, role, created_at
      FROM lscm_users WHERE email = $1`,
     [email],
   );

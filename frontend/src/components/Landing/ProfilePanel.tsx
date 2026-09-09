@@ -27,6 +27,11 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
     router.push('/account');
   };
 
+  const handleOpenAdmin = () => {
+    onClose();
+    router.push('/admin');
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -65,6 +70,11 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
               <button onClick={handleOpenProfile} className="w-full text-left border border-white/10 bg-white/[0.03] px-4 py-3 text-xs uppercase tracking-[0.28em] text-white transition hover:border-white/25 hover:bg-white/[0.06]" style={{ borderRadius: '1px', fontFamily: 'var(--font-display)' }}>
                 Open Account
               </button>
+              {user.role === 'admin' && (
+                <button onClick={handleOpenAdmin} className="w-full text-left border border-[var(--accent)]/30 bg-[var(--accent)]/[0.04] px-4 py-3 text-xs uppercase tracking-[0.28em] text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/[0.1]" style={{ borderRadius: '1px', fontFamily: 'var(--font-display)' }}>
+                  Open Admin Panel
+                </button>
+              )}
               <div className="pt-1" />
               <ConfirmButton
                 onConfirm={handleLogout}
