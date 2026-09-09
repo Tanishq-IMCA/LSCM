@@ -126,6 +126,17 @@ export default function StorePage() {
   const [activeCatalog, setActiveCatalog] = useState<'services' | 'cars'>('services');
   const [activeType, setActiveType] = useState('All types');
   const [query, setQuery] = useState('');
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  const copyServiceCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      window.setTimeout(() => setCopiedCode((current) => current === code ? null : current), 1600);
+    } catch {
+      setCopiedCode(null);
+    }
+  };
 
   const types = useMemo(
     () => ['All types', ...Array.from(new Set(PRODUCTS.map((product) => product.type)))],
@@ -251,10 +262,19 @@ export default function StorePage() {
                 </ul>
               </div>
               <div className="mt-8 flex items-end justify-between border-t border-white/[0.08] pt-4">
-                <div>
+                <div className="flex items-center gap-3">
                   <p className="text-[9px] uppercase tracking-[0.22em] text-white/25" style={{ fontFamily: 'var(--font-mono)' }}>Service code</p>
-                  <p className="mt-1 text-[10px] tracking-[0.16em] text-white/55" style={{ fontFamily: 'var(--font-mono)' }}>{product.code}</p>
+                  <button
+                    type="button"
+                    onClick={() => copyServiceCode(product.code)}
+                    className="border border-white/[0.12] px-2 py-1 text-[8px] uppercase tracking-[0.18em] text-white/45 transition hover:border-[var(--accent)]/60 hover:text-white"
+                    style={{ fontFamily: 'var(--font-mono)' }}
+                    aria-label={`Copy service code ${product.code}`}
+                  >
+                    {copiedCode === product.code ? 'Copied' : 'Copy'}
+                  </button>
                 </div>
+                <p className="mt-1 text-[10px] tracking-[0.16em] text-white/55" style={{ fontFamily: 'var(--font-mono)' }}>{product.code}</p>
                 <p className="text-3xl text-white" style={{ fontFamily: 'var(--font-display)' }}>${product.price}<span className="ml-1 text-xs text-white/30">USD</span></p>
               </div>
             </motion.article>

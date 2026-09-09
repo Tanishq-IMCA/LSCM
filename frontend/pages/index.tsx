@@ -32,7 +32,7 @@ const SAMPLE_SCORES = [
 
 const STATS = [
   { value: "3.59M", label: "Featured Payout" },
-  { value: "20 MIN", label: "Heist Cooldown" },
+  { value: "30 MIN", label: "Heist Cooldown" },
   { value: "3", label: "Live Slots" },
   { value: "24/7", label: "Community Support" },
 ];
