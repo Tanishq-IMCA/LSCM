@@ -18,7 +18,7 @@ function HeaderAccentBtn({ children, onClick }: { children: React.ReactNode; onC
       onHoverEnd={() => setGlow(false)}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      className="relative overflow-hidden px-5 py-2 text-[11px] uppercase tracking-[0.34em] text-black"
+      className="relative flex w-[126px] min-w-[126px] items-center justify-center overflow-hidden px-5 py-2 text-[11px] uppercase tracking-[0.34em] text-black"
       style={{
         backgroundColor: 'var(--accent)',
         borderRadius: 0,
@@ -72,6 +72,8 @@ function HeaderGhostBtn({ children, onClick }: { children: React.ReactNode; onCl
 }
 
 const authLabels = ['Community', 'Access'];
+const accountLabels = ['Sign In', 'Sign Up'];
+const DISCORD_URL = 'https://discord.gg/wy5ws9vVMs';
 
 function AlphaBadge() {
   const [hovered, setHovered] = useState(false);
@@ -110,6 +112,7 @@ export function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [authLabelIndex, setAuthLabelIndex] = useState(0);
+  const [accountLabelIndex, setAccountLabelIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
   const { scrollY } = useScroll();
   const frostOpacity = useTransform(scrollY, [0, 80], [0, 1]);
@@ -123,6 +126,14 @@ export function Header() {
     if (isAuthenticated) return;
     const interval = setInterval(() => {
       setAuthLabelIndex(prev => (prev + 1) % authLabels.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const interval = setInterval(() => {
+      setAccountLabelIndex(prev => (prev + 1) % accountLabels.length);
     }, 4000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
@@ -222,7 +233,7 @@ export function Header() {
                 </button>
               ) : (
                 <>
-                  <HeaderGhostBtn onClick={() => router.push('/auth')}>
+                  <HeaderGhostBtn onClick={() => window.open(DISCORD_URL, '_blank', 'noopener,noreferrer')}>
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={authLabelIndex}
@@ -236,7 +247,19 @@ export function Header() {
                       </motion.span>
                     </AnimatePresence>
                   </HeaderGhostBtn>
-                  <HeaderAccentBtn onClick={() => router.push('/store')}>Store</HeaderAccentBtn>
+                  <HeaderAccentBtn onClick={() => router.push('/auth')}>
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={accountLabelIndex}
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        {accountLabels[accountLabelIndex]}
+                      </motion.span>
+                    </AnimatePresence>
+                  </HeaderAccentBtn>
                 </>
               )}
             </div>

@@ -11,28 +11,81 @@ import { Footer } from '@/components/Landing/Footer';
 import { LegalCyclingText } from '@/components/Landing/LegalCyclingText';
 import GlitchyText from '@/components/ui/GlitchyText';
 
-export default function AuthPage() {
+const DISCORD_URL = 'https://discord.gg/wy5ws9vVMs';
+
+function LiveAuthPage() {
+  const router = useRouter();
+  const { login, register } = useAuth();
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [forgot, setForgot] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    try {
+      if (mode === 'signup') {
+        await register(email, password);
+        router.push('/profile-setup');
+      } else {
+        await login(email, password);
+        router.push('/account');
+      }
+    } catch (error) {
+      showNotice('AUTH FAILED', error instanceof Error ? error.message : 'Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-20" style={{ fontFamily: 'var(--font-display)' }}>
-      <div className="glass-panel w-full max-w-lg p-8 text-center md:p-12">
-        <p className="text-[10px] uppercase tracking-[0.42em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>
-          LSCM // COMMUNITY ACCESS
-        </p>
-        <h1 className="mt-6 text-4xl uppercase tracking-[0.1em] text-white md:text-6xl">Join through Discord</h1>
-        <p className="mx-auto mt-5 max-w-md text-sm leading-7 text-white/45" style={{ fontFamily: 'var(--font-body)' }}>
-          Account sign-in is not part of the community experience yet. Join the Discord to view availability, receive support and coordinate services with management.
-        </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a href="https://discord.com" target="_blank" rel="noreferrer" className="px-6 py-3 text-[10px] uppercase tracking-[0.24em] text-black" style={{ backgroundColor: 'var(--accent)' }}>
-            Open Discord
-          </a>
-          <Link href="/" className="border border-white/[0.12] px-6 py-3 text-[10px] uppercase tracking-[0.24em] text-white/60 transition hover:border-white/30 hover:text-white">
-            Back to homepage
-          </Link>
+      <AnimatePresence>
+        {forgot && (
+          <motion.div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-6 backdrop-blur-xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div className="w-full max-w-md border border-white/10 bg-white/[0.06] p-8 shadow-2xl" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
+              <p className="text-[10px] uppercase tracking-[0.42em] text-[var(--accent)]" style={{ fontFamily: 'var(--font-mono)' }}>LSCM // COMMUNITY ACCESS</p>
+              <h2 className="mt-5 text-2xl uppercase tracking-[0.12em] text-white">Join through Discord</h2>
+              <p className="mt-4 text-sm leading-7 text-white/45" style={{ fontFamily: 'var(--font-body)' }}>
+                Please contact our administrators through the Discord community to recover access to your account.
+              </p>
+              <div className="mt-7 flex gap-3">
+                <a href={DISCORD_URL} target="_blank" rel="noreferrer" className="flex-1 bg-[var(--accent)] px-4 py-3 text-center text-[10px] uppercase tracking-[0.2em] text-black">Open Discord</a>
+                <button type="button" onClick={() => setForgot(false)} className="border border-white/15 px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-white/60 hover:text-white">Back</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <motion.div className="w-full max-w-md border border-white/[0.08] bg-white/[0.04] p-8 backdrop-blur-2xl md:p-10" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+        <p className="text-center text-[10px] uppercase tracking-[0.42em] text-[var(--accent)]" style={{ fontFamily: 'var(--font-mono)' }}>LSCM // COMMUNITY ACCESS</p>
+        <div className="mt-8 flex border border-white/[0.08] p-1">
+          {(['signin', 'signup'] as const).map(item => (
+            <button key={item} type="button" onClick={() => setMode(item)} className={`flex-1 py-3 text-[10px] uppercase tracking-[0.24em] ${mode === item ? 'bg-white/[0.08] text-white' : 'text-white/35'}`}>{item === 'signin' ? 'Sign In' : 'Sign Up'}</button>
+          ))}
         </div>
-      </div>
+        <h1 className="mt-8 text-3xl uppercase tracking-[0.1em] text-white">{mode === 'signin' ? 'Welcome Back.' : 'Create Account.'}</h1>
+        <p className="mt-2 text-sm text-white/35" style={{ fontFamily: 'var(--font-body)' }}>{mode === 'signin' ? 'Enter your credentials to continue.' : 'Your LSCM profile starts here.'}</p>
+        <form onSubmit={submit} className="mt-8 space-y-5">
+          <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="email" placeholder="Email" value={email} onChange={event => setEmail(event.target.value)} required />
+          <div className="relative">
+            <input className="input-glass w-full px-4 py-3.5 pr-12 text-sm text-white" type={showPassword ? 'text' : 'password'} placeholder="Password (8+ characters)" value={password} onChange={event => setPassword(event.target.value)} minLength={8} required />
+            <button type="button" onClick={() => setShowPassword(value => !value)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30">{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}</button>
+          </div>
+          {mode === 'signin' && <button type="button" onClick={() => setForgot(true)} className="text-[10px] uppercase tracking-[0.2em] text-white/35 hover:text-white">Forgot password?</button>}
+          <button disabled={loading} className="w-full bg-[var(--accent)] px-5 py-4 text-[10px] uppercase tracking-[0.28em] text-black disabled:opacity-50">{loading ? 'Connecting...' : mode === 'signin' ? 'Enter Community' : 'Create Account'}</button>
+        </form>
+        <Link href="/" className="mt-7 block text-center text-[10px] uppercase tracking-[0.2em] text-white/25 hover:text-white">Back to homepage</Link>
+      </motion.div>
     </main>
   );
+}
+
+export default function AuthPage() {
+  return <LiveAuthPage />;
 }
 
 function LegacyAuthPage() {

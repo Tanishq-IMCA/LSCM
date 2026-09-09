@@ -24,7 +24,7 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
 
   const handleOpenProfile = () => {
     onClose();
-    router.push('/settings');
+    router.push('/account');
   };
 
   return (
@@ -58,8 +58,12 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
             </div>
 
             <div className="mt-4 space-y-3">
+              <div className="border border-white/[0.08] bg-white/[0.03] p-3">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/35" style={{ fontFamily: 'var(--font-mono)' }}>Rockstar tag</p>
+                <p className="mt-1 text-xs text-[var(--accent)]">{user.rockstarTag || 'Not added yet'}</p>
+              </div>
               <button onClick={handleOpenProfile} className="w-full text-left border border-white/10 bg-white/[0.03] px-4 py-3 text-xs uppercase tracking-[0.28em] text-white transition hover:border-white/25 hover:bg-white/[0.06]" style={{ borderRadius: '1px', fontFamily: 'var(--font-display)' }}>
-                Open Profile
+                Open Account
               </button>
               <div className="pt-1" />
               <ConfirmButton

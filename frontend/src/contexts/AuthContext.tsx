@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { User } from '@/types';
+import { getCurrentUser, loginUser, logoutUser, registerUser, saveProfile } from '@/lib/api';
 
 interface AuthContextValue {
   user: User | null;
@@ -18,12 +19,12 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 function normalizeBackendUser(raw: Record<string, unknown>): User {
-  const profile = (raw.profile as Record<string, unknown>) || {};
+  const profile = (raw.profile as Record<string, unknown>) || raw;
   const dev = (raw.developer as Record<string, unknown>) || {};
   const github = (dev.github as Record<string, unknown>) || {};
   return {
     id: String(raw._id || raw.id || ''),
-    name: String(profile.fullName || raw.email?.toString().split('@')[0] || 'User'),
+    name: String(raw.displayName || profile.fullName || raw.email?.toString().split('@')[0] || 'User'),
     email: String(raw.email || ''),
     age: profile.age ? Number(profile.age) : undefined,
     occupation: (profile.role as User['occupation']) || 'professional',
@@ -31,6 +32,7 @@ function normalizeBackendUser(raw: Record<string, unknown>): User {
     education: ((dev.education as unknown[]) || []).filter(Boolean) as User['education'],
     projects: ((dev.projects as unknown[]) || []).filter(Boolean) as User['projects'],
     githubUsername: (github.username as string) || undefined,
+    rockstarTag: String(raw.rockstarTag || profile.rockstarTag || ''),
     avatarUrl: (profile.avatar as string) || undefined,
     bio: (profile.bio as string) || undefined,
     role: (raw.role as string) || 'user',
@@ -71,41 +73,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  // Restore the local preview session. Live identity services are intentionally
-  // not part of this UI-only build, so the app never probes a missing backend.
   useEffect(() => {
-    const storedUser = typeof window !== 'undefined' ? localStorage.getItem('auth_user') : null;
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser) as User;
-        setState({ user: parsed, isAuthenticated: true, isLoading: false });
-      } catch {
-        localStorage.removeItem('auth_user');
-        setState(s => ({ ...s, isLoading: false }));
-      }
-    } else {
-      setState(s => ({ ...s, isLoading: false }));
-    }
+    getCurrentUser()
+      .then(result => {
+        const user = result.success && result.user ? normalizeBackendUser(result.user) : null;
+        setState({ user, isAuthenticated: Boolean(user), isLoading: false });
+      })
+      .catch(() => setState({ user: null, isAuthenticated: false, isLoading: false }));
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    void password;
-    const user = createPreviewUser(email);
-    localStorage.setItem('auth_user', JSON.stringify(user));
+    const result = await loginUser({ email, password });
+    if (!result.success) throw new Error('Invalid email or password.');
+    const user = normalizeBackendUser(result.user);
     setState({ user, isAuthenticated: true, isLoading: false });
     return user;
   }, []);
 
   const register = useCallback(async (email: string, password: string) => {
-    void password;
-    const user = createPreviewUser(email);
-    localStorage.setItem('auth_user', JSON.stringify(user));
+    const result = await registerUser({ email, password });
+    if (!result.success) throw new Error('Account creation failed.');
+    const user = normalizeBackendUser(result.user);
     setState({ user, isAuthenticated: true, isLoading: false });
     return user;
   }, []);
 
   const logout = useCallback(async () => {
-    localStorage.removeItem('auth_user');
+    await logoutUser().catch(() => undefined);
     setState({ user: null, isAuthenticated: false, isLoading: false });
   }, []);
 
@@ -113,18 +107,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(s => {
       if (!s.user) return s;
       const updated = { ...s.user, ...updates };
-      localStorage.setItem('auth_user', JSON.stringify(updated));
+      void saveProfile({
+        profile: {
+          fullName: updated.name,
+          bio: updated.bio || '',
+          rockstarTag: updated.rockstarTag || '',
+        },
+      });
       return { ...s, user: updated };
     });
   }, []);
 
-  const loginWithGoogle = useCallback(() => {
-    window.location.href = '/api/auth/google';
-  }, []);
-
-  const loginWithGithub = useCallback(() => {
-    window.location.href = '/api/auth/github';
-  }, []);
+  const loginWithGoogle = useCallback(() => undefined, []);
+  const loginWithGithub = useCallback(() => undefined, []);
 
   return (
     <AuthContext.Provider

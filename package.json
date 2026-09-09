@@ -1,0 +1,16 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "> [!CAUTION] > PROPRIETARY AND CONFIDENTIAL > This community framework, along with the associated methodologies and services, constitutes the proprietary and strictly confidential intellectual property of LSCM and IMCA. > UNAUTHORIZED USE IS STRICTLY PROHIBITED. You may not copy, distribute, transmit, reproduce, publish, modify, or create derivative works from this source material without the explicit, documented authorization of the chief development team (@𝐍𝐞𝐨). > Any unauthorized replication, reverse engineering, or dissemination of these proprietary systems will be subject to immediate blacklisting and aggressive prosecution under applicable rules. > This repository does NOT grant an open-source license. All rights are explicitly reserved.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/pg": "^8.23.1",
+    "pg": "^8.23.0"
+  }
+}

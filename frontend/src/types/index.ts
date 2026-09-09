@@ -34,6 +34,7 @@ export interface User {
   education: EducationItem[];
   projects: ProjectItem[];
   bio?: string;
+  rockstarTag?: string;
   githubUsername?: string;
   avatarUrl?: string;
   role?: string;

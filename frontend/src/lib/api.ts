@@ -3,7 +3,7 @@
 import { mockNeuralSearchScan, mockRepos, mockUser } from './libPreviewData';
 
 const BASE_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
-const PREVIEW_MODE = true;
+const PREVIEW_MODE = false;
 
 function previewPayload(path: string, options?: RequestInit): unknown {
   const method = options?.method || 'GET';
