@@ -248,7 +248,7 @@ export type SupportMessage = {
 };
 
 export async function getSupportTickets() {
-  return apiGet<{ success: boolean; tickets: SupportTicket[] }>('/api/support');
+  return apiGet<{ success: boolean; tickets: SupportTicket[]; readReceiptsEnabled?: boolean }>('/api/support');
 }
 
 export async function createSupportTicket(body: { queryType: string; queryTopic: string; orderId?: string; message: string }) {
@@ -265,6 +265,13 @@ export async function sendSupportMessage(id: string, message: string) {
 
 export async function updateSupportTicket(id: string, body: { action: 'typing' | 'close' | 'reopen'; typing?: boolean; reason?: string }) {
   return apiPatch<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, body);
+}
+
+export async function updateSupportSettings(readReceiptsEnabled: boolean) {
+  return apiPatch<{ success: boolean; readReceiptsEnabled: boolean }>('/api/support', {
+    action: 'read_receipts',
+    readReceiptsEnabled,
+  });
 }
 
 export type AdminOrder = RequestedItem & {

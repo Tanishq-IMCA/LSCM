@@ -47,10 +47,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!ticket) return res.status(404).json({ success: false, message: 'Ticket not found.' });
 
   if (req.method === 'GET') {
-    await query(
-      'UPDATE lscm_support_messages SET read_at = CURRENT_TIMESTAMP WHERE ticket_id = $1 AND sender_id <> $2 AND read_at IS NULL',
-      [id, user.id],
+    const preference = await query(
+      'SELECT support_read_receipts_enabled FROM lscm_users WHERE id = $1',
+      [user.id],
     );
+    const readReceiptsEnabled = Boolean(preference.rows[0]?.support_read_receipts_enabled ?? true);
+    if (!admin || readReceiptsEnabled) {
+      await query(
+        `UPDATE lscm_support_messages
+         SET read_at = CURRENT_TIMESTAMP
+         WHERE ticket_id = $1 AND sender_role = $2 AND read_at IS NULL`,
+        [id, admin ? 'customer' : 'admin'],
+      );
+    }
     const messages = await query(
       `SELECT id, sender_id, sender_role, body, delivered_at, read_at, created_at
        FROM lscm_support_messages WHERE ticket_id = $1 ORDER BY created_at ASC`,
@@ -77,6 +86,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (ticket.status === 'closed') return res.status(409).json({ success: false, message: 'Reopen this ticket before replying.' });
     const body = String(req.body?.message || '').trim().slice(0, 2000);
     if (!body) return res.status(400).json({ success: false, message: 'Message cannot be empty.' });
+    if (admin) {
+      await query(
+        `UPDATE lscm_support_messages
+         SET read_at = CURRENT_TIMESTAMP
+         WHERE ticket_id = $1 AND sender_role = 'customer' AND read_at IS NULL`,
+        [id],
+      );
+    }
     await query(
       `INSERT INTO lscm_support_messages (id, ticket_id, sender_id, sender_role, body)
        VALUES ($1, $2, $3, $4, $5)`,

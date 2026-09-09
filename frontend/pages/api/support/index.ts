@@ -43,7 +43,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        ORDER BY t.updated_at DESC`,
       [user.id],
     );
-    return res.status(200).json({ success: true, tickets: result.rows.map(row => serializeTicket(row, user.id)) });
+    const preference = await query(
+      'SELECT support_read_receipts_enabled FROM lscm_users WHERE id = $1',
+      [user.id],
+    );
+    return res.status(200).json({
+      success: true,
+      tickets: result.rows.map(row => serializeTicket(row, user.id)),
+      readReceiptsEnabled: Boolean(preference.rows[0]?.support_read_receipts_enabled ?? true),
+    });
+  }
+
+  if (req.method === 'PATCH') {
+    if (!admin) return res.status(403).json({ success: false, message: 'Admin access required.' });
+    if (String(req.body?.action || '') !== 'read_receipts') {
+      return res.status(400).json({ success: false, message: 'Unknown support setting.' });
+    }
+    const enabled = Boolean(req.body?.readReceiptsEnabled);
+    await query(
+      'UPDATE lscm_users SET support_read_receipts_enabled = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+      [user.id, enabled],
+    );
+    return res.status(200).json({ success: true, readReceiptsEnabled: enabled });
   }
 
   if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed.' });

@@ -33,7 +33,11 @@ export default function SupportPage() {
   const refreshTickets = async () => {
     const result = await getSupportTickets();
     setTickets(result.tickets || []);
-    if (!selectedId && result.tickets?.[0]) setSelectedId(result.tickets[0].id);
+    const savedId = typeof window !== 'undefined' && user ? window.localStorage.getItem(`lscm-support-ticket:${user.id}`) : null;
+    const savedTicket = savedId ? result.tickets?.find(item => item.id === savedId) : null;
+    if ((!selectedId || !result.tickets?.some(item => item.id === selectedId)) && result.tickets?.[0]) {
+      setSelectedId(savedTicket?.id || result.tickets[0].id);
+    }
   };
 
   const refreshDetail = async (id: string) => {
@@ -61,6 +65,10 @@ export default function SupportPage() {
   useEffect(() => {
     if (selectedId) void refreshDetail(selectedId);
   }, [selectedId]);
+
+  useEffect(() => {
+    if (user && selectedId) window.localStorage.setItem(`lscm-support-ticket:${user.id}`, selectedId);
+  }, [user, selectedId]);
 
   useEffect(() => {
     if (!selectedId || ticket?.status === 'closed') return;
@@ -141,7 +149,7 @@ export default function SupportPage() {
           <section className="flex flex-col border border-white/[0.08] bg-white/[0.035]">
             {!ticket ? <div className="flex flex-1 items-center justify-center p-10 text-center text-sm text-white/35">Select a ticket or open a new one.</div> : <>
               <header className="border-b border-white/[0.08] p-5"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] uppercase tracking-[0.25em] text-[var(--accent)]">{ticket.queryType} · {ticket.queryTopic}</p><h2 className="mt-2 text-xl uppercase tracking-[0.08em] text-white">{ticket.orderNumber ? `Order ${ticket.orderNumber.slice(0, 8)}` : 'General support'}</h2></div><div className="flex items-center gap-3"><span className="text-[10px] uppercase text-white/35">{ticket.status}</span>{ticket.status === 'open' && <button type="button" onClick={() => void transition('close')} className="border border-red-300/30 px-3 py-2 text-[9px] uppercase tracking-[0.15em] text-red-200/70">Close</button>}</div></div></header>
-              <div className="flex-1 space-y-3 overflow-y-auto p-5">{messages.map(message => <div key={message.id} className={message.senderRole === 'system' ? 'mx-auto max-w-xl border border-yellow-200/15 bg-yellow-100/[0.04] p-3 text-center' : `max-w-[85%] border border-white/[0.08] p-3 ${message.senderId === user.id ? 'ml-auto bg-[var(--accent)]/[0.1]' : 'bg-white/[0.03]'}`}><p className="whitespace-pre-wrap text-sm leading-6 text-white/75">{message.body}</p><p className="mt-2 text-[9px] uppercase tracking-[0.14em] text-white/30">{message.senderRole === 'system' ? 'LSCM system' : message.senderId === user.id ? messageStatus(message) : 'Delivered'} · {new Date(message.createdAt).toLocaleTimeString()}</p></div>)}{ticket.typing && <p className="text-xs italic text-white/35">Support is typing...</p>}</div>
+              <div className="flex-1 space-y-3 overflow-y-auto p-5">{messages.map(message => <div key={message.id} className={message.senderRole === 'system' ? 'mx-auto max-w-xl border border-yellow-200/15 bg-yellow-100/[0.04] p-3 text-center' : `max-w-[85%] border border-white/[0.08] p-3 ${message.senderId === user.id ? 'ml-auto bg-[var(--accent)]/[0.1]' : 'bg-white/[0.03]'}`}><p className="whitespace-pre-wrap text-sm leading-6 text-white/75">{message.body}</p><p className="mt-2 text-[9px] uppercase tracking-[0.14em] text-white/30">{message.senderRole === 'system' ? 'LSCM system' : message.senderId === user.id ? messageStatus(message) : 'Delivered'} · {new Date(message.createdAt).toLocaleTimeString()}</p></div>)}{draft.trim() && <div className="ml-auto max-w-[85%] border border-dashed border-[var(--accent)]/60 bg-[var(--accent)]/[0.04] p-3"><p className="whitespace-pre-wrap text-sm leading-6 text-white/60">{draft}</p><p className="mt-2 text-[9px] uppercase tracking-[0.14em] text-[var(--accent)]/70">Draft · not sent</p></div>}{ticket.typing && <p className="text-xs italic text-white/35">Support is typing...</p>}</div>
               {ticket.status === 'closed' ? <div className="border-t border-white/[0.08] p-5"><p className="text-xs text-white/40">This ticket is closed. Reopen it to continue the conversation.</p><div className="mt-3 flex gap-2"><input value={reopenReason} onChange={event => setReopenReason(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Reason for reopening" /><button type="button" disabled={busy} onClick={() => void transition('reopen')} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase text-black">Reopen</button></div></div> : <form onSubmit={send} className="border-t border-white/[0.08] p-5"><div className="flex gap-2"><input value={draft} onChange={event => setDraft(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Write a message..." /><button disabled={busy || !draft.trim()} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase text-black">Send</button></div></form>}
             </>}
           </section>
