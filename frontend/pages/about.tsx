@@ -224,7 +224,7 @@ function DevelopmentTimeline() {
             style={{
               height: fillHeight,
               backgroundColor: "var(--accent)",
-              boxShadow: "0 0 14px rgba(16,185,129,0.6), 0 0 28px rgba(16,185,129,0.25)",
+              boxShadow: "0 0 14px rgba(168,85,247,0.7), 0 0 28px rgba(168,85,247,0.32)",
             }}
           />
         </div>
@@ -264,8 +264,8 @@ function TimelineCard({
       className="relative flex-1 p-5 md:p-6 border bg-white/[0.05] backdrop-blur-md overflow-hidden"
       style={{
         borderRadius: "2px",
-        borderColor: useTransform(isActive, [0, 1], ["rgba(255,255,255,0.08)", "rgba(16,185,129,0.55)"]),
-        boxShadow: useMotionTemplate`0 0 ${useTransform(isActive, [0, 1], [0, 28])}px rgba(16,185,129,${useTransform(isActive, [0, 1], [0, 0.35])})`,
+        borderColor: useTransform(isActive, [0, 1], ["rgba(255,255,255,0.08)", "rgba(168,85,247,0.62)"]),
+        boxShadow: useMotionTemplate`0 0 ${useTransform(isActive, [0, 1], [0, 28])}px rgba(168,85,247,${useTransform(isActive, [0, 1], [0, 0.42])})`,
       }}
     >
       {/* Inner sweep reflection */}
@@ -594,7 +594,7 @@ export default function AboutPage() {
             </p>
             <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
               New members can enjoy VIP treatment while their green clover is active. Premium heists
-              are limited to two runs per 20 minutes, with live slots shared in Discord. Heists run
+              are limited to two runs per 30 minutes, with live slots shared in Discord. Heists run
               Monday–Friday, 9am–3pm CST, and Thursdays are reserved for modded car requests.
             </p>
           </motion.div>
@@ -681,10 +681,10 @@ export default function AboutPage() {
             className="text-3xl md:text-5xl text-white tracking-[0.07em] uppercase mb-6"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            <GlitchyText text="Built by builders" />
+            <GlitchyText text="Modded for the city" />
             <br />
             <span className="text-white/35">
-              <GlitchyText text="for builders" />
+              <GlitchyText text="run by modders" />
             </span>
           </h2>
           <p className="text-sm leading-7 text-white/35" style={{ fontFamily: "var(--font-body)" }}>

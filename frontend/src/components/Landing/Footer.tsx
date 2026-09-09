@@ -10,7 +10,10 @@ export function Footer() {
           className="text-sm tracking-[0.26em] uppercase text-white/22"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          <img src="/grayscalemini.png" alt="LSCM" className="h-8 w-auto opacity-70" />
+          <div className="flex items-center gap-3">
+            <img src="/grayscalemini.png" alt="LSCM" className="h-8 w-auto opacity-70" />
+            <span className="text-[11px] tracking-[0.28em] text-white/35">ALL THE LSCM</span>
+          </div>
         </div>
         <div className="flex items-center gap-6">
           {['Features', 'How It Works', 'About', 'Store'].map((link) => (
