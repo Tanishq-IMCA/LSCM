@@ -48,7 +48,7 @@ function HeaderGhostBtn({ children, onClick }: { children: React.ReactNode; onCl
       onHoverEnd={() => setHovered(false)}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      className="relative min-w-[126px] overflow-hidden flex items-center justify-center px-5 py-2 text-[11px] uppercase tracking-[0.34em]"
+      className="relative w-[126px] min-w-[126px] shrink-0 overflow-hidden flex items-center justify-center px-5 py-2 text-[11px] uppercase tracking-[0.34em] whitespace-nowrap"
       style={{
         borderRadius: 0,
         fontFamily: 'var(--font-display)',
