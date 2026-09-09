@@ -222,6 +222,51 @@ export async function removeRequestedItem(id: string) {
   return apiFetch<{ success: boolean }>(`/api/requests?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
+export type SupportTicket = {
+  id: string;
+  userId: string;
+  customerName: string;
+  customerEmail: string;
+  orderNumber: string | null;
+  queryType: string;
+  queryTopic: string;
+  status: 'open' | 'closed';
+  unreadCount: number;
+  typing: boolean;
+  updatedAt: string;
+  createdAt: string;
+};
+
+export type SupportMessage = {
+  id: string;
+  senderId: string;
+  senderRole: 'customer' | 'admin' | 'system';
+  body: string;
+  deliveredAt: string;
+  readAt: string | null;
+  createdAt: string;
+};
+
+export async function getSupportTickets() {
+  return apiGet<{ success: boolean; tickets: SupportTicket[] }>('/api/support');
+}
+
+export async function createSupportTicket(body: { queryType: string; queryTopic: string; orderId?: string; message: string }) {
+  return apiPost<{ success: boolean; ticketId: string }>('/api/support', body);
+}
+
+export async function getSupportTicket(id: string) {
+  return apiGet<{ success: boolean; ticket: SupportTicket; messages: SupportMessage[] }>(`/api/support/${encodeURIComponent(id)}`);
+}
+
+export async function sendSupportMessage(id: string, message: string) {
+  return apiPost<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, { message });
+}
+
+export async function updateSupportTicket(id: string, body: { action: 'typing' | 'close' | 'reopen'; typing?: boolean; reason?: string }) {
+  return apiPatch<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, body);
+}
+
 export type AdminOrder = RequestedItem & {
   order_number: string;
   product_name?: string;
