@@ -48,13 +48,14 @@ function HeaderGhostBtn({ children, onClick }: { children: React.ReactNode; onCl
       onHoverEnd={() => setHovered(false)}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      className="relative overflow-hidden flex items-center justify-center px-5 py-2 text-[11px] uppercase tracking-[0.34em]"
+      className="relative min-w-[126px] overflow-hidden flex items-center justify-center px-5 py-2 text-[11px] uppercase tracking-[0.34em]"
       style={{
         borderRadius: 0,
         fontFamily: 'var(--font-display)',
         border: `1px solid ${hovered ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'}`,
         color: hovered ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)',
-        transition: 'color 0.22s, border-color 0.22s',
+        boxShadow: hovered ? '0 0 20px rgba(168,85,247,0.24)' : '0 0 0 rgba(168,85,247,0)',
+        transition: 'color 0.22s, border-color 0.22s, box-shadow 0.22s',
         background: 'rgba(255,255,255,0.03)',
       }}
     >
@@ -149,7 +150,7 @@ export function Header() {
             style={{ fontFamily: 'var(--font-display)' }}
           >
             <img src="/grayscalemini.png" alt="LSCM" className="h-8 w-auto object-contain opacity-80" />
-            <span className="text-[11px] tracking-[0.28em] text-white/75" style={{ fontFamily: 'var(--font-display)' }}>
+            <span className="text-[15px] font-semibold tracking-[0.24em] text-[#a855f7]" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, textShadow: 'none' }}>
               LSCM
             </span>
             <span className="relative inline-flex items-center h-5 w-[2px] overflow-hidden">
@@ -193,10 +194,10 @@ export function Header() {
             </Link>
             <Link
               href="/legal"
-              className="hidden md:block text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
+              className="hidden md:block w-[52px] text-center text-[11px] uppercase tracking-[0.34em] text-white/30 hover:text-white/70 transition-colors duration-200"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              <LegalCyclingText />
+              <LegalCyclingText className="block w-full" />
             </Link>
 
             <div className="flex items-center gap-3">

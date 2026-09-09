@@ -250,7 +250,7 @@ function DevelopmentTimeline() {
           <div key={phase.phase} className="relative">
             <div
               ref={i === 0 ? firstDotRef : i === phases.length - 1 ? lastDotRef : undefined}
-              className="absolute left-[-41px] md:left-[-65px] top-1.5 w-3 h-3 rounded-full border border-white/[0.15] bg-white/[0.06] backdrop-blur-md z-10"
+              className={`absolute left-[-41px] md:left-[-65px] top-1.5 w-3 h-3 rounded-full border backdrop-blur-md z-10 ${phase.phase === "09" ? "border-red-400/80 bg-red-500/30 shadow-[0_0_16px_rgba(239,68,68,0.85)]" : "border-white/[0.15] bg-white/[0.06]"}`}
             />
             <TimelineCard phase={phase} index={i} total={phases.length} progress={progress} />
           </div>
@@ -273,14 +273,17 @@ function TimelineCard({
 }) {
   const threshold = index / (total - 1);
   const isActive = useTransform<number, number>(progress, (p) => (p >= threshold ? 1 : 0));
+  const isWarning = phase.phase === "09";
 
   return (
     <motion.div
-      className="relative flex-1 p-5 md:p-6 border bg-white/[0.05] backdrop-blur-md overflow-hidden"
+      className={`relative flex-1 p-5 md:p-6 border bg-white/[0.05] backdrop-blur-md overflow-hidden ${isWarning ? "border-red-500/40" : ""}`}
       style={{
         borderRadius: "2px",
-        borderColor: useTransform(isActive, [0, 1], ["rgba(255,255,255,0.08)", "rgba(168,85,247,0.62)"]),
-        boxShadow: useMotionTemplate`0 0 ${useTransform(isActive, [0, 1], [0, 28])}px rgba(168,85,247,${useTransform(isActive, [0, 1], [0, 0.42])})`,
+        borderColor: useTransform(isActive, [0, 1], isWarning ? ["rgba(239,68,68,0.42)", "rgba(239,68,68,0.9)"] : ["rgba(255,255,255,0.08)", "rgba(168,85,247,0.62)"]),
+        boxShadow: isWarning
+          ? useMotionTemplate`0 0 ${useTransform(isActive, [0, 1], [8, 30])}px rgba(239,68,68,${useTransform(isActive, [0, 1], [0.28, 0.72])})`
+          : useMotionTemplate`0 0 ${useTransform(isActive, [0, 1], [0, 28])}px rgba(168,85,247,${useTransform(isActive, [0, 1], [0, 0.42])})`,
       }}
     >
       {/* Inner sweep reflection */}
@@ -294,17 +297,17 @@ function TimelineCard({
       />
       <p
         className="text-[10px] uppercase tracking-[0.44em] mb-2"
-        style={{ fontFamily: "var(--font-mono)", color: "var(--accent)" }}
+        style={{ fontFamily: "var(--font-mono)", color: isWarning ? "#f87171" : "var(--accent)", textShadow: isWarning ? "0 0 12px rgba(239,68,68,0.85)" : "none" }}
       >
         Phase {phase.phase}
       </p>
       <h3
-        className="text-lg md:text-xl text-white tracking-[0.08em] uppercase mb-3"
-        style={{ fontFamily: "var(--font-display)" }}
+        className={`text-lg md:text-xl tracking-[0.08em] uppercase mb-3 ${isWarning ? "text-red-300 drop-shadow-[0_0_14px_rgba(239,68,68,0.9)]" : "text-white"}`}
+        style={{ fontFamily: "var(--font-display)", textShadow: isWarning ? "0 0 16px rgba(239,68,68,0.7)" : "none" }}
       >
         {phase.title}
       </h3>
-      <p className="text-sm leading-7 text-white/40" style={{ fontFamily: "var(--font-body)" }}>
+      <p className={`text-sm leading-7 ${isWarning ? "text-red-100/60" : "text-white/40"}`} style={{ fontFamily: "var(--font-body)" }}>
         {phase.body}
       </p>
     </motion.div>
