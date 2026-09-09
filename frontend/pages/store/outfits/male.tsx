@@ -2,11 +2,15 @@ import Link from 'next/link';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import GlitchyText from '@/components/ui/GlitchyText';
+import { CartPanel } from '@/components/store/CartPanel';
+import { useCart } from '@/contexts/CartContext';
+import { showNotice } from '@/components/ui/NexusNotice';
 
 type Outfit = {
   code: string;
   name: string;
   summary: string;
+  image?: string;
 };
 
 const MALE_OUTFITS: Outfit[] = [
@@ -24,10 +28,27 @@ const MALE_OUTFITS: Outfit[] = [
   { code: 'LSCM-OUT-M-012', name: 'Red Tryhard', summary: 'Maximum competitive posture. Results may vary; confidence will not.' },
   { code: 'LSCM-OUT-M-013', name: 'Blue-White Tryhard', summary: 'A crisp two-tone loadout for those who came to win the fit check.' },
   { code: 'LSCM-OUT-M-014', name: 'Pink Flippers', summary: 'Unreasonably cheerful, surprisingly rare and ready for the shoreline.' },
-  { code: 'LSCM-OUT-M-015', name: "Neo's First Sweat Outfit", summary: 'The original chapter. A little nostalgic, still dangerously comfortable.' },
+  { code: 'LSCM-OUT-M-015', name: "Neo's First Sweat Outfit", summary: 'The original chapter. A little nostalgic, still dangerously comfortable.', image: '/neo.png' },
 ];
 
 export default function MaleOutfitsPage() {
+  const { addItem } = useCart();
+
+  const addOutfitToCart = async (outfit: Outfit) => {
+    try {
+      await addItem({
+        productCode: outfit.code,
+        productName: outfit.name,
+        category: 'Male Outfits',
+        unitPrice: 1,
+        imagePath: outfit.image,
+      });
+      showNotice('ADDED TO CART', `${outfit.name} is ready for your request.`, 'success');
+    } catch (error) {
+      showNotice('CART UPDATE FAILED', error instanceof Error ? error.message : 'Sign in to save your cart.', 'error');
+    }
+  };
+
   return (
     <main className="min-h-screen pt-24">
       <Header />
@@ -47,19 +68,30 @@ export default function MaleOutfitsPage() {
             <p className="text-[10px] uppercase tracking-[0.4em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>Current collection</p>
             <h2 className="mt-2 text-2xl uppercase tracking-[0.1em] text-white" style={{ fontFamily: 'var(--font-display)' }}>Available fits</h2>
           </div>
-          <span className="text-[10px] uppercase tracking-[0.22em] text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>{MALE_OUTFITS.length} listings</span>
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] uppercase tracking-[0.22em] text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>{MALE_OUTFITS.length} listings</span>
+            <CartPanel />
+          </div>
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {MALE_OUTFITS.map((outfit) => (
             <article key={outfit.code} className="store-card overflow-hidden">
               <div className="flex h-40 items-center justify-center border-b border-white/[0.08] bg-white/[0.025]">
-                <img src="/grayscalemini.png" alt="" className="max-h-16 w-auto opacity-35 grayscale" />
+                <img src={outfit.image || '/grayscalemini.png'} alt="" className="max-h-24 w-auto opacity-60 grayscale" />
               </div>
               <div className="pt-6">
                 <p className="text-[9px] uppercase tracking-[0.26em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>Modded outfit</p>
                 <h3 className="mt-4 text-xl uppercase tracking-[0.08em] text-white" style={{ fontFamily: 'var(--font-display)' }}>{outfit.name}</h3>
                 <p className="mt-3 min-h-12 text-sm leading-6 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>{outfit.summary}</p>
+                <button
+                  type="button"
+                  onClick={() => void addOutfitToCart(outfit)}
+                  className="mt-6 w-full border border-[var(--accent)]/40 px-4 py-3 text-[10px] uppercase tracking-[0.24em] text-white/70 transition hover:bg-[var(--accent)]/15 hover:text-white"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  Add to cart · $1
+                </button>
                 <div className="mt-6 flex items-end justify-between border-t border-white/[0.08] pt-4">
                   <p className="text-[10px] tracking-[0.16em] text-white/45" style={{ fontFamily: 'var(--font-mono)' }}>{outfit.code}</p>
                   <p className="text-3xl text-white" style={{ fontFamily: 'var(--font-display)' }}>$1<span className="ml-1 text-xs text-white/30">USD</span></p>

@@ -5,6 +5,9 @@ import { motion } from 'framer-motion';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import GlitchyText from '@/components/ui/GlitchyText';
+import { CartPanel } from '@/components/store/CartPanel';
+import { useCart } from '@/contexts/CartContext';
+import { showNotice } from '@/components/ui/NexusNotice';
 import Link from 'next/link';
 
 type Product = {
@@ -132,6 +135,21 @@ export default function StorePage() {
   const [activeType, setActiveType] = useState('All types');
   const [query, setQuery] = useState('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const { addItem } = useCart();
+
+  const addProductToCart = async (product: Product) => {
+    try {
+      await addItem({
+        productCode: product.code,
+        productName: product.name,
+        category: product.type,
+        unitPrice: product.price,
+      });
+      showNotice('ADDED TO CART', `${product.name} is ready for your request.`, 'success');
+    } catch (error) {
+      showNotice('CART UPDATE FAILED', error instanceof Error ? error.message : 'Sign in to save your cart.', 'error');
+    }
+  };
 
   const copyServiceCode = async (code: string) => {
     try {
@@ -184,6 +202,9 @@ export default function StorePage() {
                {item.label}
              </button>
            ))}
+            <div className="ml-auto">
+              <CartPanel />
+            </div>
          </div>
 
           {activeCatalog === 'cars' ? (
@@ -287,6 +308,14 @@ export default function StorePage() {
                 <ul className="mt-5 space-y-2 border-t border-white/[0.08] pt-5">
                   {product.includes.map((item) => <li key={item} className="flex gap-2 text-xs leading-5 text-white/55"><span style={{ color: 'var(--accent)' }}>+</span>{item}</li>)}
                 </ul>
+                <button
+                  type="button"
+                  onClick={() => void addProductToCart(product)}
+                  className="mt-6 w-full border border-[var(--accent)]/40 px-4 py-3 text-[10px] uppercase tracking-[0.24em] text-white/70 transition hover:bg-[var(--accent)]/15 hover:text-white"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  Add to cart
+                </button>
               </div>
               <div className="mt-8 flex items-end justify-between border-t border-white/[0.08] pt-4">
                 <div className="flex items-center gap-3">

@@ -162,6 +162,61 @@ export async function saveProfile(body: Record<string, unknown>) {
   return apiPatch<{ success: boolean; user: Record<string, unknown> }>('/api/profile', body);
 }
 
+// ── Store cart and requests ────────────────────────────────────────────────
+export type CartItem = {
+  id: string;
+  productCode: string;
+  productName: string;
+  category: string;
+  unitPrice: number;
+  imagePath: string;
+  quantity: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type RequestedItem = CartItem & {
+  status: string;
+};
+
+export async function getCart() {
+  return apiGet<{ success: boolean; items: CartItem[]; totalQuantity: number; totalPrice: number }>('/api/cart');
+}
+
+export async function addCartItem(body: {
+  productCode: string;
+  productName: string;
+  category: string;
+  unitPrice: number;
+  imagePath?: string;
+}) {
+  return apiPost<{ success: boolean; items: CartItem[]; totalQuantity: number; totalPrice: number }>('/api/cart', body);
+}
+
+export async function updateCartItem(id: string, quantity: number) {
+  return apiPatch<{ success: boolean; items: CartItem[]; totalQuantity: number; totalPrice: number }>('/api/cart', { id, quantity });
+}
+
+export async function removeCartItem(id: string) {
+  return apiFetch<{ success: boolean; items: CartItem[]; totalQuantity: number; totalPrice: number }>(`/api/cart?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export async function checkoutCart() {
+  return apiPost<{ success: boolean; items: RequestedItem[]; message: string }>('/api/requests/checkout', {});
+}
+
+export async function getRequestedItems() {
+  return apiGet<{ success: boolean; items: RequestedItem[] }>('/api/requests');
+}
+
+export async function updateRequestedItem(id: string, quantity: number) {
+  return apiPatch<{ success: boolean; item: RequestedItem }>('/api/requests', { id, quantity });
+}
+
+export async function removeRequestedItem(id: string) {
+  return apiFetch<{ success: boolean }>(`/api/requests?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
 // ── GitHub Repositories ─────────────────────────────────────────────────────
 export async function getRepositories() {
   return apiGet<{ success: boolean; repositories: Array<Record<string, unknown>> }>('/api/githubpull/repositories');
