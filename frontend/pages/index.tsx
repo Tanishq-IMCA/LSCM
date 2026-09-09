@@ -428,7 +428,7 @@ export default function LandingPage() {
               </motion.div>
 
               {/* Headline */}
-              <div className="mb-7">
+              <div className="mb-7 flex h-[clamp(54px,8vw,104px)] items-start">
                 <TypewriterHeadline
                   phrases={[
                     "WE ARE LSCM.",

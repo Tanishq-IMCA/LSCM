@@ -171,13 +171,13 @@ function TechRow({ direction, speed = 40 }: { direction: 'left' | 'right'; speed
             className="flex items-center gap-2.5 text-white/30 hover:text-white/70 transition-all duration-500 cursor-default shrink-0 group"
           >
             <div className="w-8 h-8 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              {tech.icon}
+              <img src="/grayscalemini.png" alt="" className="h-7 w-auto object-contain opacity-80" />
             </div>
             <span
               className="text-[11px] uppercase tracking-[0.28em] whitespace-nowrap"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              {tech.name}
+              LSCM
             </span>
           </div>
         ))}
@@ -194,7 +194,7 @@ export default function TechCarousel() {
           className="text-[10px] uppercase tracking-[0.48em] text-white/20 text-center"
           style={{ fontFamily: 'var(--font-mono)' }}
         >
-          Powered By
+          LSCM // COMMUNITY
         </p>
       </div>
       <TechRow direction="left" speed={45} />
