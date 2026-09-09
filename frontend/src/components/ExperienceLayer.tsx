@@ -140,12 +140,10 @@ export default function ExperienceLayer() {
             aria-hidden="true"
           />
           <div className="loader-screen__shade" />
-          <div className="absolute inset-0 z-10 flex items-center justify-center px-6">
-            <div className="loader-screen__brand">
-              <span className="loader-screen__eyebrow">Los Santos Car Modders</span>
-              <strong>LSCM</strong>
-              <span className="loader-screen__status">Initializing community services</span>
-            </div>
+          <div className="loader-screen__brand loader-screen__brand--corner z-10">
+            <span className="loader-screen__eyebrow">Los Santos Car Modders</span>
+            <strong>LSCM</strong>
+            <span className="loader-screen__status">Initializing community services</span>
           </div>
           <div className="loader-screen__progress">
             <div className="loader-screen__progress-meta">

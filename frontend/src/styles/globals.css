@@ -162,6 +162,11 @@ body::-webkit-scrollbar { display: none; }
   text-align: right;
   margin-bottom: 20px;
 }
+.loader-screen__brand--corner {
+  position: absolute;
+  right: 34px;
+  bottom: 86px;
+}
 .loader-screen__brand strong { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 4.5rem); letter-spacing: 0.12em; text-shadow: 0 0 35px rgba(168,85,247,0.45); }
 .loader-screen__eyebrow, .loader-screen__status, .loader-screen__progress { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: rgba(255,255,255,0.48); }
 .loader-screen__status { color: rgba(216,180,254,0.72); letter-spacing: 0.14em; }
