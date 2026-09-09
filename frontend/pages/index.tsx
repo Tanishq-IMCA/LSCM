@@ -639,10 +639,10 @@ export default function LandingPage() {
               },
               {
                 step: "03",
-                  cmd: "MANAGEMENT // GET IT DONE",
-                 title: "GET IT DONE",
-                 desc: "Management confirms timing, coordinates delivery and keeps support close by.",
-                  href: "https://discord.gg/wy5ws9vVMs",
+                   cmd: "CREW // SEE WHO'S RUNNING LOS SANTOS",
+                  title: "CHECK OUT OUR CREW",
+                  desc: "See the LSCM crew on Rockstar Social Club, follow our heists and connect with the players running the city.",
+                   href: "https://socialclub.rockstargames.com/crew/lscm_and_safe_heists/",
               },
             ].map((item, i) => (
               <motion.div
@@ -708,7 +708,7 @@ export default function LandingPage() {
                   className="mt-6 inline-flex border border-white/[0.12] px-4 py-2.5 text-[10px] uppercase tracking-[0.22em] text-white/60 transition hover:border-[var(--accent)] hover:text-white"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  {i === 0 ? "Join Discord" : i === 1 ? "Choose Service" : "Open Discord"}
+                  {i === 0 ? "Join Discord" : i === 1 ? "Choose Service" : "View Our Crew"}
                 </a>
               </motion.div>
             ))}

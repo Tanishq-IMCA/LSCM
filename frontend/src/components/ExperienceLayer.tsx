@@ -45,16 +45,18 @@ export default function ExperienceLayer() {
 
   useEffect(() => {
     const startedAt = Date.now();
+    const loaderDuration = 8000;
+    const progressDuration = 7400;
     const progressTimer = window.setInterval(() => {
       const elapsed = Date.now() - startedAt;
-      setLoadProgress(Math.min(92, Math.round((elapsed / 1200) * 92)));
+      setLoadProgress(Math.min(92, Math.round((elapsed / progressDuration) * 92)));
     }, 50);
     const finishTimer = window.setTimeout(() => {
       window.clearInterval(progressTimer);
       setLoadProgress(100);
       setIsLoaderFading(true);
       window.setTimeout(() => setIsLoading(false), 950);
-    }, 1350);
+    }, loaderDuration);
 
     return () => {
       window.clearInterval(progressTimer);
@@ -131,7 +133,7 @@ export default function ExperienceLayer() {
       {isLoading && (
         <div className={`loader-screen ${isLoaderFading ? 'loader-screen--fading' : ''}`} role="status" aria-live="polite">
           <video
-            className="loader-screen__video loader-screen__video--blurred"
+            className="loader-screen__video"
             src="/bg.mp4"
             autoPlay
             muted
