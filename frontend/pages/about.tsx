@@ -171,6 +171,21 @@ function DevelopmentTimeline() {
       title: "Stay Close to the Benefits",
       body: "Keep an eye on the Discord and the green clover beside your username for updates. Management coordinates support, heist slots and service requests there so members always know what is available.",
     },
+    {
+      phase: "07",
+      title: "Get Your Role",
+      body: "Keep your Discord role visible so management knows where you fit in the community. Roles help the right players receive the right service updates, heist notices and support.",
+    },
+    {
+      phase: "08",
+      title: "Watch for the Ping",
+      body: "When a heist or service slot opens, management pings the relevant role in Discord. Stay close to the live channel so you can respond while availability is still open.",
+    },
+    {
+      phase: "09",
+      title: "Please Do Not Beg",
+      body: "Last of all, please do not beg for a slot. We will ping your respective role in Discord so you can join. It is first come, first served; once the slots fill, wait for the next ping.",
+    },
   ];
 
   const [mounted, setMounted] = useState(false);

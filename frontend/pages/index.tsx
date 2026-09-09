@@ -644,14 +644,6 @@ export default function LandingPage() {
                   desc: "See the LSCM crew on Rockstar Social Club, follow our heists and connect with the players running the city.",
                    href: "https://socialclub.rockstargames.com/crew/lscm_and_safe_heists/",
               },
-               {
-                 step: "09",
-                 cmd: "FINAL NOTE // COMMUNITY ETIQUETTE",
-                 title: "PLEASE DO NOT BEG",
-                 desc: "We will ping your respective role in Discord when a slot opens so you can join. It is first come, first served; once the slots fill, wait for the next ping.",
-                 href: "https://discord.gg/wy5ws9vVMs",
-                 warning: true,
-               },
             ].map((item, i) => (
               <motion.div
                 key={item.step}
@@ -663,26 +655,24 @@ export default function LandingPage() {
                   delay: i * 0.12,
                   ease: [0.16, 1, 0.3, 1],
                 }}
-                 className={`group relative flex h-full flex-col overflow-hidden border p-8 transition-all duration-700 ${item.warning ? "border-red-500/30 hover:border-red-400/70" : "border-white/[0.08] hover:border-white/[0.16]"}`}
+                 className="group relative flex h-full flex-col overflow-hidden border border-white/[0.08] p-8 transition-all duration-700 hover:border-white/[0.16]"
                 style={{
                   borderRadius: "2px",
-                   background: item.warning ? "rgba(127, 29, 29, 0.08)" : "rgba(255,255,255,0.02)",
+                    background: "rgba(255,255,255,0.02)",
                 }}
               >
                 <div
                   className="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full transition-all duration-700"
                   style={{
                     background:
-                       item.warning
-                         ? "linear-gradient(90deg, #ef4444 0%, transparent 100%)"
-                         : "linear-gradient(90deg, var(--accent) 0%, transparent 100%)",
+                       "linear-gradient(90deg, var(--accent) 0%, transparent 100%)",
                   }}
                 />
                 <div
                   className="text-[10px] tracking-[0.4em] mb-4 uppercase"
                   style={{
                     fontFamily: "var(--font-mono)",
-                     color: item.warning ? "#f87171" : "var(--accent)",
+                     color: "var(--accent)",
                   }}
                 >
                   {item.step}
@@ -691,7 +681,7 @@ export default function LandingPage() {
                   className="text-xs mb-5 px-3 py-2 bg-white/[0.03] border border-white/[0.05]"
                   style={{
                     fontFamily: "var(--font-mono)",
-                     color: item.warning ? "#f87171" : "var(--accent)",
+                     color: "var(--accent)",
                     borderRadius: "2px",
                   }}
                 >
@@ -700,7 +690,7 @@ export default function LandingPage() {
                 <GlitchyText
                   text={item.title}
                   as="h3"
-                   className={`text-base tracking-[0.18em] mb-3 uppercase block ${item.warning ? "text-red-300 drop-shadow-[0_0_12px_rgba(239,68,68,0.8)]" : "text-white"}`}
+                   className="text-base tracking-[0.18em] text-white mb-3 uppercase block"
                   style={
                     { fontFamily: "var(--font-display)" } as React.CSSProperties
                   }
@@ -718,7 +708,7 @@ export default function LandingPage() {
                   className="mt-6 inline-flex border border-white/[0.12] px-4 py-2.5 text-[10px] uppercase tracking-[0.22em] text-white/60 transition hover:border-[var(--accent)] hover:text-white"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                   {i === 0 ? "Join Discord" : i === 1 ? "Choose Service" : i === 2 ? "View Our Crew" : "Join Discord"}
+                  {i === 0 ? "Join Discord" : i === 1 ? "Choose Service" : "View Our Crew"}
                 </a>
               </motion.div>
             ))}
