@@ -8,6 +8,7 @@ export default function ExperienceLayer() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoaderFading, setIsLoaderFading] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
+  const [isScreensaver, setIsScreensaver] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const clickRef = useRef<HTMLAudioElement>(null);
@@ -64,6 +65,11 @@ export default function ExperienceLayer() {
     };
   }, []);
 
+  useEffect(() => {
+    document.body.classList.toggle('screensaver-active', isScreensaver);
+    return () => document.body.classList.remove('screensaver-active');
+  }, [isScreensaver]);
+
   const reverseVideo = () => {
     const video = videoRef.current;
     if (!video || !video.duration) return;
@@ -108,7 +114,7 @@ export default function ExperienceLayer() {
   };
 
   return (
-    <>
+    <div className="experience-layer">
       <audio ref={musicRef} src="/lscm-theme.mp3" loop preload="auto" muted={isMuted} aria-hidden="true" />
       <audio ref={clickRef} src="/click.mp3" preload="auto" aria-hidden="true" />
       <video
@@ -122,14 +128,45 @@ export default function ExperienceLayer() {
         onEnded={reverseVideo}
         aria-hidden="true"
       />
-      <div className="wallpaper-controls" aria-label="Wallpaper controls">
+      <div className={`wallpaper-controls ${isScreensaver ? 'wallpaper-controls--hidden' : ''}`} aria-label="Wallpaper controls">
         <button type="button" onClick={toggleAudio} title={isMuted ? 'Unmute LSCM music' : 'Mute LSCM music'}>
           {isMuted ? 'AUDIO OFF' : 'AUDIO ON'}
         </button>
         <button type="button" onClick={toggleVideo} title={isPaused ? 'Play background video' : 'Pause background video'}>
           {isPaused ? 'PLAY WALLPAPER' : 'PAUSE WALLPAPER'}
         </button>
+        <button
+          type="button"
+          onClick={() => setIsScreensaver(true)}
+          className="wallpaper-icon-button"
+          title="Enter screensaver mode"
+          aria-label="Enter screensaver mode"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="1" />
+            <circle cx="8" cy="9" r="1.5" />
+            <path d="m5 17 4-4 3 3 2-2 5 3" />
+          </svg>
+        </button>
       </div>
+      {isScreensaver && (
+        <div className="screensaver-overlay" aria-label="Screensaver mode">
+          <button
+            type="button"
+            className="screensaver-overlay__button wallpaper-icon-button"
+            onClick={() => setIsScreensaver(false)}
+            title="Exit screensaver mode"
+            aria-label="Exit screensaver mode"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="1" />
+              <circle cx="8" cy="9" r="1.5" />
+              <path d="m5 17 4-4 3 3 2-2 5 3" />
+            </svg>
+          </button>
+          <div className="screensaver-overlay__brand">LSCM</div>
+        </div>
+      )}
       {isLoading && (
         <div className={`loader-screen ${isLoaderFading ? 'loader-screen--fading' : ''}`} role="status" aria-live="polite">
           <video
@@ -158,6 +195,6 @@ export default function ExperienceLayer() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

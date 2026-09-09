@@ -235,6 +235,10 @@ body::-webkit-scrollbar { display: none; }
   gap: 6px;
 }
 
+.experience-layer { display: contents; }
+
+.wallpaper-controls--hidden { display: none; }
+
 .wallpaper-controls button {
   border: 1px solid rgba(255,255,255,0.16);
   background: rgba(9, 6, 18, 0.54);
@@ -247,10 +251,64 @@ body::-webkit-scrollbar { display: none; }
   transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
+.wallpaper-icon-button {
+  display: inline-flex;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 7px !important;
+}
+
+.wallpaper-icon-button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .wallpaper-controls button:hover {
   color: white;
   border-color: var(--accent);
   background: rgba(168, 85, 247, 0.16);
+}
+
+body.screensaver-active > #__next > :not(.experience-layer) {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.screensaver-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(4, 2, 10, 0.14);
+  pointer-events: auto;
+}
+
+.screensaver-overlay__button {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(9, 6, 18, 0.65);
+  color: rgba(255,255,255,0.7);
+}
+
+.screensaver-overlay__brand {
+  position: absolute;
+  right: 30px;
+  bottom: 22px;
+  color: #a855f7;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  line-height: 1;
 }
 
 .frost-layer {
