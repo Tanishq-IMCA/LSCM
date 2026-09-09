@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        LEFT JOIN lscm_requested_items o ON o.id = t.order_id
        ${admin ? '' : 'WHERE t.user_id = $1'}
        ORDER BY t.updated_at DESC`,
-      [user.id],
+      admin ? [] : [user.id],
     );
     const preference = await query(
       'SELECT support_read_receipts_enabled FROM lscm_users WHERE id = $1',
