@@ -9,6 +9,7 @@ export default function ExperienceLayer() {
   const [isLoaderFading, setIsLoaderFading] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [isScreensaver, setIsScreensaver] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const clickRef = useRef<HTMLAudioElement>(null);
@@ -70,6 +71,12 @@ export default function ExperienceLayer() {
     return () => document.body.classList.remove('screensaver-active');
   }, [isScreensaver]);
 
+  useEffect(() => {
+    const syncFullscreenState = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', syncFullscreenState);
+    return () => document.removeEventListener('fullscreenchange', syncFullscreenState);
+  }, []);
+
   const reverseVideo = () => {
     const video = videoRef.current;
     if (!video || !video.duration) return;
@@ -113,13 +120,34 @@ export default function ExperienceLayer() {
     }
   };
 
+  const toggleFullscreen = async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen?.();
+      return;
+    }
+    await document.documentElement.requestFullscreen?.();
+  };
+
   return (
     <div className="experience-layer">
-      <audio ref={musicRef} src="/lscm-theme.mp3" loop preload="auto" muted={isMuted} aria-hidden="true" />
+      <audio
+        ref={musicRef}
+        src="/lscm-theme.mp3"
+        loop
+        preload="auto"
+        muted={isMuted}
+        onEnded={(event) => {
+          if (!isMuted) {
+            event.currentTarget.currentTime = 0;
+            void event.currentTarget.play().catch(() => undefined);
+          }
+        }}
+        aria-hidden="true"
+      />
       <audio ref={clickRef} src="/click.mp3" preload="auto" aria-hidden="true" />
       <video
         ref={videoRef}
-        className={`video-wallpaper ${isPaused ? 'video-wallpaper--paused' : ''}`}
+        className={`video-wallpaper ${isPaused ? 'video-wallpaper--paused' : ''} ${isScreensaver ? 'video-wallpaper--screensaver' : ''}`}
         src="/bg.mp4"
         autoPlay
         muted
@@ -146,6 +174,17 @@ export default function ExperienceLayer() {
             <rect x="3" y="4" width="18" height="16" rx="1" />
             <circle cx="8" cy="9" r="1.5" />
             <path d="m5 17 4-4 3 3 2-2 5 3" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          className="wallpaper-icon-button"
+          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
           </svg>
         </button>
       </div>
