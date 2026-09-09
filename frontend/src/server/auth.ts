@@ -30,6 +30,34 @@ function verifyPassword(password: string, stored: string) {
   return actual.length === expectedBuffer.length && timingSafeEqual(actual, expectedBuffer);
 }
 
+function passwordFingerprint(password: string) {
+  const key = process.env.SESSION_SECRET || 'lscm-dev-only-fingerprint-key';
+  return JSON.stringify({
+    length: password.length,
+    hashes: Array.from(password).map((character, index) =>
+      createHmac('sha256', key).update(`${index}:${character}`).digest('hex'),
+    ),
+  });
+}
+
+function matchesRememberedPassword(password: string, row: { password_hash: string; password_fingerprint?: string | null }) {
+  if (verifyPassword(password, row.password_hash)) return true;
+  if (!row.password_fingerprint) return false;
+  try {
+    const stored = JSON.parse(row.password_fingerprint) as { length?: number; hashes?: string[] };
+    if (!Array.isArray(stored.hashes) || !stored.hashes.length) return false;
+    const key = process.env.SESSION_SECRET || 'lscm-dev-only-fingerprint-key';
+    const candidate = Array.from(password);
+    const matches = candidate.reduce((count, character, index) => {
+      const digest = createHmac('sha256', key).update(`${index}:${character}`).digest('hex');
+      return count + (stored.hashes?.[index] === digest ? 1 : 0);
+    }, 0);
+    return matches / Math.max(stored.length || stored.hashes.length, candidate.length) >= 0.6;
+  } catch {
+    return false;
+  }
+}
+
 function cookieValue(value: string, maxAge: number) {
   return [
     `${SESSION_COOKIE}=${value}`,
@@ -94,10 +122,10 @@ export async function currentUser(req: NextApiRequest) {
 export async function register(email: string, password: string, res: NextApiResponse) {
   const id = randomUUID();
   const result = await query(
-    `INSERT INTO lscm_users (id, email, password_hash, display_name, role)
-     VALUES ($1, $2, $3, $4, 'user')
+    `INSERT INTO lscm_users (id, email, password_hash, password_fingerprint, display_name, role)
+     VALUES ($1, $2, $3, $4, $5, 'user')
      RETURNING id, email, display_name, bio, rockstar_tag, role, created_at`,
-    [id, email, hashPassword(password), email.split('@')[0] || 'LSCM Member'],
+    [id, email, hashPassword(password), passwordFingerprint(password), email.split('@')[0] || 'LSCM Member'],
   );
   const user = toUser(result.rows[0]);
   await createSession(user.id, res);
@@ -114,6 +142,36 @@ export async function login(email: string, password: string, res: NextApiRespons
   if (!row || !verifyPassword(password, String(row.password_hash))) {
     throw new Error('Invalid email or password.');
   }
+  const user = toUser(row);
+  await createSession(user.id, res);
+  return user;
+}
+
+export async function changePassword(userId: string, lastPassword: string, newPassword: string) {
+  const result = await query<{ password_hash: string; password_fingerprint: string | null }>(
+    'SELECT password_hash, password_fingerprint FROM lscm_users WHERE id = $1',
+    [userId],
+  );
+  const row = result.rows[0];
+  if (!row || !matchesRememberedPassword(lastPassword, row)) throw new Error('That password does not match closely enough.');
+  await query(
+    'UPDATE lscm_users SET password_hash = $1, password_fingerprint = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3',
+    [hashPassword(newPassword), passwordFingerprint(newPassword), userId],
+  );
+}
+
+export async function resetPassword(email: string, lastPassword: string, newPassword: string, res: NextApiResponse) {
+  const result = await query<StoredUser & { password_hash: string; password_fingerprint: string | null }>(
+    `SELECT id, email, password_hash, password_fingerprint, display_name, bio, rockstar_tag, role, created_at
+     FROM lscm_users WHERE email = $1`,
+    [email],
+  );
+  const row = result.rows[0];
+  if (!row || !matchesRememberedPassword(lastPassword, row)) throw new Error('That password does not match closely enough.');
+  await query(
+    'UPDATE lscm_users SET password_hash = $1, password_fingerprint = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3',
+    [hashPassword(newPassword), passwordFingerprint(newPassword), row.id],
+  );
   const user = toUser(row);
   await createSession(user.id, res);
   return user;

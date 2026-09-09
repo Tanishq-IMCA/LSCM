@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import { useAuth } from '@/hooks/useAuth';
-import { getRequestedItems, removeRequestedItem, saveProfile, updateRequestedItem, type RequestedItem } from '@/lib/api';
+import { changePassword, getRequestedItems, removeRequestedItem, saveProfile, updateRequestedItem, type RequestedItem } from '@/lib/api';
 import { showNotice } from '@/components/ui/NexusNotice';
 
 export default function AccountPage() {
@@ -15,19 +15,37 @@ export default function AccountPage() {
   const [saving, setSaving] = useState(false);
   const [requestedItems, setRequestedItems] = useState<RequestedItem[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
+  const [lastPassword, setLastPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const activeRequests = requestedItems.filter(item => item.status !== 'finished');
+  const finishedRequests = requestedItems.filter(item => item.status === 'finished');
 
   useEffect(() => {
     if (!isLoading && !user) router.replace('/auth');
-    if (user) {
-      setName(user.name);
-      setBio(user.bio || '');
-      setRockstarTag(user.rockstarTag || '');
-      setRequestsLoading(true);
-      getRequestedItems()
-        .then(result => setRequestedItems(result.items || []))
-        .catch(() => setRequestedItems([]))
-        .finally(() => setRequestsLoading(false));
-    }
+    if (!user) return;
+    setName(user.name);
+    setBio(user.bio || '');
+    setRockstarTag(user.rockstarTag || '');
+    let active = true;
+    const refreshRequests = async (initial = false) => {
+      if (initial) setRequestsLoading(true);
+      try {
+        const result = await getRequestedItems();
+        if (active) setRequestedItems(result.items || []);
+      } catch {
+        if (active && initial) setRequestedItems([]);
+      } finally {
+        if (active && initial) setRequestsLoading(false);
+      }
+    };
+    void refreshRequests(true);
+    const interval = window.setInterval(() => void refreshRequests(), 5000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
   }, [isLoading, user, router]);
 
   if (!user) return null;
@@ -66,6 +84,26 @@ export default function AccountPage() {
     }
   };
 
+  const savePassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (newPassword !== confirmPassword) {
+      showNotice('PASSWORD FAILED', 'New passwords do not match.', 'error');
+      return;
+    }
+    setPasswordSaving(true);
+    try {
+      await changePassword({ lastPassword, newPassword });
+      setLastPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      showNotice('PASSWORD UPDATED', 'Your password has been changed.', 'success');
+    } catch (error) {
+      showNotice('PASSWORD FAILED', error instanceof Error ? error.message : 'Please try again.', 'error');
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ fontFamily: 'var(--font-display)' }}>
       <Header />
@@ -96,29 +134,49 @@ export default function AccountPage() {
             <button disabled={saving} className="mt-6 bg-[var(--accent)] px-6 py-3.5 text-[10px] uppercase tracking-[0.24em] text-black disabled:opacity-50">{saving ? 'Saving...' : 'Save profile'}</button>
           </form>
         </div>
+        <form onSubmit={savePassword} className="mt-8 border border-white/[0.08] bg-white/[0.035] p-7">
+          <div className="flex items-start justify-between gap-4 border-b border-white/[0.08] pb-5">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]" style={{ fontFamily: 'var(--font-mono)' }}>LSCM // SECURITY</p>
+              <h2 className="mt-3 text-2xl uppercase tracking-[0.1em] text-white">Change password</h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>Enter your last remembered password. A close match of at least 60% is accepted.</p>
+            </div>
+            <span title="Please contact our admins for resetting your password." className="cursor-help border border-yellow-300/30 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-yellow-200/70">Need help?</span>
+          </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="password" value={lastPassword} onChange={event => setLastPassword(event.target.value)} placeholder="Last remembered password" required />
+            <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="password" value={newPassword} onChange={event => setNewPassword(event.target.value)} placeholder="New password (8+)" minLength={8} required />
+            <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm new password" minLength={8} required />
+          </div>
+          <button disabled={passwordSaving} className="mt-6 bg-[var(--accent)] px-6 py-3.5 text-[10px] uppercase tracking-[0.24em] text-black disabled:opacity-50">{passwordSaving ? 'Updating...' : 'Update password'}</button>
+        </form>
         <section className="mt-8 border border-white/[0.08] bg-white/[0.035] p-7">
           <div className="flex items-end justify-between gap-4 border-b border-white/[0.08] pb-5">
             <div>
               <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]" style={{ fontFamily: 'var(--font-mono)' }}>LSCM // REQUESTS</p>
               <h2 className="mt-3 text-2xl uppercase tracking-[0.1em] text-white" style={{ fontFamily: 'var(--font-display)' }}>Requested items</h2>
             </div>
-            <span className="text-[10px] uppercase tracking-[0.18em] text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>{requestedItems.length} saved</span>
+             <span className="text-[10px] uppercase tracking-[0.18em] text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>{requestedItems.length} orders</span>
           </div>
           {requestsLoading ? (
             <p className="py-10 text-center text-xs uppercase tracking-[0.2em] text-white/35">Loading requests...</p>
           ) : requestedItems.length === 0 ? (
             <p className="py-10 text-center text-sm text-white/35">Your submitted requests will appear here.</p>
           ) : (
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {requestedItems.map(item => (
-                <article key={item.id} className="border border-white/[0.08] bg-white/[0.025] p-4">
+             <div className="mt-5 space-y-8">
+               {activeRequests.length > 0 && <div>
+                 <div className="mb-3 flex items-center justify-between"><h3 className="text-xs uppercase tracking-[0.2em] text-white/70">Active orders</h3><span className="text-[10px] uppercase tracking-[0.16em] text-white/30">Support via Discord</span></div>
+                 <div className="grid gap-3 md:grid-cols-2">
+                 {activeRequests.map(item => (
+                 <article key={item.id} className="border border-white/[0.08] bg-white/[0.025] p-4">
                   <div className="flex gap-3">
                     <img src={item.imagePath || '/grayscalemini.png'} alt="" className="h-14 w-14 object-contain opacity-60 grayscale" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
-                        <div><h3 className="truncate text-sm uppercase tracking-[0.08em] text-white">{item.productName}</h3><p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">{item.category}</p></div>
-                        <span className="text-[9px] uppercase tracking-[0.15em] text-white/35">{item.status}</span>
+                         <div><h3 className="truncate text-sm uppercase tracking-[0.08em] text-white">{item.productName}</h3><p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">{item.category}</p><p className="mt-1 text-[9px] uppercase tracking-[0.12em] text-white/25">Order {item.orderNumber?.slice(0, 8)}</p></div>
+                         <span className="text-right text-[9px] uppercase tracking-[0.12em] text-white/35">{item.status === 'approved' ? 'Being delivered' : 'Awaiting approval'}</span>
                       </div>
+                       {item.status === 'approved' && <p className="mt-3 text-[10px] leading-5 text-white/40">Your order is being delivered and may take 24 hours for initial delivery. Open a Discord support ticket with your order number if needed.</p>}
                       <div className="mt-4 flex items-center justify-between">
                         <div className="flex items-center gap-2"><button type="button" disabled={item.quantity <= 1} onClick={() => void updateRequest(item, item.quantity - 1)} className="border border-white/10 px-2 text-white/60 hover:text-white disabled:opacity-25" aria-label={`Decrease ${item.productName}`}>−</button><span className="min-w-5 text-center text-xs text-white/70">{item.quantity}</span><button type="button" onClick={() => void updateRequest(item, item.quantity + 1)} className="border border-white/10 px-2 text-white/60 hover:text-white" aria-label={`Increase ${item.productName}`}>+</button></div>
                         <div className="flex items-center gap-4"><strong className="text-lg text-white">${(item.unitPrice * item.quantity).toFixed(2)}</strong><button type="button" onClick={() => void removeRequest(item.id)} className="text-[10px] uppercase tracking-[0.16em] text-red-300/60 hover:text-red-300">Remove</button></div>
@@ -127,6 +185,21 @@ export default function AccountPage() {
                   </div>
                 </article>
               ))}
+                 </div>
+               </div>}
+               {finishedRequests.length > 0 && <div>
+                 <div className="mb-3 flex items-center justify-between"><h3 className="text-xs uppercase tracking-[0.2em] text-white/45">Finished orders</h3><span className="text-[10px] uppercase tracking-[0.16em] text-white/25">Completed</span></div>
+                 <div className="grid gap-3 md:grid-cols-2">
+                 {finishedRequests.map(item => (
+                 <article key={item.id} className="border border-white/[0.08] bg-white/[0.02] p-4 grayscale opacity-60">
+                   <div className="flex items-center justify-between gap-3">
+                     <div><h3 className="text-sm uppercase tracking-[0.08em] text-white">{item.productName}</h3><p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/35">Order {item.orderNumber?.slice(0, 8)} · Qty {item.quantity}</p></div>
+                     <strong className="text-lg text-white">${(item.unitPrice * item.quantity).toFixed(2)}</strong>
+                   </div>
+                 </article>
+                 ))}
+                 </div>
+               </div>}
             </div>
           )}
         </section>

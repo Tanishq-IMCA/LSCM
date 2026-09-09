@@ -1,0 +1,32 @@
+add a security pane in user profile page where they can change their password if they forgot. all they need to do is input last remembered password before they can do so and it should match atleast 60% of the password.
+
+if not have a small badge beside it saying Don't know your last password? if we hover ove rit it should say please contact our admins for resetting your password.
+
+this feature should also be avail on login (dont make it appear on signup side page duh) page on website not just in profile after user is logged in.
+
+okay so make sure to show all orders incoming categorised by users to the admins to approve in admin panel.
+
+once approved, it should go to a status called as your order is being delivered and may take 24 hours for initial delivery. also make it say to open support ticket at discord if any issues arise with their order number (which can be searched up by admin in admin panels in orders section or via user name too and find em)
+
+the admin can approve and deliver items.
+
+delivered items go to a Finished orders option and appear gray.
+
+admin can "revive these orders and make them go back to state of awaiting approval or approved or finished if they want so itll appear again in customers side if they misclick.
+
+add a are you sure transition in each of these buttons for the admin btw
+
+okay go!!
+
+Free
+2 minutes ago
+Planning feature implementation
+
+Planning feature implementation
+Planning feature implementation
+
+I need to implement a large feature and start by inspecting the relevant files. I might need to read the memory that's already loaded. It seems like this task requires an explicit plan. Since we're in Build mode, I’ll focus on implementation. I need to understand the database schemas, authentication API, account management, admin page, requests, components, and the API library. I’ll use read groups and do parallel reads, maximizing at 10.
+
+I’ll extend the existing account/request system rather than replace it. First I’m tracing the current password, account, request, and admin flows so the new security and order-status behavior uses the same session and database patterns without exposing admin operations to customers.
+
+

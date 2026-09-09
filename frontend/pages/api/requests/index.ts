@@ -5,6 +5,7 @@ import { query } from '@/server/db';
 function serializeItem(row: Record<string, unknown>) {
   return {
     id: String(row.id),
+    orderNumber: String(row.order_number || row.id),
     productCode: String(row.product_code),
     productName: String(row.product_name),
     category: String(row.category),
@@ -24,7 +25,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'GET') {
       const result = await query(
-        `SELECT id, product_code, product_name, category, unit_price, image_path, quantity, status, created_at, updated_at
+        `SELECT id, order_number, product_code, product_name, category, unit_price, image_path, quantity,
+                COALESCE(NULLIF(status, 'requested'), 'awaiting_approval') AS status, created_at, updated_at
          FROM lscm_requested_items WHERE user_id = $1 ORDER BY created_at DESC`,
         [user.id],
       );

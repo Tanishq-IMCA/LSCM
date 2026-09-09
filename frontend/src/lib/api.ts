@@ -138,8 +138,12 @@ export async function logoutUser() {
   return apiPost<{ success: boolean }>('/api/auth/logout', {});
 }
 
-export async function changePassword(body: { currentPassword: string; newPassword: string }) {
+export async function changePassword(body: { lastPassword: string; newPassword: string }) {
   return apiPatch<{ success: boolean }>('/api/auth/password', body);
+}
+
+export async function resetPassword(body: { email: string; lastPassword: string; newPassword: string }) {
+  return apiPost<{ success: boolean; user: Record<string, unknown> }>('/api/auth/reset-password', body);
 }
 
 export async function deleteAccount(body: { password: string }) {
@@ -177,6 +181,7 @@ export type CartItem = {
 
 export type RequestedItem = CartItem & {
   status: string;
+  orderNumber?: string;
 };
 
 export async function getCart() {
@@ -215,6 +220,21 @@ export async function updateRequestedItem(id: string, quantity: number) {
 
 export async function removeRequestedItem(id: string) {
   return apiFetch<{ success: boolean }>(`/api/requests?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export type AdminOrder = RequestedItem & {
+  order_number: string;
+  product_name?: string;
+  display_name: string;
+  email: string;
+};
+
+export async function getAdminOrders(query = '') {
+  return apiGet<{ success: boolean; orders: AdminOrder[] }>(`/api/admin${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+}
+
+export async function updateAdminOrder(id: string, status: 'awaiting_approval' | 'approved' | 'finished') {
+  return apiPatch<{ success: boolean; order: AdminOrder }>('/api/admin', { id, status });
 }
 
 // ── GitHub Repositories ─────────────────────────────────────────────────────

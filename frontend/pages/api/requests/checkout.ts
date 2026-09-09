@@ -22,14 +22,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ success: false, message: 'Your cart is empty.' });
     }
 
+    const orderNumber = randomUUID();
     const requested = [];
     for (const row of cart.rows) {
       const result = await client.query(
         `INSERT INTO lscm_requested_items
-          (id, user_id, product_code, product_name, category, unit_price, image_path, quantity, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'requested')
+          (id, order_number, user_id, product_code, product_name, category, unit_price, image_path, quantity, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'awaiting_approval')
          RETURNING id, product_code, product_name, category, unit_price, image_path, quantity, status, created_at, updated_at`,
-        [randomUUID(), user.id, row.product_code, row.product_name, row.category, row.unit_price, row.image_path, row.quantity],
+        [randomUUID(), orderNumber, user.id, row.product_code, row.product_name, row.category, row.unit_price, row.image_path, row.quantity],
       );
       requested.push(result.rows[0]);
     }

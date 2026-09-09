@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { resetPassword } from '@/lib/api';
 import { showNotice } from '@/components/ui/NexusNotice';
 import { Footer } from '@/components/Landing/Footer';
 import { LegalCyclingText } from '@/components/Landing/LegalCyclingText';
@@ -21,6 +22,11 @@ function LiveAuthPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [forgot, setForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [lastRemembered, setLastRemembered] = useState('');
+  const [resetPasswordValue, setResetPasswordValue] = useState('');
+  const [resetPasswordConfirm, setResetPasswordConfirm] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const submit = async (event: React.FormEvent) => {
@@ -41,6 +47,29 @@ function LiveAuthPage() {
     }
   };
 
+  const submitReset = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (resetPasswordValue !== resetPasswordConfirm) {
+      showNotice('RESET FAILED', 'New passwords do not match.', 'error');
+      return;
+    }
+    setResetLoading(true);
+    try {
+      await resetPassword({ email: forgotEmail || email, lastPassword: lastRemembered, newPassword: resetPasswordValue });
+      setForgot(false);
+      setPassword('');
+      setLastRemembered('');
+      setResetPasswordValue('');
+      setResetPasswordConfirm('');
+      showNotice('PASSWORD RESET', 'Your password was updated. You are signed in.', 'success');
+      router.push('/account');
+    } catch (error) {
+      showNotice('RESET FAILED', error instanceof Error ? error.message : 'Please try again.', 'error');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-20" style={{ fontFamily: 'var(--font-display)' }}>
       <AnimatePresence>
@@ -50,10 +79,17 @@ function LiveAuthPage() {
               <p className="text-[10px] uppercase tracking-[0.42em] text-[var(--accent)]" style={{ fontFamily: 'var(--font-mono)' }}>LSCM // COMMUNITY ACCESS</p>
               <h2 className="mt-5 text-2xl uppercase tracking-[0.12em] text-white">Join through Discord</h2>
               <p className="mt-4 text-sm leading-7 text-white/45" style={{ fontFamily: 'var(--font-body)' }}>
-                Please contact our administrators through the Discord community to recover access to your account.
+                Enter your email and last remembered password. A close match of at least 60% is accepted.
               </p>
-              <div className="mt-7 flex gap-3">
-                <a href={DISCORD_URL} target="_blank" rel="noreferrer" className="flex-1 bg-[var(--accent)] px-4 py-3 text-center text-[10px] uppercase tracking-[0.2em] text-black">Open Discord</a>
+              <form onSubmit={submitReset} className="mt-6 space-y-3">
+                <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="email" placeholder="Account email" value={forgotEmail} onChange={event => setForgotEmail(event.target.value)} required />
+                <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="password" placeholder="Last remembered password" value={lastRemembered} onChange={event => setLastRemembered(event.target.value)} required />
+                <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="password" placeholder="New password (8+)" value={resetPasswordValue} onChange={event => setResetPasswordValue(event.target.value)} minLength={8} required />
+                <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="password" placeholder="Confirm new password" value={resetPasswordConfirm} onChange={event => setResetPasswordConfirm(event.target.value)} minLength={8} required />
+                <button disabled={resetLoading} className="w-full bg-[var(--accent)] px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-black disabled:opacity-50">{resetLoading ? 'Resetting...' : 'Reset password'}</button>
+              </form>
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <a href={DISCORD_URL} target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-[0.16em] text-white/35 hover:text-white">Contact admins</a>
                 <button type="button" onClick={() => setForgot(false)} className="border border-white/15 px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-white/60 hover:text-white">Back</button>
               </div>
             </motion.div>
