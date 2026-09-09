@@ -227,6 +227,7 @@ export type SupportTicket = {
   userId: string;
   customerName: string;
   customerEmail: string;
+  customerBio: string;
   orderNumber: string | null;
   queryType: string;
   queryTopic: string;
@@ -247,8 +248,10 @@ export type SupportMessage = {
   createdAt: string;
 };
 
-export async function getSupportTickets() {
-  return apiGet<{ success: boolean; tickets: SupportTicket[]; readReceiptsEnabled?: boolean }>('/api/support');
+export async function getSupportTickets(search = '') {
+  return apiGet<{ success: boolean; tickets: SupportTicket[]; readReceiptsEnabled?: boolean }>(
+    `/api/support${search ? `?q=${encodeURIComponent(search)}` : ''}`,
+  );
 }
 
 export async function createSupportTicket(body: { queryType: string; queryTopic: string; orderId?: string; message: string }) {
@@ -265,6 +268,10 @@ export async function sendSupportMessage(id: string, message: string) {
 
 export async function updateSupportTicket(id: string, body: { action: 'typing' | 'close' | 'reopen'; typing?: boolean; reason?: string }) {
   return apiPatch<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, body);
+}
+
+export async function deleteSupportTicket(id: string) {
+  return apiFetch<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
 export async function updateSupportSettings(readReceiptsEnabled: boolean) {

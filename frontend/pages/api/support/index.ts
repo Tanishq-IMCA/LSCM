@@ -12,6 +12,7 @@ function serializeTicket(row: Record<string, unknown>, viewerId: string) {
     userId: String(row.user_id),
     customerName: String(row.display_name || ''),
     customerEmail: String(row.email || ''),
+    customerBio: String(row.bio || ''),
     orderNumber: row.order_number ? String(row.order_number) : null,
     queryType: String(row.query_type),
     queryTopic: String(row.query_topic),
@@ -29,6 +30,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const admin = Boolean(isAdminUser(user));
 
   if (req.method === 'GET') {
+    const search = String(req.query.q || '').trim().slice(0, 120);
+    const values: string[] = [];
+    let searchClause = '';
+    if (admin && search) {
+      values.push(`%${search}%`);
+      searchClause = `WHERE (
+        t.id ILIKE $1 OR t.user_id ILIKE $1 OR COALESCE(t.order_id, '') ILIKE $1
+        OR COALESCE(o.order_number, '') ILIKE $1 OR u.display_name ILIKE $1 OR u.email ILIKE $1
+      )`;
+    }
     const result = await query(
       `SELECT t.id, t.user_id, t.query_type, t.query_topic, t.status, t.typing_user_id, t.typing_at,
               t.updated_at, t.created_at, u.display_name, u.email, o.order_number,
@@ -39,9 +50,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
        FROM lscm_support_tickets t
        JOIN lscm_users u ON u.id = t.user_id
        LEFT JOIN lscm_requested_items o ON o.id = t.order_id
-       ${admin ? '' : 'WHERE t.user_id = $1'}
+       ${admin ? searchClause : 'WHERE t.user_id = $1'}
        ORDER BY t.updated_at DESC`,
-      admin ? [] : [user.id],
+      admin ? values : [user.id],
     );
     const preference = await query(
       'SELECT support_read_receipts_enabled FROM lscm_users WHERE id = $1',

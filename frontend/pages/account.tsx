@@ -19,7 +19,8 @@ export default function AccountPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordSaving, setPasswordSaving] = useState(false);
-  const activeRequests = requestedItems.filter(item => item.status !== 'finished');
+  const requestedRequests = requestedItems.filter(item => item.status !== 'finished' && item.status !== 'approved');
+  const deliveryRequests = requestedItems.filter(item => item.status === 'approved');
   const finishedRequests = requestedItems.filter(item => item.status === 'finished');
 
   useEffect(() => {
@@ -104,6 +105,30 @@ export default function AccountPage() {
     }
   };
 
+  const renderOrderCard = (item: RequestedItem, state: 'requested' | 'delivery' | 'finished') => {
+    const stateClass = state === 'requested'
+      ? 'border-yellow-300/35 shadow-[0_0_24px_rgba(250,204,21,0.12)]'
+      : state === 'delivery'
+        ? 'border-purple-400/45 shadow-[0_0_24px_rgba(168,85,247,0.18)]'
+        : 'border-white/[0.1] bg-white/[0.02] grayscale opacity-60';
+    const stateLabel = state === 'requested' ? 'Awaiting approval' : state === 'delivery' ? 'Being delivered' : 'Finished';
+    return (
+      <article key={item.id} className={`border bg-white/[0.025] p-4 ${stateClass}`}>
+        <div className="flex gap-3">
+          <img src={item.imagePath || '/grayscalemini.png'} alt="" className="h-14 w-14 object-contain opacity-60 grayscale" />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div><h3 className="truncate text-sm uppercase tracking-[0.08em] text-white">{item.productName}</h3><p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">{item.category}</p><p className="mt-1 text-[9px] uppercase tracking-[0.12em] text-white/25">Order {item.orderNumber?.slice(0, 8)} · Qty {item.quantity}</p></div>
+              <span className="text-right text-[9px] uppercase tracking-[0.12em] text-white/45">{stateLabel}</span>
+            </div>
+            {state === 'delivery' && <p className="mt-3 text-[10px] leading-5 text-white/40">Your order is being delivered and may take 24 hours for initial delivery. Open a support ticket with your order number if needed.</p>}
+            {state === 'finished' ? <div className="mt-4 text-right"><strong className="text-lg text-white">${(item.unitPrice * item.quantity).toFixed(2)}</strong></div> : <div className="mt-4 flex items-center justify-between"><div className="flex items-center gap-2"><button type="button" disabled={item.quantity <= 1} onClick={() => void updateRequest(item, item.quantity - 1)} className="border border-white/10 px-2 text-white/60 hover:text-white disabled:opacity-25" aria-label={`Decrease ${item.productName}`}>−</button><span className="min-w-5 text-center text-xs text-white/70">{item.quantity}</span><button type="button" onClick={() => void updateRequest(item, item.quantity + 1)} className="border border-white/10 px-2 text-white/60 hover:text-white" aria-label={`Increase ${item.productName}`}>+</button></div><div className="flex items-center gap-4"><strong className="text-lg text-white">${(item.unitPrice * item.quantity).toFixed(2)}</strong><button type="button" onClick={() => void removeRequest(item.id)} className="text-[10px] uppercase tracking-[0.16em] text-red-300/60 hover:text-red-300">Remove</button></div></div>}
+          </div>
+        </div>
+      </article>
+    );
+  };
+
   return (
     <div className="min-h-screen" style={{ fontFamily: 'var(--font-display)' }}>
       <Header />
@@ -162,45 +187,12 @@ export default function AccountPage() {
             <p className="py-10 text-center text-xs uppercase tracking-[0.2em] text-white/35">Loading requests...</p>
           ) : requestedItems.length === 0 ? (
             <p className="py-10 text-center text-sm text-white/35">Your submitted requests will appear here.</p>
-          ) : (
-             <div className="mt-5 space-y-8">
-               {activeRequests.length > 0 && <div>
-                 <div className="mb-3 flex items-center justify-between"><h3 className="text-xs uppercase tracking-[0.2em] text-white/70">Active orders</h3><span className="text-[10px] uppercase tracking-[0.16em] text-white/30">Support via Discord</span></div>
-                 <div className="grid gap-3 md:grid-cols-2">
-                 {activeRequests.map(item => (
-                 <article key={item.id} className="border border-white/[0.08] bg-white/[0.025] p-4">
-                  <div className="flex gap-3">
-                    <img src={item.imagePath || '/grayscalemini.png'} alt="" className="h-14 w-14 object-contain opacity-60 grayscale" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                         <div><h3 className="truncate text-sm uppercase tracking-[0.08em] text-white">{item.productName}</h3><p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">{item.category}</p><p className="mt-1 text-[9px] uppercase tracking-[0.12em] text-white/25">Order {item.orderNumber?.slice(0, 8)}</p></div>
-                         <span className="text-right text-[9px] uppercase tracking-[0.12em] text-white/35">{item.status === 'approved' ? 'Being delivered' : 'Awaiting approval'}</span>
-                      </div>
-                       {item.status === 'approved' && <p className="mt-3 text-[10px] leading-5 text-white/40">Your order is being delivered and may take 24 hours for initial delivery. Open a Discord support ticket with your order number if needed.</p>}
-                      <div className="mt-4 flex items-center justify-between">
-                        <div className="flex items-center gap-2"><button type="button" disabled={item.quantity <= 1} onClick={() => void updateRequest(item, item.quantity - 1)} className="border border-white/10 px-2 text-white/60 hover:text-white disabled:opacity-25" aria-label={`Decrease ${item.productName}`}>−</button><span className="min-w-5 text-center text-xs text-white/70">{item.quantity}</span><button type="button" onClick={() => void updateRequest(item, item.quantity + 1)} className="border border-white/10 px-2 text-white/60 hover:text-white" aria-label={`Increase ${item.productName}`}>+</button></div>
-                        <div className="flex items-center gap-4"><strong className="text-lg text-white">${(item.unitPrice * item.quantity).toFixed(2)}</strong><button type="button" onClick={() => void removeRequest(item.id)} className="text-[10px] uppercase tracking-[0.16em] text-red-300/60 hover:text-red-300">Remove</button></div>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              ))}
-                 </div>
-               </div>}
-               {finishedRequests.length > 0 && <div>
-                 <div className="mb-3 flex items-center justify-between"><h3 className="text-xs uppercase tracking-[0.2em] text-white/45">Finished orders</h3><span className="text-[10px] uppercase tracking-[0.16em] text-white/25">Completed</span></div>
-                 <div className="grid gap-3 md:grid-cols-2">
-                 {finishedRequests.map(item => (
-                 <article key={item.id} className="border border-white/[0.08] bg-white/[0.02] p-4 grayscale opacity-60">
-                   <div className="flex items-center justify-between gap-3">
-                     <div><h3 className="text-sm uppercase tracking-[0.08em] text-white">{item.productName}</h3><p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/35">Order {item.orderNumber?.slice(0, 8)} · Qty {item.quantity}</p></div>
-                     <strong className="text-lg text-white">${(item.unitPrice * item.quantity).toFixed(2)}</strong>
-                   </div>
-                 </article>
-                 ))}
-                 </div>
-               </div>}
-            </div>
+           ) : (
+              <div className="mt-5 space-y-8">
+                {requestedRequests.length > 0 && <div className="border border-yellow-300/20 bg-yellow-200/[0.02] p-4 shadow-[0_0_28px_rgba(250,204,21,0.06)]"><div className="mb-3 flex items-center justify-between"><h3 className="text-xs uppercase tracking-[0.2em] text-yellow-100/75">Requested orders</h3><span className="text-[10px] uppercase tracking-[0.16em] text-yellow-100/35">Awaiting approval</span></div><div className="grid gap-3 md:grid-cols-2">{requestedRequests.map(item => renderOrderCard(item, 'requested'))}</div></div>}
+                {deliveryRequests.length > 0 && <div className="border border-purple-400/25 bg-purple-400/[0.025] p-4 shadow-[0_0_32px_rgba(168,85,247,0.1)]"><div className="mb-3 flex items-center justify-between"><h3 className="text-xs uppercase tracking-[0.2em] text-purple-100/80">Being delivered</h3><span className="text-[10px] uppercase tracking-[0.16em] text-purple-100/35">In progress</span></div><div className="grid gap-3 md:grid-cols-2">{deliveryRequests.map(item => renderOrderCard(item, 'delivery'))}</div></div>}
+                {finishedRequests.length > 0 && <div className="border border-white/[0.1] bg-white/[0.015] p-4"><div className="mb-3 flex items-center justify-between"><h3 className="text-xs uppercase tracking-[0.2em] text-white/55">Finished orders</h3><span className="text-[10px] uppercase tracking-[0.16em] text-white/25">Completed</span></div><div className="grid gap-3 md:grid-cols-2">{finishedRequests.map(item => renderOrderCard(item, 'finished'))}</div></div>}
+             </div>
           )}
         </section>
       </main>

@@ -12,7 +12,7 @@ async function getTicket(id: string, userId: string, admin: boolean) {
   const access = ticketAccess(userId, admin);
   const ticket = await query(
     `SELECT t.id, t.user_id, t.query_type, t.query_topic, t.status, t.typing_user_id, t.typing_at,
-            t.updated_at, t.created_at, u.display_name, u.email, o.order_number
+            t.updated_at, t.created_at, u.display_name, u.email, u.bio, o.order_number
      FROM lscm_support_tickets t
      JOIN lscm_users u ON u.id = t.user_id
      LEFT JOIN lscm_requested_items o ON o.id = t.order_id
@@ -72,6 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         userId: String(ticket.user_id),
         customerName: String(ticket.display_name || ''),
         customerEmail: String(ticket.email || ''),
+        customerBio: String(ticket.bio || ''),
         orderNumber: ticket.order_number ? String(ticket.order_number) : null,
         queryType: String(ticket.query_type),
         queryTopic: String(ticket.query_topic),
@@ -104,6 +105,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       [id],
     );
     return res.status(201).json({ success: true });
+  }
+
+  if (req.method === 'DELETE') {
+    if (!admin) return res.status(403).json({ success: false, message: 'Only admins can delete tickets.' });
+    await query('DELETE FROM lscm_support_messages WHERE ticket_id = $1', [id]);
+    await query('DELETE FROM lscm_support_tickets WHERE id = $1', [id]);
+    return res.status(200).json({ success: true });
   }
 
   if (req.method !== 'PATCH') return res.status(405).json({ success: false, message: 'Method not allowed.' });
