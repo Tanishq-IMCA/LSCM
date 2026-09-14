@@ -141,6 +141,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const messageId = String(req.body?.messageId || '').trim();
     const pinned = Boolean(req.body?.pinned);
     if (!messageId) return res.status(400).json({ success: false, message: 'Message is required.' });
+    if (pinned) {
+      const pinnedCount = await query(
+        'SELECT COUNT(*)::int AS count FROM lscm_support_messages WHERE ticket_id = $1 AND pinned_at IS NOT NULL AND id <> $2',
+        [id, messageId],
+      );
+      if (Number(pinnedCount.rows[0]?.count || 0) >= 2) {
+        return res.status(409).json({ success: false, message: 'Unpin an existing message before pinning another.' });
+      }
+    }
     const updated = await query(
       `UPDATE lscm_support_messages
        SET pinned_at = ${pinned ? 'CURRENT_TIMESTAMP' : 'NULL'}, pinned_by = ${pinned ? '$3' : 'NULL'}
