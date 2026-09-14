@@ -247,6 +247,8 @@ export type SupportMessage = {
   readAt: string | null;
   createdAt: string;
   replyToId: string | null;
+  pinnedAt: string | null;
+  pinnedBy: string | null;
 };
 
 export async function getSupportTickets(search = '') {
@@ -269,6 +271,21 @@ export async function sendSupportMessage(id: string, message: string, replyToId?
 
 export async function updateSupportTicket(id: string, body: { action: 'typing' | 'close' | 'reopen'; typing?: boolean; reason?: string }) {
   return apiPatch<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, body);
+}
+
+export async function updateSupportMessagePin(id: string, messageId: string, pinned: boolean) {
+  return apiPatch<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, {
+    action: 'pin',
+    messageId,
+    pinned,
+  });
+}
+
+export async function deleteSupportMessage(id: string, messageId: string) {
+  return apiFetch<{ success: boolean }>(
+    `/api/support/${encodeURIComponent(id)}?messageId=${encodeURIComponent(messageId)}`,
+    { method: 'DELETE' },
+  );
 }
 
 export async function deleteSupportTicket(id: string) {

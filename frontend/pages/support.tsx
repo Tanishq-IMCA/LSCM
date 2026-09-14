@@ -4,7 +4,7 @@ import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import SupportMessageList from '@/components/SupportMessageList';
 import { useAuth } from '@/hooks/useAuth';
-import { getRequestedItems, getSupportTicket, getSupportTickets, createSupportTicket, sendSupportMessage, updateSupportTicket, type RequestedItem, type SupportMessage, type SupportTicket } from '@/lib/api';
+import { getRequestedItems, getSupportTicket, getSupportTickets, createSupportTicket, sendSupportMessage, updateSupportMessagePin, updateSupportTicket, type RequestedItem, type SupportMessage, type SupportTicket } from '@/lib/api';
 import { showNotice } from '@/components/ui/NexusNotice';
 
 const TOPICS = ['Order status', 'Delivery issue', 'Payment question', 'Account help', 'General question', 'Other'];
@@ -133,6 +133,15 @@ export default function SupportPage() {
     }
   };
 
+  const togglePin = async (message: SupportMessage, pinned: boolean) => {
+    try {
+      await updateSupportMessagePin(selectedId, message.id, pinned);
+      await refreshDetail(selectedId);
+    } catch (error) {
+      showNotice('PIN UPDATE FAILED', error instanceof Error ? error.message : 'Please try again.', 'error');
+    }
+  };
+
   return (
     <main className="min-h-screen pt-24">
       <Header />
@@ -149,7 +158,7 @@ export default function SupportPage() {
           <section className="flex flex-col border border-white/[0.08] bg-white/[0.035]">
             {!ticket ? <div className="flex flex-1 items-center justify-center p-10 text-center text-sm text-white/35">Select a ticket or open a new one.</div> : <>
               <header className="border-b border-white/[0.08] p-5"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] uppercase tracking-[0.25em] text-[var(--accent)]">{ticket.queryType} · {ticket.queryTopic}</p><h2 className="mt-2 text-xl uppercase tracking-[0.08em] text-white">{ticket.orderNumber ? `Order ${ticket.orderNumber.slice(0, 8)}` : 'General support'}</h2></div><div className="flex items-center gap-3"><span className="text-[10px] uppercase text-white/35">{ticket.status}</span>{ticket.status === 'open' && <button type="button" onClick={() => void transition('close')} className="border border-red-300/30 px-3 py-2 text-[9px] uppercase tracking-[0.15em] text-red-200/70">Close</button>}</div></div></header>
-               <SupportMessageList messages={messages} draft={draft} currentUserId={user.id} typingLabel={ticket.typing ? 'Support is typing...' : ''} onReply={setReplyTo} />
+                <SupportMessageList messages={messages} draft={draft} currentUserId={user.id} typingLabel={ticket.typing ? 'Support is typing...' : ''} onReply={setReplyTo} onTogglePin={togglePin} />
                {ticket.status === 'closed' ? <div className="border-t border-white/[0.08] p-5"><p className="text-xs text-white/40">This ticket is closed. Reopen it to continue the conversation.</p><div className="mt-3 flex gap-2"><input value={reopenReason} onChange={event => setReopenReason(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Reason for reopening" /><button type="button" disabled={busy} onClick={() => void transition('reopen')} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase text-black">Reopen</button></div></div> : <form onSubmit={send} className="border-t border-white/[0.08] p-5">{replyTo && <div className="mb-3 flex items-start justify-between border-l-2 border-[var(--accent)]/70 bg-white/[0.03] px-3 py-2 text-xs text-white/55"><span className="truncate">Replying to: {replyTo.body}</span><button type="button" onClick={() => setReplyTo(null)} className="ml-3 text-white/40 hover:text-white">×</button></div>}<div className="flex gap-2"><input value={draft} onChange={event => setDraft(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Write a message..." /><button disabled={busy || !draft.trim()} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase text-black">Send</button></div></form>}
             </>}
           </section>

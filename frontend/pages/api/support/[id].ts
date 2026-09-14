@@ -32,6 +32,8 @@ function serializeMessage(row: Record<string, unknown>) {
     readAt: row.read_at ? new Date(String(row.read_at)).toISOString() : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
     replyToId: row.reply_to_id ? String(row.reply_to_id) : null,
+    pinnedAt: row.pinned_at ? new Date(String(row.pinned_at)).toISOString() : null,
+    pinnedBy: row.pinned_by ? String(row.pinned_by) : null,
   };
 }
 
@@ -62,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
     }
     const messages = await query(
-      `SELECT id, sender_id, sender_role, body, delivered_at, read_at, created_at, reply_to_id
+      `SELECT id, sender_id, sender_role, body, delivered_at, read_at, created_at, reply_to_id, pinned_at, pinned_by
        FROM lscm_support_messages WHERE ticket_id = $1 ORDER BY created_at ASC`,
       [id],
     );
@@ -117,6 +119,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'DELETE') {
+    const messageId = String(req.query.messageId || req.body?.messageId || '').trim();
+    if (messageId) {
+      if (!admin) return res.status(403).json({ success: false, message: 'Only admins can delete messages.' });
+      const deleted = await query(
+        'DELETE FROM lscm_support_messages WHERE id = $1 AND ticket_id = $2 RETURNING id',
+        [messageId, id],
+      );
+      if (!deleted.rows[0]) return res.status(404).json({ success: false, message: 'Message not found.' });
+      return res.status(200).json({ success: true });
+    }
     if (!admin) return res.status(403).json({ success: false, message: 'Only admins can delete tickets.' });
     await query('DELETE FROM lscm_support_messages WHERE ticket_id = $1', [id]);
     await query('DELETE FROM lscm_support_tickets WHERE id = $1', [id]);
@@ -125,6 +137,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method !== 'PATCH') return res.status(405).json({ success: false, message: 'Method not allowed.' });
   const action = String(req.body?.action || '');
+  if (action === 'pin') {
+    const messageId = String(req.body?.messageId || '').trim();
+    const pinned = Boolean(req.body?.pinned);
+    if (!messageId) return res.status(400).json({ success: false, message: 'Message is required.' });
+    const updated = await query(
+      `UPDATE lscm_support_messages
+       SET pinned_at = ${pinned ? 'CURRENT_TIMESTAMP' : 'NULL'}, pinned_by = ${pinned ? '$3' : 'NULL'}
+       WHERE id = $1 AND ticket_id = $2
+       RETURNING id`,
+      pinned ? [messageId, id, user.id] : [messageId, id],
+    );
+    if (!updated.rows[0]) return res.status(404).json({ success: false, message: 'Message not found.' });
+    return res.status(200).json({ success: true });
+  }
   if (action === 'typing') {
     const typing = Boolean(req.body?.typing);
     await query(
