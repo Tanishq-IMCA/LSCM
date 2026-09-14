@@ -246,6 +246,7 @@ export type SupportMessage = {
   deliveredAt: string;
   readAt: string | null;
   createdAt: string;
+  replyToId: string | null;
 };
 
 export async function getSupportTickets(search = '') {
@@ -262,8 +263,8 @@ export async function getSupportTicket(id: string) {
   return apiGet<{ success: boolean; ticket: SupportTicket; messages: SupportMessage[] }>(`/api/support/${encodeURIComponent(id)}`);
 }
 
-export async function sendSupportMessage(id: string, message: string) {
-  return apiPost<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, { message });
+export async function sendSupportMessage(id: string, message: string, replyToId?: string | null) {
+  return apiPost<{ success: boolean }>(`/api/support/${encodeURIComponent(id)}`, { message, replyToId: replyToId || undefined });
 }
 
 export async function updateSupportTicket(id: string, body: { action: 'typing' | 'close' | 'reopen'; typing?: boolean; reason?: string }) {

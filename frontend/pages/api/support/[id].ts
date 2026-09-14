@@ -31,6 +31,7 @@ function serializeMessage(row: Record<string, unknown>) {
     deliveredAt: new Date(String(row.delivered_at)).toISOString(),
     readAt: row.read_at ? new Date(String(row.read_at)).toISOString() : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
+    replyToId: row.reply_to_id ? String(row.reply_to_id) : null,
   };
 }
 
@@ -61,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
     }
     const messages = await query(
-      `SELECT id, sender_id, sender_role, body, delivered_at, read_at, created_at
+      `SELECT id, sender_id, sender_role, body, delivered_at, read_at, created_at, reply_to_id
        FROM lscm_support_messages WHERE ticket_id = $1 ORDER BY created_at ASC`,
       [id],
     );
@@ -87,6 +88,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (ticket.status === 'closed') return res.status(409).json({ success: false, message: 'Reopen this ticket before replying.' });
     const body = String(req.body?.message || '').trim().slice(0, 2000);
     if (!body) return res.status(400).json({ success: false, message: 'Message cannot be empty.' });
+    const replyToId = String(req.body?.replyToId || '').trim() || null;
+    if (replyToId) {
+      const replyTarget = await query(
+        'SELECT id FROM lscm_support_messages WHERE id = $1 AND ticket_id = $2',
+        [replyToId, id],
+      );
+      if (!replyTarget.rows[0]) return res.status(400).json({ success: false, message: 'Reply target not found.' });
+    }
     if (admin) {
       await query(
         `UPDATE lscm_support_messages
@@ -96,9 +105,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
     }
     await query(
-      `INSERT INTO lscm_support_messages (id, ticket_id, sender_id, sender_role, body)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [randomUUID(), id, user.id, admin ? 'admin' : 'customer', body],
+      `INSERT INTO lscm_support_messages (id, ticket_id, sender_id, sender_role, body, reply_to_id)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [randomUUID(), id, user.id, admin ? 'admin' : 'customer', body, replyToId],
     );
     await query(
       'UPDATE lscm_support_tickets SET typing_user_id = NULL, typing_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1',

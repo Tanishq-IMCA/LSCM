@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     const result = await query(
       `SELECT t.id, t.user_id, t.query_type, t.query_topic, t.status, t.typing_user_id, t.typing_at,
-              t.updated_at, t.created_at, u.display_name, u.email, o.order_number,
+              t.updated_at, t.created_at, u.display_name, u.email, u.bio, o.order_number,
               (SELECT COUNT(*) FROM lscm_support_messages m
                WHERE m.ticket_id = t.id
                  AND ${admin ? "m.sender_role = 'customer'" : 'm.sender_id <> $1'}

@@ -2,15 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
+import SupportMessageList from '@/components/SupportMessageList';
 import { useAuth } from '@/hooks/useAuth';
 import { getRequestedItems, getSupportTicket, getSupportTickets, createSupportTicket, sendSupportMessage, updateSupportTicket, type RequestedItem, type SupportMessage, type SupportTicket } from '@/lib/api';
 import { showNotice } from '@/components/ui/NexusNotice';
 
 const TOPICS = ['Order status', 'Delivery issue', 'Payment question', 'Account help', 'General question', 'Other'];
-
-function messageStatus(message: SupportMessage) {
-  return message.readAt ? 'Read' : 'Delivered';
-}
 
 export default function SupportPage() {
   const router = useRouter();
@@ -28,6 +25,7 @@ export default function SupportPage() {
   const [reopenReason, setReopenReason] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [replyTo, setReplyTo] = useState<SupportMessage | null>(null);
   const typingTimer = useRef<number | null>(null);
 
   const refreshTickets = async () => {
@@ -64,6 +62,7 @@ export default function SupportPage() {
 
   useEffect(() => {
     if (selectedId) void refreshDetail(selectedId);
+    setReplyTo(null);
   }, [selectedId]);
 
   useEffect(() => {
@@ -105,8 +104,9 @@ export default function SupportPage() {
     if (!selectedId || !draft.trim()) return;
     setBusy(true);
     try {
-      await sendSupportMessage(selectedId, draft);
+      await sendSupportMessage(selectedId, draft, replyTo?.id);
       setDraft('');
+      setReplyTo(null);
       await Promise.all([refreshDetail(selectedId), refreshTickets()]);
     } catch (error) {
       showNotice('MESSAGE FAILED', error instanceof Error ? error.message : 'Please try again.', 'error');
@@ -149,8 +149,8 @@ export default function SupportPage() {
           <section className="flex flex-col border border-white/[0.08] bg-white/[0.035]">
             {!ticket ? <div className="flex flex-1 items-center justify-center p-10 text-center text-sm text-white/35">Select a ticket or open a new one.</div> : <>
               <header className="border-b border-white/[0.08] p-5"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] uppercase tracking-[0.25em] text-[var(--accent)]">{ticket.queryType} · {ticket.queryTopic}</p><h2 className="mt-2 text-xl uppercase tracking-[0.08em] text-white">{ticket.orderNumber ? `Order ${ticket.orderNumber.slice(0, 8)}` : 'General support'}</h2></div><div className="flex items-center gap-3"><span className="text-[10px] uppercase text-white/35">{ticket.status}</span>{ticket.status === 'open' && <button type="button" onClick={() => void transition('close')} className="border border-red-300/30 px-3 py-2 text-[9px] uppercase tracking-[0.15em] text-red-200/70">Close</button>}</div></div></header>
-              <div className="flex-1 space-y-3 overflow-y-auto p-5">{messages.map(message => <div key={message.id} className={message.senderRole === 'system' ? 'mx-auto max-w-xl border border-yellow-200/15 bg-yellow-100/[0.04] p-3 text-center' : `max-w-[85%] border border-white/[0.08] p-3 ${message.senderId === user.id ? 'ml-auto bg-[var(--accent)]/[0.1]' : 'bg-white/[0.03]'}`}><p className="whitespace-pre-wrap text-sm leading-6 text-white/75">{message.body}</p><p className="mt-2 text-[9px] uppercase tracking-[0.14em] text-white/30">{message.senderRole === 'system' ? 'LSCM system' : message.senderId === user.id ? messageStatus(message) : 'Delivered'} · {new Date(message.createdAt).toLocaleTimeString()}</p></div>)}{draft.trim() && <div className="ml-auto max-w-[85%] border border-dashed border-[var(--accent)]/60 bg-[var(--accent)]/[0.04] p-3"><p className="whitespace-pre-wrap text-sm leading-6 text-white/60">{draft}</p><p className="mt-2 text-[9px] uppercase tracking-[0.14em] text-[var(--accent)]/70">Draft · not sent</p></div>}{ticket.typing && <p className="text-xs italic text-white/35">Support is typing...</p>}</div>
-              {ticket.status === 'closed' ? <div className="border-t border-white/[0.08] p-5"><p className="text-xs text-white/40">This ticket is closed. Reopen it to continue the conversation.</p><div className="mt-3 flex gap-2"><input value={reopenReason} onChange={event => setReopenReason(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Reason for reopening" /><button type="button" disabled={busy} onClick={() => void transition('reopen')} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase text-black">Reopen</button></div></div> : <form onSubmit={send} className="border-t border-white/[0.08] p-5"><div className="flex gap-2"><input value={draft} onChange={event => setDraft(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Write a message..." /><button disabled={busy || !draft.trim()} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase text-black">Send</button></div></form>}
+               <SupportMessageList messages={messages} draft={draft} currentUserId={user.id} typingLabel={ticket.typing ? 'Support is typing...' : ''} onReply={setReplyTo} />
+               {ticket.status === 'closed' ? <div className="border-t border-white/[0.08] p-5"><p className="text-xs text-white/40">This ticket is closed. Reopen it to continue the conversation.</p><div className="mt-3 flex gap-2"><input value={reopenReason} onChange={event => setReopenReason(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Reason for reopening" /><button type="button" disabled={busy} onClick={() => void transition('reopen')} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase text-black">Reopen</button></div></div> : <form onSubmit={send} className="border-t border-white/[0.08] p-5">{replyTo && <div className="mb-3 flex items-start justify-between border-l-2 border-[var(--accent)]/70 bg-white/[0.03] px-3 py-2 text-xs text-white/55"><span className="truncate">Replying to: {replyTo.body}</span><button type="button" onClick={() => setReplyTo(null)} className="ml-3 text-white/40 hover:text-white">×</button></div>}<div className="flex gap-2"><input value={draft} onChange={event => setDraft(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Write a message..." /><button disabled={busy || !draft.trim()} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase text-black">Send</button></div></form>}
             </>}
           </section>
         </div>
