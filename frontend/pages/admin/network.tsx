@@ -40,6 +40,54 @@ type AnnouncementHistory = {
   payload: AnnouncementPayload;
   created_at: string;
 };
+type ModeratorMember = {
+  guildId: string;
+  guildName: string;
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string;
+  joinedAt: string | null;
+  roles: string[];
+  status: 'online' | 'idle' | 'dnd' | 'offline';
+  messageCount: number;
+  lastMessageAt: string | null;
+  recentlyActive: boolean;
+  isBot: boolean;
+  muted: boolean;
+  timeoutUntil: string | null;
+};
+type ModeratorSnapshot = {
+  generatedAt: string;
+  members: ModeratorMember[];
+  channels: {
+    guildId: string;
+    guildName: string;
+    id: string;
+    name: string;
+    type: 'text' | 'announcement' | 'voice' | 'stage';
+    memberCount: number;
+    messageCount: number;
+    lastMessageAt: string | null;
+    active: boolean;
+  }[];
+  activity: {
+    guildId: string;
+    guildName: string;
+    channelId: string;
+    channelName: string;
+    authorId: string;
+    authorName: string;
+    createdAt: string;
+  }[];
+};
+type ModeratorActionPayload = {
+  guildId: string;
+  memberId: string;
+  action: 'mute' | 'unmute' | 'nickname' | 'ban';
+  nickname?: string;
+  muteMinutes?: number;
+};
 
 const DEFAULT_ANNOUNCEMENT: AnnouncementPayload = {
   channelId: '',
@@ -74,6 +122,10 @@ export default function NetworkManagerPage() {
   const [history, setHistory] = useState<AnnouncementHistory[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [sending, setSending] = useState(false);
+  const [moderator, setModerator] = useState<ModeratorSnapshot | null>(null);
+  const [moderatorLoading, setModeratorLoading] = useState(false);
+  const [moderatorTab, setModeratorTab] = useState<'overview' | 'members'>('overview');
+  const [moderatorBusy, setModeratorBusy] = useState('');
 
   const cooldown = useMemo(() => Math.max(0, Math.ceil((cooldownUntil - now) / 1000)), [cooldownUntil, now]);
 
@@ -141,6 +193,33 @@ export default function NetworkManagerPage() {
     setAnnouncement(current => ({ ...current, [key]: value }));
   };
 
+  const loadModerator = async (forceRefresh = false) => {
+    setModeratorLoading(true);
+    try {
+      const result = await apiGet<{ success: boolean; snapshot: ModeratorSnapshot }>(`/api/admin/moderator${forceRefresh ? '?refresh=1' : ''}`);
+      setModerator(result.snapshot);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not load moderation data.');
+    } finally {
+      setModeratorLoading(false);
+    }
+  };
+
+  const runModeratorAction = async (payload: ModeratorActionPayload) => {
+    const busyKey = `${payload.memberId}:${payload.action}`;
+    setModeratorBusy(busyKey);
+    setMessage('');
+    try {
+      const result = await apiPatch<{ success: boolean; message: string; snapshot: ModeratorSnapshot }>('/api/admin/moderator', payload);
+      setModerator(result.snapshot);
+      setMessage(result.message);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Moderation action failed.');
+    } finally {
+      setModeratorBusy('');
+    }
+  };
+
   const selectImage = (key: 'iconUrl' | 'imageUrl' | 'footerIconUrl', value: string) => {
     updateAnnouncement(key, value);
   };
@@ -181,6 +260,7 @@ export default function NetworkManagerPage() {
     setActiveModule(module);
     setHistoryOpen(false);
     setMessage('');
+    if (module === 'moderator' && !moderator && !moderatorLoading) void loadModerator();
   };
 
   return (
@@ -266,11 +346,15 @@ export default function NetworkManagerPage() {
               />
             )}
             {activeModule === 'moderator' && (
-              <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
-                <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--accent)]">Moderator module</p>
-                <h3 className="mt-4 text-3xl uppercase tracking-[0.08em] text-white">Coming soon</h3>
-                <p className="mt-4 max-w-md text-sm leading-7 text-white/40">Moderation tools will be added here.</p>
-              </div>
+              <ModeratorPanel
+                snapshot={moderator}
+                loading={moderatorLoading}
+                tab={moderatorTab}
+                busy={moderatorBusy}
+                onTabChange={setModeratorTab}
+                onRefresh={() => void loadModerator(true)}
+                onAction={payload => void runModeratorAction(payload)}
+              />
             )}
             {message && <p className="mt-5 text-xs uppercase tracking-[0.12em] text-[var(--accent-2)]">{message}</p>}
             {state?.lastError && <p className="mt-3 text-xs leading-6 text-red-300/75">{state.lastError}</p>}
@@ -382,6 +466,214 @@ function AnnouncementPanel({
       )}
     </>
   );
+}
+
+function ModeratorPanel({
+  snapshot,
+  loading,
+  tab,
+  busy,
+  onTabChange,
+  onRefresh,
+  onAction,
+}: {
+  snapshot: ModeratorSnapshot | null;
+  loading: boolean;
+  tab: 'overview' | 'members';
+  busy: string;
+  onTabChange: (tab: 'overview' | 'members') => void;
+  onRefresh: () => void;
+  onAction: (payload: ModeratorActionPayload) => void;
+}) {
+  const [search, setSearch] = useState('');
+  const activeMembers = snapshot?.members.filter(member => member.recentlyActive).length || 0;
+  const activeChannels = snapshot?.channels.filter(channel => channel.active).length || 0;
+  const visibleMembers = snapshot?.members.filter(member => {
+    const query = search.trim().toLowerCase();
+    return !query || `${member.displayName} ${member.username} ${member.guildName}`.toLowerCase().includes(query);
+  }) || [];
+
+  if (loading && !snapshot) {
+    return (
+      <div className="flex min-h-[420px] items-center justify-center text-center">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--accent)]">Moderator module</p>
+          <p className="mt-4 text-sm uppercase tracking-[0.12em] text-white/40">Scanning Discord server activity...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!snapshot) {
+    return (
+      <div className="flex min-h-[420px] items-center justify-center text-center">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.35em] text-red-300/75">Moderator module offline</p>
+          <p className="mt-4 text-sm leading-7 text-white/40">The Discord bot must be connected with member and presence access enabled.</p>
+          <button type="button" onClick={onRefresh} className="mt-6 border border-[var(--accent)]/50 px-4 py-3 text-[10px] uppercase tracking-[0.16em] text-white hover:bg-[var(--accent)]/[0.1]">Retry scan</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--accent)]">Moderator module</p>
+          <h3 className="mt-4 text-2xl uppercase tracking-[0.08em] text-white">Server intelligence</h3>
+          <p className="mt-3 max-w-xl text-xs leading-6 text-white/40">Members, live channel activity, presence state and recent message activity across the connected Discord servers.</p>
+        </div>
+        <button type="button" onClick={onRefresh} disabled={loading} className="border border-white/15 px-4 py-3 text-[10px] uppercase tracking-[0.16em] text-white/65 transition hover:border-[var(--accent)]/50 hover:text-white disabled:opacity-40">
+          {loading ? 'Scanning...' : 'Refresh scan'}
+        </button>
+      </div>
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          ['Members', snapshot.members.length, 'Total server members'],
+          ['Recently active', activeMembers, 'Presence or messages'],
+          ['Active channels', activeChannels, 'Last 24 hours / live'],
+          ['Activity events', snapshot.activity.length, 'Recent messages scanned'],
+        ].map(([label, value, detail]) => (
+          <div key={label} className="border border-white/10 bg-white/[0.025] p-4">
+            <p className="text-[9px] uppercase tracking-[0.2em] text-white/35">{label}</p>
+            <p className="mt-3 text-2xl uppercase tracking-[0.08em] text-white">{value}</p>
+            <p className="mt-2 text-[9px] uppercase tracking-[0.12em] text-white/30">{detail}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 flex border-b border-white/10">
+        {([
+          ['overview', 'Server overview'],
+          ['members', 'Member management'],
+        ] as const).map(([value, label]) => (
+          <button key={value} type="button" onClick={() => onTabChange(value)} className={`border-b-2 px-4 py-3 text-[10px] uppercase tracking-[0.16em] transition ${tab === value ? 'border-[var(--accent)] text-white' : 'border-transparent text-white/35 hover:text-white/70'}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'overview' ? (
+        <div className="mt-7 grid gap-7 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-white/35">Channel activity</p>
+                <p className="mt-2 text-xs text-white/35">Messages scanned per text channel and live voice occupancy.</p>
+              </div>
+              <span className="text-[9px] uppercase tracking-[0.14em] text-white/25">{snapshot.channels.length} channels</span>
+            </div>
+            <div className="mt-4 space-y-2">
+              {snapshot.channels.map(channel => (
+                <div key={`${channel.guildId}:${channel.id}`} className="flex items-center gap-3 border border-white/10 bg-white/[0.02] px-4 py-3">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${channel.active ? 'bg-emerald-300' : 'bg-white/20'}`} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs uppercase tracking-[0.08em] text-white/75">#{channel.name}</p>
+                    <p className="mt-1 truncate text-[9px] uppercase tracking-[0.12em] text-white/30">{channel.guildName} · {channel.type}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-xs text-white/65">{channel.type === 'voice' || channel.type === 'stage' ? `${channel.memberCount} live` : `${channel.messageCount} scanned`}</p>
+                    <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-white/25">{channel.active ? 'Active' : 'Quiet'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-white/35">Recent server activity</p>
+            <div className="mt-4 space-y-2">
+              {snapshot.activity.length ? snapshot.activity.map((item, index) => (
+                <div key={`${item.channelId}:${item.createdAt}:${item.authorId}:${index}`} className="border border-white/10 bg-white/[0.02] px-4 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="truncate text-xs text-white/75">{item.authorName}</p>
+                    <span className="shrink-0 text-[9px] uppercase tracking-[0.08em] text-white/25">{formatModeratorDate(item.createdAt)}</span>
+                  </div>
+                  <p className="mt-1 text-[9px] uppercase tracking-[0.12em] text-[var(--accent)]">#{item.channelName} · {item.guildName}</p>
+                </div>
+              )) : <p className="border border-white/10 p-5 text-xs text-white/35">No recent message activity found.</p>}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-7">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-white/35">Member management</p>
+              <p className="mt-2 text-xs text-white/35">Mute, rename or ban members directly from the connected server.</p>
+            </div>
+            <div className="w-full sm:w-72">
+              <EmojiField value={search} onChange={setSearch} className="input-glass w-full px-4 py-3 text-xs text-white placeholder:text-white/25" placeholder="Search members..." />
+            </div>
+          </div>
+          <div className="mt-5 space-y-3">
+            {visibleMembers.map(member => (
+              <ModeratorMemberRow key={`${member.guildId}:${member.id}:${member.displayName}`} member={member} busy={busy} onAction={onAction} />
+            ))}
+            {!visibleMembers.length && <p className="border border-white/10 p-6 text-center text-xs text-white/35">No members match this search.</p>}
+          </div>
+        </div>
+      )}
+      <p className="mt-6 text-[9px] uppercase tracking-[0.12em] text-white/25">Last scan: {formatModeratorDate(snapshot.generatedAt)} · message totals reflect the recent history scanned per channel.</p>
+    </>
+  );
+}
+
+function ModeratorMemberRow({
+  member,
+  busy,
+  onAction,
+}: {
+  member: ModeratorMember;
+  busy: string;
+  onAction: (payload: ModeratorActionPayload) => void;
+}) {
+  const [nickname, setNickname] = useState(member.displayName);
+  const busyFor = (action: ModeratorActionPayload['action']) => busy === `${member.id}:${action}`;
+  const basePayload = { guildId: member.guildId, memberId: member.id };
+
+  return (
+    <div className="border border-white/10 bg-white/[0.02] p-4">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
+        <div className="flex min-w-0 items-center gap-3 xl:w-[35%]">
+          <img src={member.avatarUrl} alt="" className="h-10 w-10 rounded-full border border-white/10 bg-white/5" />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="truncate text-sm text-white">{member.displayName}</p>
+              <span className={`h-2 w-2 shrink-0 rounded-full ${member.status === 'online' ? 'bg-emerald-300' : member.status === 'idle' ? 'bg-amber-300' : member.status === 'dnd' ? 'bg-red-300' : 'bg-white/20'}`} />
+            </div>
+            <p className="mt-1 truncate text-[9px] uppercase tracking-[0.1em] text-white/30">@{member.username} · {member.guildName}</p>
+            <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-white/35">{member.recentlyActive ? 'Recently active' : 'Not recently active'} · {member.messageCount} messages scanned</p>
+          </div>
+        </div>
+        <div className="grid flex-1 gap-3 sm:grid-cols-[1fr_auto]">
+          <EmojiField value={nickname} onChange={setNickname} className="input-glass w-full px-3 py-2 text-xs text-white" placeholder="Nickname" maxLength={32} />
+          <button type="button" disabled={busyFor('nickname') || nickname.trim() === member.displayName} onClick={() => onAction({ ...basePayload, action: 'nickname', nickname })} className="border border-white/15 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-white/65 transition hover:border-[var(--accent)]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-35">
+            {busyFor('nickname') ? 'Saving...' : 'Save nickname'}
+          </button>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <button type="button" disabled={busyFor(member.muted ? 'unmute' : 'mute')} onClick={() => onAction({ ...basePayload, action: member.muted ? 'unmute' : 'mute', muteMinutes: 60 })} className="border border-amber-300/25 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-amber-100/75 transition hover:border-amber-300/60 hover:text-amber-100 disabled:opacity-35">
+            {busyFor(member.muted ? 'unmute' : 'mute') ? 'Working...' : member.muted ? 'Unmute' : 'Mute 1h'}
+          </button>
+          <button type="button" disabled={busyFor('ban')} onClick={() => window.confirm(`Ban ${member.displayName} from Discord?`) && onAction({ ...basePayload, action: 'ban' })} className="border border-red-300/25 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-red-200/75 transition hover:border-red-300/60 hover:text-red-100 disabled:opacity-35">
+            {busyFor('ban') ? 'Banning...' : 'Ban'}
+          </button>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-white/[0.07] pt-3 text-[9px] uppercase tracking-[0.1em] text-white/25">
+        <span>Last message: {member.lastMessageAt ? formatModeratorDate(member.lastMessageAt) : 'Never observed'}</span>
+        {member.timeoutUntil && <span>Muted until: {formatModeratorDate(member.timeoutUntil)}</span>}
+        {member.roles.length > 0 && <span>Roles: {member.roles.join(', ')}</span>}
+        {member.isBot && <span>Bot account</span>}
+      </div>
+    </div>
+  );
+}
+
+function formatModeratorDate(value: string) {
+  return new Date(value).toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
 }
 
 function ImageField({

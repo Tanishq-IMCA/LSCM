@@ -18,6 +18,50 @@ export type DiscordAnnouncementPayload = {
   color: string;
   footerIconUrl: string;
 };
+export type DiscordModeratorMember = {
+  guildId: string;
+  guildName: string;
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string;
+  joinedAt: string | null;
+  roles: string[];
+  status: 'online' | 'idle' | 'dnd' | 'offline';
+  messageCount: number;
+  lastMessageAt: string | null;
+  recentlyActive: boolean;
+  isBot: boolean;
+  muted: boolean;
+  timeoutUntil: string | null;
+};
+export type DiscordModeratorChannel = {
+  guildId: string;
+  guildName: string;
+  id: string;
+  name: string;
+  type: 'text' | 'announcement' | 'voice' | 'stage';
+  memberCount: number;
+  messageCount: number;
+  lastMessageAt: string | null;
+  active: boolean;
+};
+export type DiscordModeratorActivity = {
+  guildId: string;
+  guildName: string;
+  channelId: string;
+  channelName: string;
+  authorId: string;
+  authorName: string;
+  createdAt: string;
+};
+export type DiscordModeratorSnapshot = {
+  generatedAt: string;
+  members: DiscordModeratorMember[];
+  channels: DiscordModeratorChannel[];
+  activity: DiscordModeratorActivity[];
+};
+export type DiscordModeratorAction = 'mute' | 'unmute' | 'nickname' | 'ban';
 
 const ACTIVITY_TYPES: Record<DiscordActivity, ActivityType> = {
   playing: ActivityType.Playing,
@@ -40,6 +84,8 @@ type DiscordRuntime = {
   lastError: string;
   lastMutationAt: number;
   settingsLoaded: boolean;
+  moderatorSnapshot: DiscordModeratorSnapshot | null;
+  moderatorSnapshotAt: number;
 };
 
 declare global {
@@ -61,6 +107,8 @@ const runtime: DiscordRuntime = global.lscmDiscordRuntime || {
   lastError: '',
   lastMutationAt: 0,
   settingsLoaded: false,
+  moderatorSnapshot: null,
+  moderatorSnapshotAt: 0,
 };
 
 if (!global.lscmDiscordRuntime) global.lscmDiscordRuntime = runtime;
@@ -115,7 +163,14 @@ export async function ensureDiscordBot() {
     return null;
   }
 
-  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+  const client = new Client({
+    intents: [
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildMembers,
+      GatewayIntentBits.GuildPresences,
+      GatewayIntentBits.GuildMessages,
+    ],
+  });
   runtime.client = client;
   client.once('clientReady', readyClient => {
     runtime.connected = true;
@@ -212,6 +267,159 @@ export async function getDiscordChannels(): Promise<DiscordChannel[]> {
     }
   }
   return channels.sort((a, b) => `${a.guildName}/${a.name}`.localeCompare(`${b.guildName}/${b.name}`));
+}
+
+export async function getDiscordModeratorSnapshot(forceRefresh = false): Promise<DiscordModeratorSnapshot> {
+  await ensureDiscordBot();
+  if (!runtime.client) throw new Error('Discord bot is not connected.');
+  if (!forceRefresh && runtime.moderatorSnapshot && Date.now() - runtime.moderatorSnapshotAt < 30000) {
+    return runtime.moderatorSnapshot;
+  }
+
+  const members: DiscordModeratorMember[] = [];
+  const channels: DiscordModeratorChannel[] = [];
+  const activity: DiscordModeratorActivity[] = [];
+  const messageCounts = new Map<string, number>();
+  const lastMessages = new Map<string, number>();
+  const now = Date.now();
+
+  for (const guild of runtime.client.guilds.cache.values()) {
+    let guildMembers;
+    try {
+      guildMembers = await guild.members.fetch();
+    } catch {
+      guildMembers = guild.members.cache;
+    }
+
+    let fetchedChannels;
+    try {
+      fetchedChannels = await guild.channels.fetch();
+    } catch {
+      fetchedChannels = guild.channels.cache;
+    }
+
+    for (const channel of fetchedChannels.values()) {
+      if (!channel) continue;
+      const isText = channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildAnnouncement;
+      const isVoice = channel.type === ChannelType.GuildVoice || channel.type === ChannelType.GuildStageVoice;
+      if (!isText && !isVoice) continue;
+
+      let messageCount = 0;
+      let lastMessageAt: string | null = null;
+      if (isText && channel.isTextBased()) {
+        try {
+          const messages = await channel.messages.fetch({ limit: 100 });
+          messageCount = messages.size;
+          const latest = messages.first();
+          lastMessageAt = latest?.createdAt.toISOString() || null;
+          for (const message of messages.values()) {
+            messageCounts.set(message.author.id, (messageCounts.get(message.author.id) || 0) + 1);
+            const timestamp = message.createdTimestamp;
+            if (!lastMessages.has(message.author.id) || timestamp > (lastMessages.get(message.author.id) || 0)) {
+              lastMessages.set(message.author.id, timestamp);
+            }
+            if (!message.author.bot && activity.length < 60) {
+              activity.push({
+                guildId: guild.id,
+                guildName: guild.name,
+                channelId: channel.id,
+                channelName: channel.name,
+                authorId: message.author.id,
+                authorName: message.member?.displayName || message.author.username,
+                createdAt: message.createdAt.toISOString(),
+              });
+            }
+          }
+        } catch {
+          // A channel without message history permission still appears in the channel overview.
+        }
+      }
+
+      const memberCount = isVoice && 'members' in channel ? channel.members.size : 0;
+      channels.push({
+        guildId: guild.id,
+        guildName: guild.name,
+        id: channel.id,
+        name: channel.name,
+        type: channel.type === ChannelType.GuildAnnouncement
+          ? 'announcement'
+          : channel.type === ChannelType.GuildVoice
+            ? 'voice'
+            : channel.type === ChannelType.GuildStageVoice
+              ? 'stage'
+              : 'text',
+        memberCount,
+        messageCount,
+        lastMessageAt,
+        active: memberCount > 0 || Boolean(lastMessageAt && now - new Date(lastMessageAt).getTime() < 86400000),
+      });
+    }
+
+    for (const member of guildMembers.values()) {
+      const lastMessageTimestamp = lastMessages.get(member.id) || 0;
+      const presence = guild.presences.cache.get(member.id);
+      const timeoutTimestamp = member.communicationDisabledUntilTimestamp || null;
+      members.push({
+        guildId: guild.id,
+        guildName: guild.name,
+        id: member.id,
+        username: member.user.username,
+        displayName: member.displayName,
+        avatarUrl: member.displayAvatarURL({ extension: 'png', size: 128 }),
+        joinedAt: member.joinedAt?.toISOString() || null,
+        roles: member.roles.cache.filter(role => role.id !== guild.id).map(role => role.name).slice(0, 5),
+        status: presence?.status === 'online' || presence?.status === 'idle' || presence?.status === 'dnd'
+          ? presence.status
+          : 'offline',
+        messageCount: messageCounts.get(member.id) || 0,
+        lastMessageAt: lastMessageTimestamp ? new Date(lastMessageTimestamp).toISOString() : null,
+        recentlyActive: Boolean(presence?.status && presence.status !== 'offline') || now - lastMessageTimestamp < 604800000,
+        isBot: member.user.bot,
+        muted: Boolean(timeoutTimestamp && timeoutTimestamp > now),
+        timeoutUntil: timeoutTimestamp ? new Date(timeoutTimestamp).toISOString() : null,
+      });
+    }
+  }
+
+  activity.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  members.sort((a, b) => b.messageCount - a.messageCount || a.displayName.localeCompare(b.displayName));
+  channels.sort((a, b) => Number(b.active) - Number(a.active) || a.name.localeCompare(b.name));
+  const snapshot = { generatedAt: new Date().toISOString(), members, channels, activity: activity.slice(0, 40) };
+  runtime.moderatorSnapshot = snapshot;
+  runtime.moderatorSnapshotAt = Date.now();
+  return snapshot;
+}
+
+export async function moderateDiscordMember(input: {
+  guildId: string;
+  memberId: string;
+  action: DiscordModeratorAction;
+  nickname?: string;
+  muteMinutes?: number;
+}) {
+  await ensureDiscordBot();
+  if (!runtime.client) throw new Error('Discord bot is not connected.');
+  const guild = runtime.client.guilds.cache.get(input.guildId);
+  if (!guild) throw new Error('Discord server not found.');
+  if (input.memberId === runtime.client.user?.id) throw new Error('The bot cannot moderate itself.');
+  if (input.memberId === guild.ownerId && input.action === 'ban') throw new Error('The server owner cannot be banned.');
+
+  const member = await guild.members.fetch(input.memberId);
+  if (!member.manageable && input.action !== 'nickname') throw new Error('The bot cannot manage this member.');
+
+  if (input.action === 'mute' || input.action === 'unmute') {
+    const minutes = Math.max(1, Math.min(40320, Math.round(input.muteMinutes || 60)));
+    await member.timeout(input.action === 'mute' ? minutes * 60000 : null, `LSCM moderator ${input.action}`);
+  } else if (input.action === 'nickname') {
+    await member.setNickname((input.nickname || '').trim().slice(0, 32) || null, 'LSCM moderator nickname update');
+  } else {
+    if (!member.bannable) throw new Error('The bot cannot ban this member.');
+    await guild.members.ban(input.memberId, { deleteMessageSeconds: 0, reason: 'LSCM moderator ban' });
+  }
+
+  runtime.moderatorSnapshot = null;
+  runtime.moderatorSnapshotAt = 0;
+  return input.action === 'ban' ? 'Member banned.' : input.action === 'nickname' ? 'Nickname updated.' : input.action === 'mute' ? 'Member muted.' : 'Member unmuted.';
 }
 
 export async function sendDiscordAnnouncement(payload: DiscordAnnouncementPayload, assetOrigin: string) {
