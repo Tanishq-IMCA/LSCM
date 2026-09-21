@@ -182,13 +182,34 @@ export async function ensureDiscordBot() {
     runtime.connected = false;
     runtime.lastError = error.message;
   });
-  runtime.loginPromise = client.login(token).catch(error => {
-    runtime.connected = false;
-    runtime.lastError = error instanceof Error ? error.message : 'Discord login failed.';
-    runtime.client = null;
-    runtime.loginPromise = null;
-    return '';
+  const readyPromise = new Promise<void>((resolve, reject) => {
+    if (client.isReady()) {
+      resolve();
+      return;
+    }
+    const timer = setTimeout(() => reject(new Error('Discord gateway did not become ready.')), 15000);
+    client.once('clientReady', () => {
+      clearTimeout(timer);
+      resolve();
+    });
+    client.once('error', error => {
+      clearTimeout(timer);
+      reject(error);
+    });
   });
+  void readyPromise.catch(() => undefined);
+  runtime.loginPromise = client.login(token)
+    .then(async loginToken => {
+      await readyPromise;
+      return loginToken;
+    })
+    .catch(error => {
+      runtime.connected = false;
+      runtime.lastError = error instanceof Error ? error.message : 'Discord login failed.';
+      runtime.client = null;
+      runtime.loginPromise = null;
+      return '';
+    });
   await runtime.loginPromise;
   return runtime.loginPromise;
 }

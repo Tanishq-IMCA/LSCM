@@ -124,6 +124,7 @@ export default function NetworkManagerPage() {
   const [sending, setSending] = useState(false);
   const [moderator, setModerator] = useState<ModeratorSnapshot | null>(null);
   const [moderatorLoading, setModeratorLoading] = useState(false);
+  const [moderatorProgress, setModeratorProgress] = useState(0);
   const [moderatorTab, setModeratorTab] = useState<'overview' | 'members'>('overview');
   const [moderatorBusy, setModeratorBusy] = useState('');
 
@@ -195,12 +196,18 @@ export default function NetworkManagerPage() {
 
   const loadModerator = async (forceRefresh = false) => {
     setModeratorLoading(true);
+    setModeratorProgress(8);
+    const progressTimer = window.setInterval(() => {
+      setModeratorProgress(current => Math.min(92, current + (current < 55 ? 9 : 4)));
+    }, 450);
     try {
       const result = await apiGet<{ success: boolean; snapshot: ModeratorSnapshot }>(`/api/admin/moderator${forceRefresh ? '?refresh=1' : ''}`);
       setModerator(result.snapshot);
+      setModeratorProgress(100);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not load moderation data.');
     } finally {
+      window.clearInterval(progressTimer);
       setModeratorLoading(false);
     }
   };
@@ -349,6 +356,7 @@ export default function NetworkManagerPage() {
               <ModeratorPanel
                 snapshot={moderator}
                 loading={moderatorLoading}
+                progress={moderatorProgress}
                 tab={moderatorTab}
                 busy={moderatorBusy}
                 onTabChange={setModeratorTab}
@@ -363,11 +371,11 @@ export default function NetworkManagerPage() {
             <p className="text-[10px] uppercase tracking-[0.28em] text-white/30">Network modules</p>
             <div className="mt-6 grid gap-3">
               {([
+                ['discord', 'LSCM Config'],
                 ['announcements', 'Announcements'],
                 ['moderator', 'Moderator'],
-                ['discord', 'LSCM Config'],
               ] as const).map(([module, label]) => (
-                <button key={module} type="button" onClick={() => openModule(module)} className={`border px-4 py-4 text-left text-xs uppercase tracking-[0.16em] transition ${activeModule === module ? 'border-[var(--accent)]/60 bg-[var(--accent)]/[0.1] text-white' : 'border-white/10 bg-white/[0.025] text-white/65 hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/[0.06] hover:text-white'}`}>
+                <button key={module} type="button" onClick={() => openModule(module)} className={`border px-4 py-4 text-left text-xs uppercase tracking-[0.16em] transition ${module === 'discord' ? 'border-[var(--accent)]/75 shadow-[0_0_18px_rgba(168,85,247,0.24)]' : ''} ${activeModule === module ? 'bg-[var(--accent)]/[0.1] text-white' : 'bg-white/[0.025] text-white/65 hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/[0.06] hover:text-white'}`}>
                   {label}
                 </button>
               ))}
@@ -471,6 +479,7 @@ function AnnouncementPanel({
 function ModeratorPanel({
   snapshot,
   loading,
+  progress,
   tab,
   busy,
   onTabChange,
@@ -479,6 +488,7 @@ function ModeratorPanel({
 }: {
   snapshot: ModeratorSnapshot | null;
   loading: boolean;
+  progress: number;
   tab: 'overview' | 'members';
   busy: string;
   onTabChange: (tab: 'overview' | 'members') => void;
@@ -486,12 +496,20 @@ function ModeratorPanel({
   onAction: (payload: ModeratorActionPayload) => void;
 }) {
   const [search, setSearch] = useState('');
+  const [memberPage, setMemberPage] = useState(1);
   const activeMembers = snapshot?.members.filter(member => member.recentlyActive).length || 0;
   const activeChannels = snapshot?.channels.filter(channel => channel.active).length || 0;
   const visibleMembers = snapshot?.members.filter(member => {
     const query = search.trim().toLowerCase();
     return !query || `${member.displayName} ${member.username} ${member.guildName}`.toLowerCase().includes(query);
   }) || [];
+  const memberPageCount = Math.max(1, Math.ceil(visibleMembers.length / 12));
+  const activePage = Math.min(memberPage, memberPageCount);
+  const pageMembers = visibleMembers.slice((activePage - 1) * 12, activePage * 12);
+  const activeRatio = snapshot?.members.length ? Math.round((activeMembers / snapshot.members.length) * 100) : 0;
+  const channelBars = [...(snapshot?.channels || [])].sort((a, b) => b.messageCount - a.messageCount).slice(0, 6);
+  const maxChannelMessages = Math.max(1, ...channelBars.map(channel => channel.messageCount));
+  const activityBuckets = getActivityBuckets(snapshot?.activity || [], snapshot?.generatedAt || new Date(0).toISOString());
 
   if (loading && !snapshot) {
     return (
@@ -499,6 +517,7 @@ function ModeratorPanel({
         <div>
           <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--accent)]">Moderator module</p>
           <p className="mt-4 text-sm uppercase tracking-[0.12em] text-white/40">Scanning Discord server activity...</p>
+          <ScanProgressBar progress={progress} />
         </div>
       </div>
     );
@@ -528,6 +547,7 @@ function ModeratorPanel({
           {loading ? 'Scanning...' : 'Refresh scan'}
         </button>
       </div>
+      {loading && <ScanProgressBar progress={progress} />}
 
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
@@ -544,6 +564,44 @@ function ModeratorPanel({
         ))}
       </div>
 
+      <div className="mt-5 grid gap-5 lg:grid-cols-[0.7fr_1.3fr]">
+        <div className="flex items-center gap-5 border border-white/10 bg-white/[0.02] p-5">
+          <CircularMetric value={activeRatio} label="active" />
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">Member pulse</p>
+            <p className="mt-2 text-sm uppercase tracking-[0.08em] text-white">{activeMembers} recently active</p>
+            <p className="mt-2 text-[10px] leading-5 text-white/35">Presence or message activity observed in the current scan.</p>
+          </div>
+        </div>
+        <div className="border border-white/10 bg-white/[0.02] p-5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">Message flow by channel</p>
+            <span className="text-[9px] uppercase tracking-[0.12em] text-white/25">Recent scan</span>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {channelBars.map(channel => (
+              <div key={`${channel.guildId}:${channel.id}`} className="min-w-0">
+                <div className="flex justify-between gap-3 text-[9px] uppercase tracking-[0.08em] text-white/45">
+                  <span className="truncate">#{channel.name}</span>
+                  <span>{channel.messageCount}</span>
+                </div>
+                <div className="mt-2 h-1.5 bg-white/10">
+                  <div className="h-full bg-[var(--accent)] transition-all" style={{ width: `${Math.max(4, (channel.messageCount / maxChannelMessages) * 100)}%` }} />
+                </div>
+              </div>
+            ))}
+            {!channelBars.length && <p className="text-xs text-white/35">No channel activity available.</p>}
+          </div>
+        </div>
+      </div>
+      <div className="mt-5 border border-white/10 bg-white/[0.02] p-5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">Activity trend</p>
+          <span className="text-[9px] uppercase tracking-[0.12em] text-white/25">Last 7 days</span>
+        </div>
+        <ActivityTrend values={activityBuckets} />
+      </div>
+
       <div className="mt-8 flex border-b border-white/10">
         {([
           ['overview', 'Server overview'],
@@ -556,7 +614,7 @@ function ModeratorPanel({
       </div>
 
       {tab === 'overview' ? (
-        <div className="mt-7 grid gap-7 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="mt-7 space-y-8">
           <div>
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -565,7 +623,7 @@ function ModeratorPanel({
               </div>
               <span className="text-[9px] uppercase tracking-[0.14em] text-white/25">{snapshot.channels.length} channels</span>
             </div>
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 grid gap-2 md:grid-cols-2">
               {snapshot.channels.map(channel => (
                 <div key={`${channel.guildId}:${channel.id}`} className="flex items-center gap-3 border border-white/10 bg-white/[0.02] px-4 py-3">
                   <span className={`h-2 w-2 shrink-0 rounded-full ${channel.active ? 'bg-emerald-300' : 'bg-white/20'}`} />
@@ -583,14 +641,15 @@ function ModeratorPanel({
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-white/35">Recent server activity</p>
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 grid gap-2 md:grid-cols-2">
               {snapshot.activity.length ? snapshot.activity.map((item, index) => (
                 <div key={`${item.channelId}:${item.createdAt}:${item.authorId}:${index}`} className="border border-white/10 bg-white/[0.02] px-4 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="truncate text-xs text-white/75">{item.authorName}</p>
                     <span className="shrink-0 text-[9px] uppercase tracking-[0.08em] text-white/25">{formatModeratorDate(item.createdAt)}</span>
                   </div>
-                  <p className="mt-1 text-[9px] uppercase tracking-[0.12em] text-[var(--accent)]">#{item.channelName} · {item.guildName}</p>
+                  <p className="mt-2 truncate text-[9px] uppercase tracking-[0.12em] text-[var(--accent)]">#{item.channelName}</p>
+                  <p className="mt-1 truncate text-[9px] uppercase tracking-[0.1em] text-white/30">{item.guildName} · Message event</p>
                 </div>
               )) : <p className="border border-white/10 p-5 text-xs text-white/35">No recent message activity found.</p>}
             </div>
@@ -604,20 +663,103 @@ function ModeratorPanel({
               <p className="mt-2 text-xs text-white/35">Mute, rename or ban members directly from the connected server.</p>
             </div>
             <div className="w-full sm:w-72">
-              <EmojiField value={search} onChange={setSearch} className="input-glass w-full px-4 py-3 text-xs text-white placeholder:text-white/25" placeholder="Search members..." />
+              <EmojiField value={search} onChange={value => { setSearch(value); setMemberPage(1); }} className="input-glass w-full px-4 py-3 text-xs text-white placeholder:text-white/25" placeholder="Search members..." />
             </div>
           </div>
           <div className="mt-5 space-y-3">
-            {visibleMembers.map(member => (
+            {pageMembers.map(member => (
               <ModeratorMemberRow key={`${member.guildId}:${member.id}:${member.displayName}`} member={member} busy={busy} onAction={onAction} />
             ))}
             {!visibleMembers.length && <p className="border border-white/10 p-6 text-center text-xs text-white/35">No members match this search.</p>}
           </div>
+          {visibleMembers.length > 0 && (
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2 border-t border-white/[0.08] pt-5">
+              <button type="button" disabled={activePage === 1} onClick={() => setMemberPage(page => Math.max(1, page - 1))} className="border border-white/15 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-white/55 transition hover:border-[var(--accent)]/50 hover:text-white disabled:opacity-25">Previous</button>
+              {Array.from({ length: memberPageCount }, (_, index) => index + 1).slice(Math.max(0, activePage - 3), Math.max(0, activePage - 3) + 5).map(page => (
+                <button key={page} type="button" onClick={() => setMemberPage(page)} className={`h-8 min-w-8 border px-2 text-[9px] uppercase tracking-[0.1em] transition ${page === activePage ? 'border-[var(--accent)] bg-[var(--accent)]/[0.12] text-white' : 'border-white/15 text-white/45 hover:border-[var(--accent)]/50 hover:text-white'}`}>{page}</button>
+              ))}
+              <button type="button" disabled={activePage === memberPageCount} onClick={() => setMemberPage(page => Math.min(memberPageCount, page + 1))} className="border border-white/15 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-white/55 transition hover:border-[var(--accent)]/50 hover:text-white disabled:opacity-25">Next</button>
+              <span className="ml-2 text-[9px] uppercase tracking-[0.12em] text-white/25">Page {activePage} / {memberPageCount}</span>
+            </div>
+          )}
         </div>
       )}
       <p className="mt-6 text-[9px] uppercase tracking-[0.12em] text-white/25">Last scan: {formatModeratorDate(snapshot.generatedAt)} · message totals reflect the recent history scanned per channel.</p>
     </>
   );
+}
+
+function ScanProgressBar({ progress }: { progress: number }) {
+  const value = Math.max(0, Math.min(100, progress));
+  return (
+    <div className="mt-6 w-full max-w-xl">
+      <div className="mb-2 flex items-center justify-between text-[9px] uppercase tracking-[0.18em] text-white/35">
+        <span>Scanning members, channels and activity</span>
+        <span>{value}%</span>
+      </div>
+      <div className="h-1.5 overflow-hidden bg-white/10">
+        <div className="h-full bg-[var(--accent)] shadow-[0_0_14px_rgba(168,85,247,0.75)] transition-all duration-300" style={{ width: `${value}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function CircularMetric({ value, label }: { value: number; label: string }) {
+  const radius = 32;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.max(0, Math.min(100, value)) / 100) * circumference;
+  return (
+    <div className="relative h-20 w-20 shrink-0">
+      <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
+        <circle cx="40" cy="40" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+        <circle cx="40" cy="40" r={radius} fill="none" stroke="var(--accent)" strokeLinecap="square" strokeWidth="5" strokeDasharray={circumference} strokeDashoffset={offset} className="transition-all duration-700" />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-sm text-white">{value}%</span>
+      <span className="sr-only">{label}</span>
+    </div>
+  );
+}
+
+function ActivityTrend({ values }: { values: number[] }) {
+  const width = 700;
+  const height = 150;
+  const padding = 12;
+  const max = Math.max(1, ...values);
+  const points = values.map((value, index) => {
+    const x = padding + (index / Math.max(1, values.length - 1)) * (width - padding * 2);
+    const y = height - padding - (value / max) * (height - padding * 2);
+    return `${x},${y}`;
+  }).join(' ');
+  return (
+    <div className="mt-4">
+      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-32 w-full overflow-visible">
+        {[0, 1, 2, 3].map(line => {
+          const y = padding + (line / 3) * (height - padding * 2);
+          return <line key={line} x1={padding} x2={width - padding} y1={y} y2={y} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />;
+        })}
+        <polyline points={points} fill="none" stroke="var(--accent)" strokeLinecap="square" strokeLinejoin="round" strokeWidth="3" />
+        {values.map((value, index) => {
+          const x = padding + (index / Math.max(1, values.length - 1)) * (width - padding * 2);
+          const y = height - padding - (value / max) * (height - padding * 2);
+          return <circle key={index} cx={x} cy={y} r="4" fill="#100b1d" stroke="var(--accent)" strokeWidth="2" />;
+        })}
+      </svg>
+      <div className="mt-2 flex justify-between text-[9px] uppercase tracking-[0.12em] text-white/25">
+        {['6d ago', '5d', '4d', '3d', '2d', 'Yesterday', 'Now'].map(label => <span key={label}>{label}</span>)}
+      </div>
+    </div>
+  );
+}
+
+function getActivityBuckets(activity: ModeratorSnapshot['activity'], generatedAt: string) {
+  const buckets = Array.from({ length: 7 }, () => 0);
+  const generatedTimestamp = Date.parse(generatedAt);
+  for (const item of activity) {
+    const age = Math.max(0, generatedTimestamp - Date.parse(item.createdAt));
+    const bucket = Math.min(6, Math.floor(age / 86400000));
+    buckets[6 - bucket] += 1;
+  }
+  return buckets;
 }
 
 function ModeratorMemberRow({
