@@ -22,8 +22,27 @@ type NetworkState = {
   lastError: string;
 };
 
-type ModuleName = 'discord' | 'announcements' | 'moderator';
-type DiscordChannel = { id: string; name: string; guildName: string };
+type ModuleName = 'discord' | 'announcements' | 'moderator' | 'cockpit';
+type DiscordChannel = { id: string; name: string; guildId: string; guildName: string };
+type DiscordChatChannel = DiscordChannel & {
+  type: 'text' | 'announcement';
+  messageCount: number;
+  updatedAt: string;
+};
+type DiscordChatMessage = {
+  id: string;
+  channelId: string;
+  guildId: string;
+  guildName: string;
+  channelName: string;
+  authorId: string;
+  authorName: string;
+  authorUsername: string;
+  authorAvatarUrl: string;
+  content: string;
+  isBot: boolean;
+  createdAt: string;
+};
 type AnnouncementPayload = {
   channelId: string;
   header: string;
@@ -128,6 +147,14 @@ export default function NetworkManagerPage() {
   const [moderatorProgress, setModeratorProgress] = useState(0);
   const [moderatorTab, setModeratorTab] = useState<'overview' | 'members'>('overview');
   const [moderatorBusy, setModeratorBusy] = useState('');
+  const [chatChannels, setChatChannels] = useState<DiscordChatChannel[]>([]);
+  const [chatMessages, setChatMessages] = useState<DiscordChatMessage[]>([]);
+  const [selectedChatChannelId, setSelectedChatChannelId] = useState('');
+  const [chatDraft, setChatDraft] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatSending, setChatSending] = useState(false);
+  const [operatorName, setOperatorName] = useState('Admin');
+  const [botUsername, setBotUsername] = useState('');
 
   const cooldown = useMemo(() => Math.max(0, Math.ceil((cooldownUntil - now) / 1000)), [cooldownUntil, now]);
 
@@ -213,6 +240,32 @@ export default function NetworkManagerPage() {
     }
   };
 
+  const loadCockpit = async (channelId = selectedChatChannelId, sync = false) => {
+    setChatLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (channelId) params.set('channelId', channelId);
+      if (sync) params.set('sync', '1');
+      const result = await apiGet<{
+        success: boolean;
+        channels: DiscordChatChannel[];
+        messages: DiscordChatMessage[];
+        selectedChannelId: string;
+        operatorName: string;
+        botUsername: string;
+      }>(`/api/admin/cockpit${params.toString() ? `?${params.toString()}` : ''}`);
+      setChatChannels(result.channels);
+      setChatMessages(result.messages);
+      setSelectedChatChannelId(result.selectedChannelId);
+      setOperatorName(result.operatorName);
+      setBotUsername(result.botUsername);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not load Bot Cockpit.');
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
   const runModeratorAction = async (payload: ModeratorActionPayload) => {
     const busyKey = `${payload.memberId}:${payload.action}`;
     setModeratorBusy(busyKey);
@@ -225,6 +278,34 @@ export default function NetworkManagerPage() {
       setMessage(error instanceof Error ? error.message : 'Moderation action failed.');
     } finally {
       setModeratorBusy('');
+    }
+  };
+
+  const sendChatMessage = async () => {
+    const content = chatDraft.trim();
+    if (!selectedChatChannelId || !content || chatSending || cooldown > 0) return;
+    setChatSending(true);
+    setMessage('');
+    try {
+      const result = await apiPost<{
+        success: boolean;
+        message: string;
+        messages: DiscordChatMessage[];
+        selectedChannelId: string;
+        operatorName: string;
+        botUsername: string;
+      }>('/api/admin/cockpit', { channelId: selectedChatChannelId, content });
+      setChatMessages(result.messages);
+      setSelectedChatChannelId(result.selectedChannelId);
+      setOperatorName(result.operatorName);
+      setBotUsername(result.botUsername);
+      setChatDraft('');
+      setCooldownUntil(Date.now() + 5000);
+      setMessage(result.message);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not send the message.');
+    } finally {
+      setChatSending(false);
     }
   };
 
@@ -269,6 +350,7 @@ export default function NetworkManagerPage() {
     setHistoryOpen(false);
     setMessage('');
     if (module === 'moderator' && !moderator && !moderatorLoading) void loadModerator();
+    if (module === 'cockpit' && !chatChannels.length && !chatLoading) void loadCockpit();
   };
 
   return (
@@ -365,6 +447,26 @@ export default function NetworkManagerPage() {
                 onAction={payload => void runModeratorAction(payload)}
               />
             )}
+            {activeModule === 'cockpit' && (
+              <BotCockpitPanel
+                channels={chatChannels}
+                messages={chatMessages}
+                selectedChannelId={selectedChatChannelId}
+                draft={chatDraft}
+                loading={chatLoading}
+                sending={chatSending}
+                operatorName={operatorName}
+                botUsername={botUsername}
+                cooldown={cooldown}
+                onSelectChannel={channelId => {
+                  setSelectedChatChannelId(channelId);
+                  void loadCockpit(channelId);
+                }}
+                onDraftChange={setChatDraft}
+                onSync={() => void loadCockpit(selectedChatChannelId, true)}
+                onSend={() => void sendChatMessage()}
+              />
+            )}
             {message && <p className="mt-5 text-xs uppercase tracking-[0.12em] text-[var(--accent-2)]">{message}</p>}
             {state?.lastError && <p className="mt-3 text-xs leading-6 text-red-300/75">{state.lastError}</p>}
           </section>
@@ -375,6 +477,7 @@ export default function NetworkManagerPage() {
                 ['discord', 'LSCM Config'],
                 ['announcements', 'Announcements'],
                 ['moderator', 'Moderator'],
+                  ['cockpit', 'Bot Cockpit'],
               ] as const).map(([module, label]) => (
                 <button key={module} type="button" onClick={() => openModule(module)} className={`border px-4 py-4 text-left text-xs uppercase tracking-[0.16em] transition ${module === 'discord' ? 'border-[var(--accent)]/75 shadow-[0_0_18px_rgba(168,85,247,0.24)]' : ''} ${activeModule === module ? 'bg-[var(--accent)]/[0.1] text-white' : 'bg-white/[0.025] text-white/65 hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/[0.06] hover:text-white'}`}>
                   {label}
@@ -473,6 +576,146 @@ function AnnouncementPanel({
           </button>
         </div>
       )}
+    </>
+  );
+}
+
+function BotCockpitPanel({
+  channels,
+  messages,
+  selectedChannelId,
+  draft,
+  loading,
+  sending,
+  operatorName,
+  botUsername,
+  cooldown,
+  onSelectChannel,
+  onDraftChange,
+  onSync,
+  onSend,
+}: {
+  channels: DiscordChatChannel[];
+  messages: DiscordChatMessage[];
+  selectedChannelId: string;
+  draft: string;
+  loading: boolean;
+  sending: boolean;
+  operatorName: string;
+  botUsername: string;
+  cooldown: number;
+  onSelectChannel: (channelId: string) => void;
+  onDraftChange: (value: string) => void;
+  onSync: () => void;
+  onSend: () => void;
+}) {
+  const selectedChannel = channels.find(channel => channel.id === selectedChannelId);
+  return (
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--accent)]">Bot cockpit</p>
+          <h3 className="mt-4 text-2xl uppercase tracking-[0.08em] text-white">Discord relay</h3>
+          <p className="mt-3 max-w-2xl text-xs leading-6 text-white/40">A cached chat view for the channels this bot can write to. Reads stay local until you explicitly sync.</p>
+        </div>
+        <button type="button" onClick={onSync} disabled={loading} className="border border-white/15 px-4 py-3 text-[10px] uppercase tracking-[0.16em] text-white/65 transition hover:border-[var(--accent)]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-35">
+          {loading ? 'Syncing...' : 'Sync current channel'}
+        </button>
+      </div>
+
+      <div className="mt-8 grid min-h-[620px] overflow-hidden border border-white/10 bg-black/20 lg:grid-cols-[230px_1fr]">
+        <aside className="border-b border-white/10 bg-white/[0.025] lg:border-b-0 lg:border-r">
+          <div className="border-b border-white/10 px-4 py-4">
+            <p className="text-[9px] uppercase tracking-[0.2em] text-white/35">Bot-accessible channels</p>
+            <p className="mt-2 text-[9px] uppercase tracking-[0.12em] text-white/25">{channels.length} cached channels</p>
+          </div>
+          <div className="max-h-64 overflow-y-auto p-2 lg:max-h-[550px]">
+            {channels.map(channel => (
+              <button
+                key={channel.id}
+                type="button"
+                onClick={() => onSelectChannel(channel.id)}
+                className={`mb-1 flex w-full items-center gap-2 px-3 py-3 text-left transition ${channel.id === selectedChannelId ? 'bg-[var(--accent)]/[0.14] text-white' : 'text-white/45 hover:bg-white/[0.05] hover:text-white/80'}`}
+              >
+                <span className="text-sm text-white/30">#</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[10px] uppercase tracking-[0.12em]">{channel.name}</span>
+                  <span className="mt-1 block truncate text-[8px] uppercase tracking-[0.1em] text-white/25">{channel.guildName}</span>
+                </span>
+                {channel.messageCount > 0 && <span className="text-[9px] text-white/25">{channel.messageCount}</span>}
+              </button>
+            ))}
+            {!channels.length && (
+              <div className="p-4 text-[10px] uppercase leading-5 tracking-[0.12em] text-white/30">
+                {loading ? 'Loading channels...' : 'No cached channels. Sync to connect.'}
+              </div>
+            )}
+          </div>
+        </aside>
+
+        <section className="flex min-h-[620px] min-w-0 flex-col">
+          <div className="border-b border-white/10 px-5 py-4">
+            <div className="flex items-center gap-2">
+              <span className="text-lg text-white/30">#</span>
+              <div className="min-w-0">
+                <p className="truncate text-xs uppercase tracking-[0.14em] text-white">{selectedChannel?.name || 'Select a channel'}</p>
+                <p className="mt-1 truncate text-[9px] uppercase tracking-[0.1em] text-white/30">{selectedChannel?.guildName || 'No channel selected'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 space-y-1 overflow-y-auto p-5">
+            {loading && !messages.length && <p className="py-10 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">Loading cached messages...</p>}
+            {!loading && selectedChannel && !messages.length && (
+              <div className="py-10 text-center">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/35">No cached messages</p>
+                <p className="mt-3 text-xs leading-6 text-white/25">Use Sync current channel to fetch the latest 50 messages once.</p>
+              </div>
+            )}
+            {!selectedChannel && !loading && <p className="py-10 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">Sync channels to begin.</p>}
+            {messages.map(item => (
+              <div key={item.id} className="flex gap-3 border-b border-white/[0.05] py-3">
+                <img src={item.authorAvatarUrl} alt="" className="mt-0.5 h-8 w-8 shrink-0 rounded-full border border-white/10 bg-white/5" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <span className={`text-xs ${item.isBot ? 'text-[var(--accent)]' : 'text-white/80'}`}>{item.authorName}</span>
+                    <span className="text-[8px] uppercase tracking-[0.12em] text-white/25">@{item.authorUsername} · {item.isBot ? 'Bot' : 'Member'}</span>
+                    <span className="text-[8px] uppercase tracking-[0.08em] text-white/20">{formatModeratorDate(item.createdAt)}</span>
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap break-words text-xs leading-6 text-white/65">{item.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <form
+            onSubmit={event => {
+              event.preventDefault();
+              onSend();
+            }}
+            className="border-t border-white/10 bg-white/[0.025] p-4"
+          >
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-[9px] uppercase tracking-[0.1em] text-white/30">
+              <span>Admin: {operatorName}</span>
+              <span>Discord relay: @{botUsername || 'LSCM bot'}</span>
+            </div>
+            <div className="flex gap-2">
+              <EmojiField
+                multiline
+                value={draft}
+                onChange={onDraftChange}
+                className="input-glass min-h-12 flex-1 px-3 py-3 text-xs leading-5 text-white placeholder:text-white/25"
+                placeholder={selectedChannel ? `Message #${selectedChannel.name}` : 'Select a channel first'}
+                maxLength={2000}
+              />
+              <button type="submit" disabled={!selectedChannel || !draft.trim() || sending || cooldown > 0} className="self-end bg-[var(--accent)] px-4 py-3 text-[9px] uppercase tracking-[0.16em] text-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-35">
+                {sending ? 'Sending...' : cooldown > 0 ? `${cooldown}s` : 'Send'}
+              </button>
+            </div>
+            <p className="mt-2 text-[8px] uppercase tracking-[0.1em] text-white/20">Messages are rate-limited to protect the bot.</p>
+          </form>
+        </section>
+      </div>
     </>
   );
 }

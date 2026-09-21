@@ -111,6 +111,31 @@ CREATE TABLE IF NOT EXISTS lscm_discord_moderator_scans (
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS lscm_discord_chat_channels (
+  id TEXT PRIMARY KEY,
+  guild_id TEXT NOT NULL,
+  guild_name TEXT NOT NULL,
+  name TEXT NOT NULL,
+  channel_type TEXT NOT NULL CHECK (channel_type IN ('text', 'announcement')),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lscm_discord_chat_messages (
+  id TEXT PRIMARY KEY,
+  channel_id TEXT NOT NULL REFERENCES lscm_discord_chat_channels(id) ON DELETE CASCADE,
+  guild_id TEXT NOT NULL,
+  guild_name TEXT NOT NULL,
+  channel_name TEXT NOT NULL,
+  author_id TEXT NOT NULL,
+  author_name TEXT NOT NULL,
+  author_username TEXT NOT NULL,
+  author_avatar_url TEXT NOT NULL DEFAULT '',
+  content TEXT NOT NULL,
+  is_bot BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL,
+  fetched_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS lscm_sessions_user_id_idx ON lscm_sessions (user_id);
 CREATE INDEX IF NOT EXISTS lscm_sessions_expires_at_idx ON lscm_sessions (expires_at);
 CREATE INDEX IF NOT EXISTS lscm_cart_items_user_id_idx ON lscm_cart_items (user_id);
@@ -121,3 +146,5 @@ CREATE INDEX IF NOT EXISTS lscm_support_tickets_status_idx ON lscm_support_ticke
 CREATE INDEX IF NOT EXISTS lscm_support_messages_ticket_id_idx ON lscm_support_messages (ticket_id, created_at ASC);
 CREATE INDEX IF NOT EXISTS lscm_discord_announcements_created_at_idx ON lscm_discord_announcements (created_at DESC);
 CREATE INDEX IF NOT EXISTS lscm_discord_moderator_scans_generated_at_idx ON lscm_discord_moderator_scans (generated_at DESC);
+CREATE INDEX IF NOT EXISTS lscm_discord_chat_channels_updated_at_idx ON lscm_discord_chat_channels (updated_at DESC);
+CREATE INDEX IF NOT EXISTS lscm_discord_chat_messages_channel_created_at_idx ON lscm_discord_chat_messages (channel_id, created_at DESC);
