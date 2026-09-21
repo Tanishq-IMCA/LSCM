@@ -104,29 +104,6 @@ export default function NetworkManagerPage() {
               {loading ? 'Connecting to network service...' : state?.connected ? `Connected${state.botUsername ? ` · @${state.botUsername}` : ''}` : 'Offline · awaiting bot connection'}
             </p>
           </div>
-          <div className="grid gap-3 md:grid-cols-2 lg:min-w-[840px] lg:grid-cols-6">
-            <select value={draft.statusType || 'online'} onChange={event => updateDraft('statusType', event.target.value as NetworkState['statusType'])} className="input-glass px-3 py-3 text-[10px] uppercase tracking-[0.12em] text-white">
-              <option value="online" className="bg-[#100b1d]">Online</option>
-              <option value="idle" className="bg-[#100b1d]">Idle</option>
-              <option value="dnd" className="bg-[#100b1d]">Do not disturb</option>
-              <option value="invisible" className="bg-[#100b1d]">Invisible</option>
-            </select>
-            <select value={draft.activityType || 'playing'} onChange={event => updateDraft('activityType', event.target.value as NetworkState['activityType'])} className="input-glass px-3 py-3 text-[10px] uppercase tracking-[0.12em] text-white">
-              <option value="playing" className="bg-[#100b1d]">Playing</option>
-              <option value="listening" className="bg-[#100b1d]">Listening</option>
-              <option value="watching" className="bg-[#100b1d]">Watching</option>
-              <option value="competing" className="bg-[#100b1d]">Competing</option>
-            </select>
-            <input value={draft.activityTitle || ''} onChange={event => updateDraft('activityTitle', event.target.value)} className="input-glass px-3 py-3 text-[10px] uppercase tracking-[0.12em] text-white placeholder:text-white/25" placeholder="Activity title" maxLength={128} />
-            <input value={draft.statusDescription || ''} onChange={event => updateDraft('statusDescription', event.target.value)} className="input-glass px-3 py-3 text-[10px] uppercase tracking-[0.12em] text-white placeholder:text-white/25" placeholder="Status description" maxLength={128} />
-            <label className="flex items-center justify-center gap-2 border border-white/10 px-3 py-3 text-[10px] uppercase tracking-[0.12em] text-white/60">
-              <input type="checkbox" checked={draft.enabled ?? true} onChange={event => updateDraft('enabled', event.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
-              Live
-            </label>
-            <button type="button" onClick={() => void save()} disabled={saving || cooldown > 0 || loading} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase tracking-[0.18em] text-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40">
-              {saving ? 'Updating...' : cooldown > 0 ? `Cooldown ${cooldown}s` : 'Apply state'}
-            </button>
-          </div>
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-6 py-12 md:px-10">
@@ -146,8 +123,40 @@ export default function NetworkManagerPage() {
           <section className="glass-panel p-7 md:p-9">
             <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--accent)]">Presence controls</p>
             <h3 className="mt-4 text-2xl uppercase tracking-[0.08em] text-white">Discord activity</h3>
-            <div className="mt-8 border border-white/10 bg-white/[0.025] p-5">
-              <p className="text-xs leading-7 text-white/40">Status type, activity type, title, description, and live state are managed from the network bar above.</p>
+            <div className="mt-8 grid gap-5 md:grid-cols-2">
+              <label className="block">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Status type</span>
+                <select value={draft.statusType || 'online'} onChange={event => updateDraft('statusType', event.target.value as NetworkState['statusType'])} className="input-glass mt-2 w-full px-4 py-3 text-sm uppercase tracking-[0.08em] text-white">
+                  <option value="online" className="bg-[#100b1d]">Online</option>
+                  <option value="idle" className="bg-[#100b1d]">Idle</option>
+                  <option value="dnd" className="bg-[#100b1d]">Do not disturb</option>
+                  <option value="invisible" className="bg-[#100b1d]">Invisible</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Activity type</span>
+                <select value={draft.activityType || 'playing'} onChange={event => updateDraft('activityType', event.target.value as NetworkState['activityType'])} className="input-glass mt-2 w-full px-4 py-3 text-sm uppercase tracking-[0.08em] text-white">
+                  <option value="playing" className="bg-[#100b1d]">Playing</option>
+                  <option value="listening" className="bg-[#100b1d]">Listening</option>
+                  <option value="watching" className="bg-[#100b1d]">Watching</option>
+                  <option value="competing" className="bg-[#100b1d]">Competing</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Activity title</span>
+                <input value={draft.activityTitle || ''} onChange={event => updateDraft('activityTitle', event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="LSCM Network" maxLength={128} />
+              </label>
+              <label className="block">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Status description</span>
+                <input value={draft.statusDescription || ''} onChange={event => updateDraft('statusDescription', event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="Los Santos Car Modders Community" maxLength={128} />
+              </label>
+              <label className="flex items-center justify-between border border-white/10 bg-white/[0.025] px-4 py-4">
+                <span><span className="block text-[10px] uppercase tracking-[0.18em] text-white/70">Live presence</span><span className="mt-1 block text-xs text-white/35">Keep the bot visible on Discord.</span></span>
+                <input type="checkbox" checked={draft.enabled ?? true} onChange={event => updateDraft('enabled', event.target.checked)} className="h-5 w-5 accent-[var(--accent)]" />
+              </label>
+              <button type="button" onClick={() => void save()} disabled={saving || cooldown > 0 || loading} className="bg-[var(--accent)] px-4 py-3 text-[10px] uppercase tracking-[0.18em] text-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40">
+                {saving ? 'Updating...' : cooldown > 0 ? `Cooldown ${cooldown}s` : 'Apply state'}
+              </button>
             </div>
             {message && <p className="mt-5 text-xs uppercase tracking-[0.12em] text-[var(--accent-2)]">{message}</p>}
             {state?.lastError && <p className="mt-3 text-xs leading-6 text-red-300/75">{state.lastError}</p>}
