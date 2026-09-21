@@ -291,11 +291,20 @@ export async function getDiscordChannels(): Promise<DiscordChannel[]> {
 }
 
 export async function getDiscordModeratorSnapshot(forceRefresh = false): Promise<DiscordModeratorSnapshot> {
-  await ensureDiscordBot();
-  if (!runtime.client) throw new Error('Discord bot is not connected.');
   if (!forceRefresh && runtime.moderatorSnapshot && Date.now() - runtime.moderatorSnapshotAt < 30000) {
     return runtime.moderatorSnapshot;
   }
+  if (!forceRefresh) {
+    const persistedSnapshot = await loadPersistedModeratorSnapshot();
+    if (persistedSnapshot) {
+      runtime.moderatorSnapshot = persistedSnapshot;
+      runtime.moderatorSnapshotAt = Date.now();
+      return persistedSnapshot;
+    }
+  }
+
+  await ensureDiscordBot();
+  if (!runtime.client) throw new Error('Discord bot is not connected.');
 
   const members: DiscordModeratorMember[] = [];
   const channels: DiscordModeratorChannel[] = [];
@@ -406,9 +415,32 @@ export async function getDiscordModeratorSnapshot(forceRefresh = false): Promise
   members.sort((a, b) => b.messageCount - a.messageCount || a.displayName.localeCompare(b.displayName));
   channels.sort((a, b) => Number(b.active) - Number(a.active) || a.name.localeCompare(b.name));
   const snapshot = { generatedAt: new Date().toISOString(), members, channels, activity: activity.slice(0, 40) };
+  await persistModeratorSnapshot(snapshot);
   runtime.moderatorSnapshot = snapshot;
   runtime.moderatorSnapshotAt = Date.now();
   return snapshot;
+}
+
+async function loadPersistedModeratorSnapshot(): Promise<DiscordModeratorSnapshot | null> {
+  const result = await query<{ snapshot: DiscordModeratorSnapshot }>(
+    `SELECT snapshot
+     FROM lscm_discord_moderator_scans
+     ORDER BY generated_at DESC
+     LIMIT 1`,
+  );
+  const snapshot = result.rows[0]?.snapshot;
+  if (!snapshot || !Array.isArray(snapshot.members) || !Array.isArray(snapshot.channels) || !Array.isArray(snapshot.activity)) {
+    return null;
+  }
+  return snapshot;
+}
+
+async function persistModeratorSnapshot(snapshot: DiscordModeratorSnapshot) {
+  await query(
+    `INSERT INTO lscm_discord_moderator_scans (generated_at, snapshot)
+     VALUES ($1, $2::jsonb)`,
+    [snapshot.generatedAt, JSON.stringify(snapshot)],
+  );
 }
 
 export async function moderateDiscordMember(input: {

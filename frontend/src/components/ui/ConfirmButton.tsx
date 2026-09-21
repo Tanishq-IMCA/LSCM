@@ -11,6 +11,7 @@ type ConfirmButtonProps = {
   confirmText?: string;
   timeout?: number;
   lineColor?: string;
+  disabled?: boolean;
 };
 
 export function ConfirmButton({
@@ -21,6 +22,7 @@ export function ConfirmButton({
   confirmText = 'Are you sure?',
   timeout = 3000,
   lineColor = 'var(--accent)',
+  disabled = false,
 }: ConfirmButtonProps) {
   const [isConfirming, setIsConfirming] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -46,6 +48,7 @@ export function ConfirmButton({
     <motion.button
       type="button"
       onClick={handleClick}
+      disabled={disabled}
       className={`relative overflow-hidden ${className}`}
       style={style}
       whileHover={{ scale: 1.02 }}

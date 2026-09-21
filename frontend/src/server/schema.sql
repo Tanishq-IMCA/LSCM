@@ -104,6 +104,13 @@ CREATE TABLE IF NOT EXISTS lscm_discord_announcements (
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS lscm_discord_moderator_scans (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  generated_at TIMESTAMPTZ NOT NULL,
+  snapshot JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS lscm_sessions_user_id_idx ON lscm_sessions (user_id);
 CREATE INDEX IF NOT EXISTS lscm_sessions_expires_at_idx ON lscm_sessions (expires_at);
 CREATE INDEX IF NOT EXISTS lscm_cart_items_user_id_idx ON lscm_cart_items (user_id);
@@ -113,3 +120,4 @@ CREATE INDEX IF NOT EXISTS lscm_support_tickets_user_id_idx ON lscm_support_tick
 CREATE INDEX IF NOT EXISTS lscm_support_tickets_status_idx ON lscm_support_tickets (status, updated_at DESC);
 CREATE INDEX IF NOT EXISTS lscm_support_messages_ticket_id_idx ON lscm_support_messages (ticket_id, created_at ASC);
 CREATE INDEX IF NOT EXISTS lscm_discord_announcements_created_at_idx ON lscm_discord_announcements (created_at DESC);
+CREATE INDEX IF NOT EXISTS lscm_discord_moderator_scans_generated_at_idx ON lscm_discord_moderator_scans (generated_at DESC);

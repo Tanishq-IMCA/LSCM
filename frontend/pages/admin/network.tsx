@@ -5,6 +5,7 @@ import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import GlitchyText from '@/components/ui/GlitchyText';
 import EmojiField from '@/components/ui/EmojiField';
+import { ConfirmButton } from '@/components/ui/ConfirmButton';
 import { apiGet, apiPatch, apiPost } from '@/lib/api';
 import { currentUser } from '@/server/auth';
 import { isAdminUser } from '@/server/admin';
@@ -796,12 +797,32 @@ function ModeratorMemberRow({
           </button>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
-          <button type="button" disabled={busyFor(member.muted ? 'unmute' : 'mute')} onClick={() => onAction({ ...basePayload, action: member.muted ? 'unmute' : 'mute', muteMinutes: 60 })} className="border border-amber-300/25 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-amber-100/75 transition hover:border-amber-300/60 hover:text-amber-100 disabled:opacity-35">
-            {busyFor(member.muted ? 'unmute' : 'mute') ? 'Working...' : member.muted ? 'Unmute' : 'Mute 1h'}
-          </button>
-          <button type="button" disabled={busyFor('ban')} onClick={() => window.confirm(`Ban ${member.displayName} from Discord?`) && onAction({ ...basePayload, action: 'ban' })} className="border border-red-300/25 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-red-200/75 transition hover:border-red-300/60 hover:text-red-100 disabled:opacity-35">
+          {member.muted ? (
+            <button type="button" disabled={busyFor('unmute')} onClick={() => onAction({ ...basePayload, action: 'unmute' })} className="border border-amber-300/25 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-amber-100/75 transition hover:border-amber-300/60 hover:text-amber-100 disabled:opacity-35">
+              {busyFor('unmute') ? 'Working...' : 'Unmute'}
+            </button>
+          ) : (
+            <ConfirmButton
+              onConfirm={() => onAction({ ...basePayload, action: 'mute', muteMinutes: 60 })}
+              confirmText="Are you sure?"
+              timeout={3000}
+              lineColor="#fbbf24"
+              disabled={busyFor('mute')}
+              className="border border-amber-300/25 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-amber-100/75 transition hover:border-amber-300/60 hover:text-amber-100 disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              {busyFor('mute') ? 'Working...' : 'Mute 1h'}
+            </ConfirmButton>
+          )}
+          <ConfirmButton
+            onConfirm={() => onAction({ ...basePayload, action: 'ban' })}
+            confirmText="Are you sure?"
+            timeout={3000}
+            lineColor="#f87171"
+            disabled={busyFor('ban')}
+            className="border border-red-300/25 px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-red-200/75 transition hover:border-red-300/60 hover:text-red-100 disabled:cursor-not-allowed disabled:opacity-35"
+          >
             {busyFor('ban') ? 'Banning...' : 'Ban'}
-          </button>
+          </ConfirmButton>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-white/[0.07] pt-3 text-[9px] uppercase tracking-[0.1em] text-white/25">
