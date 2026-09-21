@@ -40,10 +40,10 @@ export default function AdminHomePage() {
             <p className="mt-4 text-sm leading-7 text-white/40">Search customers and move orders through approval, delivery, and finished states.</p>
             <span className="mt-7 inline-block text-[10px] uppercase tracking-[0.2em] text-white/60">Open orders →</span>
           </Link>
-          <div className="glass-panel relative overflow-hidden p-8 transition hover:border-[var(--accent)]/40 hover:bg-white/[0.06] md:col-span-2">
+          <div className="glass-panel relative overflow-hidden p-8 transition hover:border-[var(--accent)]/40 hover:bg-white/[0.06]">
             <div className="store-hero__glow opacity-40" />
             <div className="relative z-10 md:flex md:items-start md:justify-between md:gap-10">
-              <div className="max-w-2xl">
+              <div className="max-w-xl">
                 <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]">Category 03 · Incoming</p>
                 <h2 className="mt-4 text-3xl uppercase tracking-[0.08em] text-white">Product manager</h2>
                 <p className="mt-4 text-sm leading-7 text-white/40">A complete catalogue command center is being built for the next phase of LSCM.</p>
@@ -56,6 +56,15 @@ export default function AdminHomePage() {
               </div>
             </div>
           </div>
+          <Link href="/admin/network" className="glass-panel relative overflow-hidden p-8 transition hover:border-[var(--accent)]/50 hover:bg-white/[0.06]">
+            <div className="store-hero__glow opacity-30" />
+            <div className="relative z-10">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]">Category 04 · Network</p>
+              <h2 className="mt-4 text-3xl uppercase tracking-[0.08em] text-white">Network manager</h2>
+              <p className="mt-4 text-sm leading-7 text-white/40">Manage the LSCM Discord gateway, presence, activity title and live bot state.</p>
+              <span className="mt-7 inline-block text-[10px] uppercase tracking-[0.2em] text-white/60">Open network manager →</span>
+            </div>
+          </Link>
         </div>
       </section>
       <Footer />

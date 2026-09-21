@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { changePassword, clearSession, currentUser, login, logout, register, resetPassword } from '@/server/auth';
+import { ensureDiscordBot } from '@/server/discord';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  void ensureDiscordBot();
   const action = String(req.query.action || '');
 
   try {
