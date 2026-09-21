@@ -17,6 +17,7 @@ type NetworkState = {
   statusDescription: string;
   activityType: 'playing' | 'listening' | 'watching' | 'competing';
   activityTitle: string;
+  buttons: { label: string; url: string }[];
   lastError: string;
 };
 
@@ -74,6 +75,7 @@ export default function NetworkManagerPage() {
         statusDescription: draft.statusDescription,
         activityType: draft.activityType,
         activityTitle: draft.activityTitle,
+        buttons: draft.buttons || [],
       });
       setState(result.state);
       setDraft(result.state);
@@ -88,6 +90,20 @@ export default function NetworkManagerPage() {
 
   const updateDraft = <K extends keyof NetworkState>(key: K, value: NetworkState[K]) => {
     setDraft(current => ({ ...current, [key]: value }));
+  };
+
+  const addButton = () => {
+    const buttons = draft.buttons || [];
+    if (buttons.length >= 3) return;
+    updateDraft('buttons', [...buttons, { label: 'Open network', url: 'https://discord.com' }]);
+  };
+
+  const removeButton = (index: number) => {
+    updateDraft('buttons', (draft.buttons || []).filter((_, buttonIndex) => buttonIndex !== index));
+  };
+
+  const updateButton = (index: number, key: 'label' | 'url', value: string) => {
+    updateDraft('buttons', (draft.buttons || []).map((button, buttonIndex) => buttonIndex === index ? { ...button, [key]: value } : button));
   };
 
   return (
@@ -147,6 +163,25 @@ export default function NetworkManagerPage() {
               <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Status description</span>
               <input value={draft.statusDescription || ''} onChange={event => updateDraft('statusDescription', event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="Los Santos Car Modders Community" maxLength={128} />
             </label>
+            <div className="mt-7 border-t border-white/[0.08] pt-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">Bot button presets</p>
+                  <p className="mt-1 text-xs text-white/30">Saved for future bot messages · up to 3 links.</p>
+                </div>
+                <button type="button" onClick={addButton} disabled={(draft.buttons || []).length >= 3} className="border border-[var(--accent)]/40 px-3 py-2 text-[9px] uppercase tracking-[0.15em] text-[var(--accent)] disabled:opacity-30">+ Add button</button>
+              </div>
+              <div className="mt-4 space-y-3">
+                {(draft.buttons || []).map((button, index) => (
+                  <div key={`${index}-${button.label}`} className="grid gap-2 md:grid-cols-[0.8fr_1.2fr_auto]">
+                    <input value={button.label} onChange={event => updateButton(index, 'label', event.target.value)} className="input-glass px-3 py-3 text-xs text-white placeholder:text-white/25" placeholder="Button label" maxLength={32} />
+                    <input value={button.url} onChange={event => updateButton(index, 'url', event.target.value)} className="input-glass px-3 py-3 text-xs text-white placeholder:text-white/25" placeholder="https://..." maxLength={512} />
+                    <button type="button" onClick={() => removeButton(index)} className="border border-red-300/20 px-3 py-2 text-[9px] uppercase tracking-[0.15em] text-red-200/60 hover:text-red-200">Remove</button>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-4 text-[10px] leading-5 text-white/25">Discord does not render custom images or clickable buttons on a bot gateway presence. These link presets are stored for bot message actions.</p>
+            </div>
             {message && <p className="mt-5 text-xs uppercase tracking-[0.12em] text-[var(--accent-2)]">{message}</p>}
             {state?.lastError && <p className="mt-3 text-xs leading-6 text-red-300/75">{state.lastError}</p>}
           </section>

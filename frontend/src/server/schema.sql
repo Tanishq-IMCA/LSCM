@@ -78,6 +78,23 @@ CREATE TABLE IF NOT EXISTS lscm_support_messages (
   pinned_by TEXT REFERENCES lscm_users(id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS lscm_discord_settings (
+  id SMALLINT PRIMARY KEY CHECK (id = 1),
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  status_type TEXT NOT NULL DEFAULT 'online'
+    CHECK (status_type IN ('online', 'idle', 'dnd', 'invisible')),
+  status_description TEXT NOT NULL DEFAULT 'Los Santos Car Modders Community',
+  activity_type TEXT NOT NULL DEFAULT 'playing'
+    CHECK (activity_type IN ('playing', 'listening', 'watching', 'competing')),
+  activity_title TEXT NOT NULL DEFAULT 'LSCM Network',
+  buttons JSONB NOT NULL DEFAULT '[]'::jsonb,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO lscm_discord_settings (id)
+VALUES (1)
+ON CONFLICT (id) DO NOTHING;
+
 CREATE INDEX IF NOT EXISTS lscm_sessions_user_id_idx ON lscm_sessions (user_id);
 CREATE INDEX IF NOT EXISTS lscm_sessions_expires_at_idx ON lscm_sessions (expires_at);
 CREATE INDEX IF NOT EXISTS lscm_cart_items_user_id_idx ON lscm_cart_items (user_id);
