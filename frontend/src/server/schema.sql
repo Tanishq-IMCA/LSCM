@@ -95,6 +95,15 @@ INSERT INTO lscm_discord_settings (id)
 VALUES (1)
 ON CONFLICT (id) DO NOTHING;
 
+CREATE TABLE IF NOT EXISTS lscm_discord_announcements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_by_user_id TEXT REFERENCES lscm_users(id) ON DELETE SET NULL,
+  channel_id TEXT NOT NULL,
+  channel_name TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS lscm_sessions_user_id_idx ON lscm_sessions (user_id);
 CREATE INDEX IF NOT EXISTS lscm_sessions_expires_at_idx ON lscm_sessions (expires_at);
 CREATE INDEX IF NOT EXISTS lscm_cart_items_user_id_idx ON lscm_cart_items (user_id);
@@ -103,3 +112,4 @@ CREATE INDEX IF NOT EXISTS lscm_requested_items_status_idx ON lscm_requested_ite
 CREATE INDEX IF NOT EXISTS lscm_support_tickets_user_id_idx ON lscm_support_tickets (user_id, updated_at DESC);
 CREATE INDEX IF NOT EXISTS lscm_support_tickets_status_idx ON lscm_support_tickets (status, updated_at DESC);
 CREATE INDEX IF NOT EXISTS lscm_support_messages_ticket_id_idx ON lscm_support_messages (ticket_id, created_at ASC);
+CREATE INDEX IF NOT EXISTS lscm_discord_announcements_created_at_idx ON lscm_discord_announcements (created_at DESC);

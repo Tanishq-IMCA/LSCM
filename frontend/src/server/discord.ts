@@ -1,10 +1,23 @@
-import { ActivityType, Client, GatewayIntentBits } from 'discord.js';
+import { ActivityType, ChannelType, Client, EmbedBuilder, GatewayIntentBits } from 'discord.js';
+import type { ColorResolvable } from 'discord.js';
 import { query } from './db';
 
 export const DISCORD_NETWORK_NAME = 'LSCM NETWORK || IMCA';
 export type DiscordStatus = 'online' | 'idle' | 'dnd' | 'invisible';
 export type DiscordActivity = 'playing' | 'listening' | 'watching' | 'competing';
 export type DiscordButton = { label: string; url: string };
+export type DiscordChannel = { id: string; name: string; guildName: string };
+export type DiscordAnnouncementPayload = {
+  channelId: string;
+  header: string;
+  iconUrl: string;
+  title: string;
+  description: string;
+  footer: string;
+  imageUrl: string;
+  color: string;
+  footerIconUrl: string;
+};
 
 const ACTIVITY_TYPES: Record<DiscordActivity, ActivityType> = {
   playing: ActivityType.Playing,
@@ -185,4 +198,49 @@ export function discordMutationAllowed() {
   if (retryAfter > 0) return { allowed: false, retryAfter };
   runtime.lastMutationAt = Date.now();
   return { allowed: true, retryAfter: 0 };
+}
+
+export async function getDiscordChannels(): Promise<DiscordChannel[]> {
+  await ensureDiscordBot();
+  if (!runtime.client) return [];
+  const channels: DiscordChannel[] = [];
+  for (const guild of runtime.client.guilds.cache.values()) {
+    const fetched = await guild.channels.fetch();
+    for (const channel of fetched.values()) {
+      if (!channel || ![ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(channel.type)) continue;
+      channels.push({ id: channel.id, name: channel.name, guildName: guild.name });
+    }
+  }
+  return channels.sort((a, b) => `${a.guildName}/${a.name}`.localeCompare(`${b.guildName}/${b.name}`));
+}
+
+export async function sendDiscordAnnouncement(payload: DiscordAnnouncementPayload, assetOrigin: string) {
+  await ensureDiscordBot();
+  if (!runtime.client) throw new Error('Discord bot is not connected.');
+  const channel = await runtime.client.channels.fetch(payload.channelId);
+  if (!channel || ![ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(channel.type) || !channel.isTextBased()) {
+    throw new Error('Choose a writable Discord text channel.');
+  }
+
+  const embed = new EmbedBuilder();
+  const imageUrl = resolveDiscordAssetUrl(payload.imageUrl, assetOrigin);
+  const iconUrl = resolveDiscordAssetUrl(payload.iconUrl, assetOrigin);
+  const footerIconUrl = resolveDiscordAssetUrl(payload.footerIconUrl, assetOrigin);
+  if (payload.header) embed.setAuthor({ name: payload.header, ...(iconUrl ? { iconURL: iconUrl } : {}) });
+  if (payload.title) embed.setTitle(payload.title);
+  if (payload.description) embed.setDescription(payload.description);
+  if (payload.footer) embed.setFooter({ text: payload.footer, ...(footerIconUrl ? { iconURL: footerIconUrl } : {}) });
+  if (imageUrl) embed.setImage(imageUrl);
+  if (payload.color) embed.setColor(payload.color as ColorResolvable);
+
+  await channel.send({ embeds: [embed] });
+}
+
+function resolveDiscordAssetUrl(value: string, assetOrigin: string) {
+  if (!value) return '';
+  try {
+    return value.startsWith('/') ? new URL(value, assetOrigin).toString() : new URL(value).toString();
+  } catch {
+    return '';
+  }
 }
