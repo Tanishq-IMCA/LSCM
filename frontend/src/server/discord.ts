@@ -1,5 +1,5 @@
 import { ActivityType, ChannelType, Client, EmbedBuilder, GatewayIntentBits } from 'discord.js';
-import type { ColorResolvable } from 'discord.js';
+import type { ColorResolvable, SendableChannels } from 'discord.js';
 import { query } from './db';
 
 export const DISCORD_NETWORK_NAME = 'LSCM NETWORK || IMCA';
@@ -233,7 +233,7 @@ export async function sendDiscordAnnouncement(payload: DiscordAnnouncementPayloa
   if (imageUrl) embed.setImage(imageUrl);
   if (payload.color) embed.setColor(payload.color as ColorResolvable);
 
-  await channel.send({ embeds: [embed] });
+  await (channel as SendableChannels).send({ embeds: [embed] });
 }
 
 function resolveDiscordAssetUrl(value: string, assetOrigin: string) {

@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/pg": "^8.23.1",
+    "discord.js": "^14.27.0",
     "pg": "^8.23.0"
   }
 }
