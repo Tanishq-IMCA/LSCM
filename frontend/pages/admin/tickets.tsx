@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import SupportMessageList, { PinnedMessagesButton } from '@/components/SupportMessageList';
+import { showNotice } from '@/components/ui/NexusNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { currentUser } from '@/server/auth';
 import { isAdminUser } from '@/server/admin';
