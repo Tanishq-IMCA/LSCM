@@ -1,7 +1,6 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual, randomUUID } from 'crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { query } from './db';
-import { isAdminEmail } from './admin';
 
 export const SESSION_COOKIE = 'lscm_session';
 const SESSION_DAYS = 30;
@@ -91,7 +90,7 @@ export function toUser(row: Record<string, unknown>): StoredUser {
     displayName: String(row.display_name || ''),
     bio: String(row.bio || ''),
     rockstarTag: String(row.rockstar_tag || ''),
-    role: isAdminEmail(email) && String(row.role || 'user') === 'admin' ? 'admin' : 'user',
+    role: String(row.role || 'user').trim().toLowerCase() === 'admin' ? 'admin' : 'user',
     createdAt: new Date(String(row.created_at)).toISOString(),
   };
 }
