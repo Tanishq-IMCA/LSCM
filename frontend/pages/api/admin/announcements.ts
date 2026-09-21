@@ -91,5 +91,7 @@ function isAllowedImageValue(value: string) {
 function getRequestOrigin(req: NextApiRequest) {
   const forwardedProto = String(req.headers['x-forwarded-proto'] || 'https').split(',')[0];
   const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000').split(',')[0];
+  const localHost = /^(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/i.test(host);
+  if (localHost && process.env.REPLIT_DEV_DOMAIN) return `https://${process.env.REPLIT_DEV_DOMAIN}`;
   return `${forwardedProto}://${host}`;
 }

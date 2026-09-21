@@ -35,3 +35,7 @@ externalPort = 80
 deploymentTarget = "autoscale"
 run = ["npm", "--prefix", "frontend", "run", "start"]
 build = ["npm", "--prefix", "frontend", "run", "build"]
+
+[userenv]
+
+[userenv.shared]

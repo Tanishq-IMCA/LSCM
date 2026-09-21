@@ -40,7 +40,7 @@ export default function AdminHomePage() {
             <p className="mt-4 text-sm leading-7 text-white/40">Search customers and move orders through approval, delivery, and finished states.</p>
             <span className="mt-7 inline-block text-[10px] uppercase tracking-[0.2em] text-white/60">Open orders →</span>
           </Link>
-          <div className="glass-panel relative overflow-hidden p-8 transition hover:border-[var(--accent)]/40 hover:bg-white/[0.06]">
+          <div className="glass-panel relative h-fit self-start overflow-hidden p-8 transition hover:border-[var(--accent)]/40 hover:bg-white/[0.06]">
             <div className="store-hero__glow opacity-40" />
             <div className="relative z-10 md:flex md:items-start md:justify-between md:gap-10">
               <div className="max-w-xl">
@@ -56,7 +56,7 @@ export default function AdminHomePage() {
               </div>
             </div>
           </div>
-          <Link href="/admin/network" className="glass-panel relative overflow-hidden p-8 transition hover:border-[var(--accent)]/50 hover:bg-white/[0.06]">
+          <Link href="/admin/network" className="glass-panel relative h-fit self-start overflow-hidden p-8 transition hover:border-[var(--accent)]/50 hover:bg-white/[0.06]">
             <div className="store-hero__glow opacity-30" />
             <div className="relative z-10">
               <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]">Category 04 · Network</p>

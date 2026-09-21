@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import GlitchyText from '@/components/ui/GlitchyText';
+import EmojiField from '@/components/ui/EmojiField';
 import { apiGet, apiPatch, apiPost } from '@/lib/api';
 import { currentUser } from '@/server/auth';
 import { isAdminUser } from '@/server/admin';
@@ -141,14 +142,21 @@ export default function NetworkManagerPage() {
   };
 
   const selectImage = (key: 'iconUrl' | 'imageUrl' | 'footerIconUrl', value: string) => {
-    updateAnnouncement(key, value === '__custom__' ? '' : value);
+    updateAnnouncement(key, value);
+  };
+
+  const sendPayload = {
+    ...announcement,
+    iconUrl: announcement.iconUrl === '__custom__' ? '' : announcement.iconUrl,
+    imageUrl: announcement.imageUrl === '__custom__' ? '' : announcement.imageUrl,
+    footerIconUrl: announcement.footerIconUrl === '__custom__' ? '' : announcement.footerIconUrl,
   };
 
   const sendAnnouncement = async () => {
     setSending(true);
     setMessage('');
     try {
-      const result = await apiPost<{ success: boolean; message: string }>('/api/admin/announcements', announcement);
+      const result = await apiPost<{ success: boolean; message: string }>('/api/admin/announcements', sendPayload);
       setHistory(current => [{
         id: `local-${Date.now()}`,
         channel_name: channels.find(channel => channel.id === announcement.channelId)?.name || 'Discord channel',
@@ -178,30 +186,28 @@ export default function NetworkManagerPage() {
   return (
     <main className="min-h-screen pt-24">
       <Header />
-      <section className="w-full border-y border-[var(--accent)]/20 bg-black/30 px-6 py-5 shadow-[0_0_40px_rgba(168,85,247,0.12)] md:px-10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-[9px] uppercase tracking-[0.34em] text-[var(--accent)]">LSCM // NETWORK MANAGER</p>
-            <h1 className="mt-2 text-2xl uppercase tracking-[0.1em] text-white md:text-3xl">LSCM NETWORK || IMCA</h1>
-            <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-white/35">
-              {loading ? 'Connecting to network service...' : state?.connected ? `Connected${state.botUsername ? ` · @${state.botUsername}` : ''}` : 'Offline · awaiting bot connection'}
-            </p>
-          </div>
-        </div>
-      </section>
       <section className="mx-auto max-w-7xl px-6 py-12 md:px-10">
-        <div className="flex items-end justify-between gap-5">
+         <div className="flex items-end justify-between gap-5">
           <div>
             <Link href="/admin" className="text-[10px] uppercase tracking-[0.3em] text-white/35 hover:text-white/70">← Admin categories</Link>
             <p className="mb-4 mt-8 text-[10px] uppercase tracking-[0.44em] text-[var(--accent)]">Category 04 · Network</p>
             <GlitchyText text="NETWORK MANAGER" as="h2" className="text-4xl uppercase tracking-[0.08em] text-white md:text-7xl" />
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/45">Control the LSCM Discord presence while this app is awake.</p>
           </div>
-          <div className={`hidden border px-4 py-3 text-right md:block ${state?.connected ? 'border-emerald-300/30' : 'border-white/10'}`}>
-            <p className="text-[9px] uppercase tracking-[0.24em] text-white/35">Gateway</p>
-            <p className={`mt-2 text-xs uppercase tracking-[0.16em] ${state?.connected ? 'text-emerald-300' : 'text-white/45'}`}>{state?.connected ? 'Live' : 'Offline'}</p>
-          </div>
         </div>
+         <div className="mt-8 flex flex-col gap-5 border border-[var(--accent)]/25 bg-[var(--accent)]/[0.06] p-5 shadow-[0_0_35px_rgba(168,85,247,0.08)] md:flex-row md:items-center md:justify-between md:p-6">
+           <div>
+             <p className="text-[9px] uppercase tracking-[0.34em] text-[var(--accent)]">LSCM // NETWORK MANAGER</p>
+             <h3 className="mt-2 text-xl uppercase tracking-[0.1em] text-white md:text-2xl">LSCM NETWORK || IMCA</h3>
+             <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-white/35">
+               {loading ? 'Connecting to network service...' : state?.connected ? `Connected${state.botUsername ? ` · @${state.botUsername}` : ''}` : 'Offline · awaiting bot connection'}
+             </p>
+           </div>
+           <div className={`border px-4 py-3 md:min-w-36 md:text-right ${state?.connected ? 'border-emerald-300/30' : 'border-white/10'}`}>
+             <p className="text-[9px] uppercase tracking-[0.24em] text-white/35">Gateway</p>
+             <p className={`mt-2 text-xs uppercase tracking-[0.16em] ${state?.connected ? 'text-emerald-300' : 'text-white/45'}`}>{state?.connected ? 'Live' : 'Offline'}</p>
+           </div>
+         </div>
         <div className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
           <section key={activeModule} className="glass-panel card-fade-in p-7 md:p-9">
             {activeModule === 'discord' && (
@@ -229,11 +235,11 @@ export default function NetworkManagerPage() {
                   </label>
                   <label className="block">
                     <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Activity title</span>
-                    <input value={draft.activityTitle || ''} onChange={event => updateDraft('activityTitle', event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="LSCM Network" maxLength={128} />
+                     <EmojiField value={draft.activityTitle || ''} onChange={value => updateDraft('activityTitle', value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="LSCM Network" maxLength={128} />
                   </label>
                   <label className="block">
                     <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Status description</span>
-                    <input value={draft.statusDescription || ''} onChange={event => updateDraft('statusDescription', event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="Los Santos Car Modders Community" maxLength={128} />
+                     <EmojiField value={draft.statusDescription || ''} onChange={value => updateDraft('statusDescription', value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="Los Santos Car Modders Community" maxLength={128} />
                   </label>
                   <label className="flex items-center justify-between border border-white/10 bg-white/[0.025] px-4 py-4">
                     <span><span className="block text-[10px] uppercase tracking-[0.18em] text-white/70">Live presence</span><span className="mt-1 block text-xs text-white/35">Keep the bot visible on Discord.</span></span>
@@ -345,20 +351,20 @@ function AnnouncementPanel({
           </label>
           <label className="block">
             <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Embed header</span>
-            <input value={announcement.header} onChange={event => onChange('header', event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white" placeholder="LSCM NETWORK" />
+             <EmojiField value={announcement.header} onChange={value => onChange('header', value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white" placeholder="LSCM NETWORK" />
           </label>
           <ImageField label="Embed icon" value={announcement.iconUrl} asset="/logo-dark-semi-colourised.png" assetLabel="LSCM logo" onSelect={value => onSelectImage('iconUrl', value)} />
           <label className="block md:col-span-2">
             <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Title</span>
-            <input value={announcement.title} onChange={event => onChange('title', event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white" placeholder="Announcement title" />
+             <EmojiField value={announcement.title} onChange={value => onChange('title', value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white" placeholder="Announcement title" />
           </label>
           <label className="block md:col-span-2">
             <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Description</span>
-            <textarea value={announcement.description} onChange={event => onChange('description', event.target.value)} className="input-glass mt-2 min-h-32 w-full px-4 py-3 text-sm leading-6 text-white" placeholder="Write the announcement..." />
+             <EmojiField multiline value={announcement.description} onChange={value => onChange('description', value)} className="input-glass mt-2 min-h-32 w-full px-4 py-3 text-sm leading-6 text-white" placeholder="Write the announcement..." />
           </label>
           <label className="block">
             <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Embed footer</span>
-            <input value={announcement.footer} onChange={event => onChange('footer', event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white" placeholder="Los Santos Car Modders" />
+             <EmojiField value={announcement.footer} onChange={value => onChange('footer', value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white" placeholder="Los Santos Car Modders" />
           </label>
           <ImageField label="Embed footer icon" value={announcement.footerIconUrl} asset="/logo-dark-semi-colourised.png" assetLabel="LSCM logo" onSelect={value => onSelectImage('footerIconUrl', value)} />
           <ImageField label="Embed banner / image" value={announcement.imageUrl} asset="/lscmgeneric-banner.png" assetLabel="LSCM generic banner" onSelect={value => onSelectImage('imageUrl', value)} />
@@ -366,7 +372,7 @@ function AnnouncementPanel({
             <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Embed colour</span>
             <div className="mt-2 flex gap-3">
               <input type="color" value={announcement.color} onChange={event => onChange('color', event.target.value)} className="h-11 w-14 cursor-pointer border border-white/10 bg-transparent p-1" />
-              <input value={announcement.color} onChange={event => onChange('color', event.target.value)} className="input-glass w-full px-4 py-3 text-sm uppercase text-white" placeholder="#A855F7" />
+               <EmojiField value={announcement.color} onChange={value => onChange('color', value)} className="input-glass w-full px-4 py-3 text-sm uppercase text-white" placeholder="#A855F7" />
             </div>
           </label>
           <button type="button" onClick={onSend} disabled={sending || !announcement.channelId} className="md:col-span-2 bg-[var(--accent)] px-4 py-4 text-[10px] uppercase tracking-[0.2em] text-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40">
@@ -392,6 +398,7 @@ function ImageField({
   onSelect: (value: string) => void;
 }) {
   const choice = value.startsWith('/') ? value : value ? '__custom__' : '';
+  const customValue = value === '__custom__' ? '' : value;
   return (
     <label className="block">
       <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">{label}</span>
@@ -400,7 +407,7 @@ function ImageField({
         <option value={asset} className="bg-[#100b1d]">{assetLabel}</option>
         <option value="__custom__" className="bg-[#100b1d]">Custom image URL</option>
       </select>
-      {choice === '__custom__' && <input value={value} onChange={event => onSelect(event.target.value)} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="https://..." />}
+       {choice === '__custom__' && <EmojiField value={customValue} onChange={onSelect} className="input-glass mt-2 w-full px-4 py-3 text-sm text-white placeholder:text-white/25" placeholder="https://..." />}
     </label>
   );
 }
