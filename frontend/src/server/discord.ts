@@ -188,6 +188,7 @@ export async function ensureDiscordBot() {
       GatewayIntentBits.GuildMembers,
       GatewayIntentBits.GuildPresences,
       GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.MessageContent,
     ],
   });
   runtime.client = client;
@@ -304,7 +305,7 @@ export async function getDiscordChannels(): Promise<DiscordChannel[]> {
     for (const channel of fetched.values()) {
       if (!channel || ![ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(channel.type)) continue;
       const permissions = guild.members.me ? channel.permissionsFor(guild.members.me) : null;
-      if (permissions && !permissions.has(PermissionFlagsBits.SendMessages)) continue;
+      if (permissions && (!permissions.has(PermissionFlagsBits.ViewChannel) || !permissions.has(PermissionFlagsBits.ReadMessageHistory))) continue;
       channels.push({ id: channel.id, name: channel.name, guildId: guild.id, guildName: guild.name });
     }
   }

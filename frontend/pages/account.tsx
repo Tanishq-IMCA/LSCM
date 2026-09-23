@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import { useAuth } from '@/hooks/useAuth';
-import { changePassword, getRequestedItems, removeRequestedItem, saveProfile, updateRequestedItem, type RequestedItem } from '@/lib/api';
+import { changePassword, deleteAccount, getRequestedItems, removeRequestedItem, saveProfile, updateRequestedItem, type RequestedItem } from '@/lib/api';
 import { showNotice } from '@/components/ui/NexusNotice';
 
 export default function AccountPage() {
@@ -19,6 +19,7 @@ export default function AccountPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordSaving, setPasswordSaving] = useState(false);
+  const [accountDeleting, setAccountDeleting] = useState(false);
   const requestedRequests = requestedItems.filter(item => item.status !== 'finished' && item.status !== 'approved');
   const deliveryRequests = requestedItems.filter(item => item.status === 'approved');
   const finishedRequests = requestedItems.filter(item => item.status === 'finished');
@@ -105,6 +106,20 @@ export default function AccountPage() {
     }
   };
 
+  const removeAccount = async () => {
+    if (!window.confirm('Delete your account permanently? This cannot be undone.')) return;
+    const password = window.prompt('Enter your password to permanently delete this account:');
+    if (!password) return;
+    setAccountDeleting(true);
+    try {
+      await deleteAccount({ password });
+      window.location.assign('/');
+    } catch (error) {
+      showNotice('ACCOUNT DELETE FAILED', error instanceof Error ? error.message : 'Please try again.', 'error');
+      setAccountDeleting(false);
+    }
+  };
+
   const renderOrderCard = (item: RequestedItem, state: 'requested' | 'delivery' | 'finished') => {
     const stateClass = state === 'requested'
       ? 'border-yellow-300/35 shadow-[0_0_24px_rgba(250,204,21,0.12)]'
@@ -174,6 +189,7 @@ export default function AccountPage() {
             <input className="input-glass w-full px-4 py-3.5 text-sm text-white" type="password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm new password" minLength={8} required />
           </div>
           <button disabled={passwordSaving} className="mt-6 bg-[var(--accent)] px-6 py-3.5 text-[10px] uppercase tracking-[0.24em] text-black disabled:opacity-50">{passwordSaving ? 'Updating...' : 'Update password'}</button>
+          <button type="button" disabled={accountDeleting} onClick={() => void removeAccount()} className="mt-4 block text-[10px] uppercase tracking-[0.2em] text-red-300/65 transition hover:text-red-200 disabled:opacity-40">{accountDeleting ? 'Deleting account...' : 'Delete account'}</button>
         </form>
         <section id="orders" className="mt-8 border border-white/[0.08] bg-white/[0.035] p-7">
           <div className="flex items-end justify-between gap-4 border-b border-white/[0.08] pb-5">

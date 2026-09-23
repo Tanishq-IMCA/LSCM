@@ -617,7 +617,7 @@ function BotCockpitPanel({
         <div>
           <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--accent)]">Bot cockpit</p>
           <h3 className="mt-4 text-2xl uppercase tracking-[0.08em] text-white">Discord relay</h3>
-          <p className="mt-3 max-w-2xl text-xs leading-6 text-white/40">A cached chat view for the channels this bot can write to. Reads stay local until you explicitly sync.</p>
+          <p className="mt-3 max-w-2xl text-xs leading-6 text-white/40">A cached chat view for readable Discord channels. Sync fetches the latest 50 messages from the selected channel.</p>
         </div>
         <button type="button" onClick={onSync} disabled={loading} className="border border-white/15 px-4 py-3 text-[10px] uppercase tracking-[0.16em] text-white/65 transition hover:border-[var(--accent)]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-35">
           {loading ? 'Syncing...' : 'Sync current channel'}

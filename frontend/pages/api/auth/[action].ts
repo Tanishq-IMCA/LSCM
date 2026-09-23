@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { changePassword, clearSession, currentUser, login, logout, register, resetPassword } from '@/server/auth';
+import { changePassword, clearSession, currentUser, deleteAccount, login, logout, register, resetPassword } from '@/server/auth';
 import { ensureDiscordBot } from '@/server/discord';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -41,6 +41,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const newPassword = String(req.body?.newPassword || '');
       if (newPassword.length < 8) return res.status(400).json({ success: false, message: 'New password must be at least 8 characters.' });
       await changePassword(user.id, lastPassword, newPassword);
+      return res.status(200).json({ success: true });
+    }
+
+    if (action === 'account' && req.method === 'DELETE') {
+      const user = await currentUser(req);
+      if (!user) return res.status(401).json({ success: false, message: 'Sign in required.' });
+      await deleteAccount(user.id, String(req.body?.password || ''));
+      clearSession(res);
       return res.status(200).json({ success: true });
     }
 

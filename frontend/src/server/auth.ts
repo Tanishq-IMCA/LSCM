@@ -185,3 +185,11 @@ export async function logout(req: NextApiRequest, res: NextApiResponse) {
   if (sessionId) await query('DELETE FROM lscm_sessions WHERE id = $1', [sessionId]);
   clearSession(res);
 }
+
+export async function deleteAccount(userId: string, password: string) {
+  const result = await query<{ password_hash: string }>('SELECT password_hash FROM lscm_users WHERE id = $1', [userId]);
+  if (!result.rows[0] || !verifyPassword(password, result.rows[0].password_hash)) {
+    throw new Error('Password confirmation failed.');
+  }
+  await query('DELETE FROM lscm_users WHERE id = $1', [userId]);
+}
