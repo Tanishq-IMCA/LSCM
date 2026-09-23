@@ -286,6 +286,7 @@ export default function NetworkManagerPage() {
     if (!selectedChatChannelId || !content || chatSending || cooldown > 0) return;
     setChatSending(true);
     setMessage('');
+    setChatDraft('');
     try {
       const result = await apiPost<{
         success: boolean;
@@ -299,10 +300,10 @@ export default function NetworkManagerPage() {
       setSelectedChatChannelId(result.selectedChannelId);
       setOperatorName(result.operatorName);
       setBotUsername(result.botUsername);
-      setChatDraft('');
       setCooldownUntil(Date.now() + 5000);
       setMessage(result.message);
     } catch (error) {
+      setChatDraft(content);
       setMessage(error instanceof Error ? error.message : 'Could not send the message.');
     } finally {
       setChatSending(false);

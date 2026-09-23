@@ -334,18 +334,7 @@ export async function getDiscordChatSnapshot(channelId?: string, sync = false) {
 export async function syncDiscordChatChannels(): Promise<DiscordChatChannel[]> {
   const channels = await getDiscordChannels();
   for (const channel of channels) {
-    await query(
-      `INSERT INTO lscm_discord_chat_channels
-        (id, guild_id, guild_name, name, channel_type, updated_at)
-       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
-       ON CONFLICT (id) DO UPDATE SET
-         guild_id = EXCLUDED.guild_id,
-         guild_name = EXCLUDED.guild_name,
-         name = EXCLUDED.name,
-         channel_type = EXCLUDED.channel_type,
-         updated_at = CURRENT_TIMESTAMP`,
-      [channel.id, channel.guildId, channel.guildName, channel.name, 'text'],
-    );
+    await upsertDiscordChatChannel(channel);
   }
   return loadPersistedChatChannels();
 }
@@ -362,18 +351,13 @@ export async function syncDiscordChatMessages(channelId: string) {
   const guild = 'guild' in channel ? channel.guild : null;
   if (!guild) throw new Error('Discord server not found.');
   const channelType = channel.type === ChannelType.GuildAnnouncement ? 'announcement' : 'text';
-  await query(
-    `INSERT INTO lscm_discord_chat_channels
-      (id, guild_id, guild_name, name, channel_type, updated_at)
-     VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
-     ON CONFLICT (id) DO UPDATE SET
-       guild_id = EXCLUDED.guild_id,
-       guild_name = EXCLUDED.guild_name,
-       name = EXCLUDED.name,
-       channel_type = EXCLUDED.channel_type,
-       updated_at = CURRENT_TIMESTAMP`,
-    [channel.id, guild.id, guild.name, channelName, channelType],
-  );
+  await upsertDiscordChatChannel({
+    id: channel.id,
+    guildId: guild.id,
+    guildName: guild.name,
+    name: channelName,
+    type: channelType,
+  });
 
   const messages = await channel.messages.fetch({ limit: 50 });
   for (const message of messages.values()) {
@@ -398,6 +382,13 @@ export async function sendDiscordChatMessage(channelId: string, content: string)
   if (!channelName) throw new Error('Discord channel name is unavailable.');
   const guild = 'guild' in channel ? channel.guild : null;
   if (!guild) throw new Error('Discord server not found.');
+  await upsertDiscordChatChannel({
+    id: channel.id,
+    guildId: guild.id,
+    guildName: guild.name,
+    name: channelName,
+    type: channel.type === ChannelType.GuildAnnouncement ? 'announcement' : 'text',
+  });
   const sent = await (channel as SendableChannels).send({ content });
   const chatMessage = toDiscordChatMessage(sent, {
     id: channel.id,
@@ -407,6 +398,27 @@ export async function sendDiscordChatMessage(channelId: string, content: string)
   });
   await persistDiscordChatMessage(chatMessage);
   return chatMessage;
+}
+
+async function upsertDiscordChatChannel(channel: {
+  id: string;
+  guildId: string;
+  guildName: string;
+  name: string;
+  type?: 'text' | 'announcement';
+}) {
+  await query(
+    `INSERT INTO lscm_discord_chat_channels
+      (id, guild_id, guild_name, name, channel_type, updated_at)
+     VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO UPDATE SET
+       guild_id = EXCLUDED.guild_id,
+       guild_name = EXCLUDED.guild_name,
+       name = EXCLUDED.name,
+       channel_type = EXCLUDED.channel_type,
+       updated_at = CURRENT_TIMESTAMP`,
+    [channel.id, channel.guildId, channel.guildName, channel.name, channel.type || 'text'],
+  );
 }
 
 async function loadPersistedChatChannels(): Promise<DiscordChatChannel[]> {
