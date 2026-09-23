@@ -1,38 +1,49 @@
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
 import GlitchyText from '@/components/ui/GlitchyText';
 import { CartPanel } from '@/components/store/CartPanel';
 import { useCart } from '@/contexts/CartContext';
 import { showNotice } from '@/components/ui/NexusNotice';
+import { apiGet } from '@/lib/api';
+import { ProductGallery } from '@/components/store/ProductGallery';
 
 type Outfit = {
   code: string;
   name: string;
   summary: string;
+  price: number;
   image?: string;
+  images?: string[];
 };
 
 const MALE_OUTFITS: Outfit[] = [
-  { code: 'LSCM-OUT-M-001', name: 'SpongeBob Street Set', summary: 'A yellow-coded statement piece for crews that refuse to blend in.' },
-  { code: 'LSCM-OUT-M-002', name: 'Redline', summary: 'Clean red layers with enough attitude to start a lobby incident.' },
-  { code: 'LSCM-OUT-M-003', name: 'Purple Sweat', summary: 'Soft on the outside, suspiciously competitive on the inside.' },
-  { code: 'LSCM-OUT-M-004', name: 'Pony Jugg', summary: 'A playful custom fit with an unexpectedly serious finish.' },
-  { code: 'LSCM-OUT-M-005', name: 'Blue FBI Sweat', summary: 'Federal energy, unofficial credentials and excellent lobby presence.' },
-  { code: 'LSCM-OUT-M-006', name: 'Demon', summary: 'Dark, sharp and built for making an entrance without an introduction.' },
-  { code: 'LSCM-OUT-M-007', name: 'Noose', summary: 'A severe monochrome look for players who take the dress code personally.' },
-  { code: 'LSCM-OUT-M-008', name: 'Chris · Resident Evil', summary: 'Tactical survival style, ready for another very long night.' },
-  { code: 'LSCM-OUT-M-009', name: 'Pink Galaxy', summary: 'Cosmic colour and clean lines for an orbit above the ordinary.' },
-  { code: 'LSCM-OUT-M-010', name: 'Blue Galaxy', summary: 'Deep-space blues with a cool finish and zero gravitational pull.' },
-  { code: 'LSCM-OUT-M-011', name: 'Black Sweat', summary: 'A stealthy essential for low-profile missions and high-profile exits.' },
-  { code: 'LSCM-OUT-M-012', name: 'Red Tryhard', summary: 'Maximum competitive posture. Results may vary; confidence will not.' },
-  { code: 'LSCM-OUT-M-013', name: 'Blue-White Tryhard', summary: 'A crisp two-tone loadout for those who came to win the fit check.' },
-  { code: 'LSCM-OUT-M-014', name: 'Pink Flippers', summary: 'Unreasonably cheerful, surprisingly rare and ready for the shoreline.' },
-  { code: 'LSCM-OUT-M-015', name: "Neo's First Sweat Outfit", summary: 'The original chapter. A little nostalgic, still dangerously comfortable.', image: '/neo.png' },
+  { code: 'LSCM-OUT-M-001', name: 'SpongeBob Street Set', summary: 'A yellow-coded statement piece for crews that refuse to blend in.', price: 1 },
+  { code: 'LSCM-OUT-M-002', name: 'Redline', summary: 'Clean red layers with enough attitude to start a lobby incident.', price: 1 },
+  { code: 'LSCM-OUT-M-003', name: 'Purple Sweat', summary: 'Soft on the outside, suspiciously competitive on the inside.', price: 1 },
+  { code: 'LSCM-OUT-M-004', name: 'Pony Jugg', summary: 'A playful custom fit with an unexpectedly serious finish.', price: 1 },
+  { code: 'LSCM-OUT-M-005', name: 'Blue FBI Sweat', summary: 'Federal energy, unofficial credentials and excellent lobby presence.', price: 1 },
+  { code: 'LSCM-OUT-M-006', name: 'Demon', summary: 'Dark, sharp and built for making an entrance without an introduction.', price: 1 },
+  { code: 'LSCM-OUT-M-007', name: 'Noose', summary: 'A severe monochrome look for players who take the dress code personally.', price: 1 },
+  { code: 'LSCM-OUT-M-008', name: 'Chris · Resident Evil', summary: 'Tactical survival style, ready for another very long night.', price: 1 },
+  { code: 'LSCM-OUT-M-009', name: 'Pink Galaxy', summary: 'Cosmic colour and clean lines for an orbit above the ordinary.', price: 1 },
+  { code: 'LSCM-OUT-M-010', name: 'Blue Galaxy', summary: 'Deep-space blues with a cool finish and zero gravitational pull.', price: 1 },
+  { code: 'LSCM-OUT-M-011', name: 'Black Sweat', summary: 'A stealthy essential for low-profile missions and high-profile exits.', price: 1 },
+  { code: 'LSCM-OUT-M-012', name: 'Red Tryhard', summary: 'Maximum competitive posture. Results may vary; confidence will not.', price: 1 },
+  { code: 'LSCM-OUT-M-013', name: 'Blue-White Tryhard', summary: 'A crisp two-tone loadout for those who came to win the fit check.', price: 1 },
+  { code: 'LSCM-OUT-M-014', name: 'Pink Flippers', summary: 'Unreasonably cheerful, surprisingly rare and ready for the shoreline.', price: 1 },
+  { code: 'LSCM-OUT-M-015', name: "Neo's First Sweat Outfit", summary: 'The original chapter. A little nostalgic, still dangerously comfortable.', image: '/neo.png', price: 1 },
 ];
 
 export default function MaleOutfitsPage() {
+  const [outfits, setOutfits] = useState<Outfit[]>(MALE_OUTFITS);
   const { addItem } = useCart();
+  useEffect(() => {
+    void apiGet<{ products: Array<{ code: string; name: string; subtype: string; description: string; price: number; images: string[] }> }>('/api/products?page=outfits')
+      .then(result => setOutfits(result.products.filter(product => product.subtype === 'Male Outfits').map(product => ({ code: product.code, name: product.name, summary: product.description, price: product.price, image: product.images?.[0], images: product.images }))))
+      .catch(() => undefined);
+  }, []);
 
   const addOutfitToCart = async (outfit: Outfit) => {
     try {
@@ -40,7 +51,7 @@ export default function MaleOutfitsPage() {
         productCode: outfit.code,
         productName: outfit.name,
         category: 'Male Outfits',
-        unitPrice: 1,
+        unitPrice: outfit.price,
         imagePath: outfit.image,
       });
       showNotice('ADDED TO CART', `${outfit.name} is ready for your request.`, 'success');
@@ -69,16 +80,16 @@ export default function MaleOutfitsPage() {
             <h2 className="mt-2 text-2xl uppercase tracking-[0.1em] text-white" style={{ fontFamily: 'var(--font-display)' }}>Available fits</h2>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-[10px] uppercase tracking-[0.22em] text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>{MALE_OUTFITS.length} listings</span>
+             <span className="text-[10px] uppercase tracking-[0.22em] text-white/30" style={{ fontFamily: 'var(--font-mono)' }}>{outfits.length} listings</span>
             <CartPanel />
           </div>
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {MALE_OUTFITS.map((outfit) => (
+           {outfits.map((outfit) => (
             <article key={outfit.code} className="store-card overflow-hidden">
               <div className="flex h-40 items-center justify-center border-b border-white/[0.08] bg-white/[0.025]">
-                <img src={outfit.image || '/grayscalemini.png'} alt="" className="max-h-24 w-auto opacity-60 grayscale" />
+                <ProductGallery images={outfit.images || (outfit.image ? [outfit.image] : undefined)} name={outfit.name} className="h-40 w-full border-0" />
               </div>
               <div className="pt-6">
                 <p className="text-[9px] uppercase tracking-[0.26em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>Modded outfit</p>
@@ -90,7 +101,7 @@ export default function MaleOutfitsPage() {
                   className="mt-6 w-full border border-[var(--accent)]/40 px-4 py-3 text-[10px] uppercase tracking-[0.24em] text-white/70 transition hover:bg-[var(--accent)]/15 hover:text-white"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
-                  Add to cart · $1
+                   Add to cart · ${outfit.price}
                 </button>
                 <div className="mt-6 flex items-end justify-between border-t border-white/[0.08] pt-4">
                   <p className="text-[10px] tracking-[0.16em] text-white/45" style={{ fontFamily: 'var(--font-mono)' }}>{outfit.code}</p>

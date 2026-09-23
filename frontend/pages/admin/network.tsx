@@ -357,7 +357,7 @@ export default function NetworkManagerPage() {
   return (
     <main className="min-h-screen pt-24">
       <Header />
-      <section className="mx-auto max-w-7xl px-6 py-12 md:px-10">
+      <section className="mx-auto max-w-[1700px] px-6 py-12 md:px-10 xl:px-14">
          <div className="flex items-end justify-between gap-5">
           <div>
             <Link href="/admin" className="text-[10px] uppercase tracking-[0.3em] text-white/35 hover:text-white/70">← Admin categories</Link>
@@ -379,7 +379,7 @@ export default function NetworkManagerPage() {
              <p className={`mt-2 text-xs uppercase tracking-[0.16em] ${state?.connected ? 'text-emerald-300' : 'text-white/45'}`}>{state?.connected ? 'Live' : 'Offline'}</p>
            </div>
          </div>
-        <div className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.28fr)]">
           <section key={activeModule} className="glass-panel card-fade-in p-7 md:p-9">
             {activeModule === 'discord' && (
               <>

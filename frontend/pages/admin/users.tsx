@@ -54,7 +54,7 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <main className="min-h-screen pt-24"><Header /><section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
+    <main className="min-h-screen pt-24"><Header /><section className="mx-auto max-w-[1500px] px-6 py-16 md:px-10 xl:px-14">
       <div className="flex items-end justify-between gap-5"><div><Link href="/admin" className="text-[10px] uppercase tracking-[0.3em] text-white/35 hover:text-white/70">← Admin categories</Link><p className="mb-4 mt-8 text-[10px] uppercase tracking-[0.44em] text-[var(--accent)]">LSCM // ACCESS CONTROL</p><GlitchyText text="USER MANAGEMENT" as="h1" className="text-4xl uppercase tracking-[0.08em] text-white md:text-7xl" /><p className="mt-5 text-sm text-white/40">Manage account access without leaving the control panel.</p></div></div>
       <form className="mt-8 flex gap-2" onSubmit={event => { event.preventDefault(); void loadUsers(search); }}><input value={search} onChange={event => setSearch(event.target.value)} className="input-glass min-w-0 flex-1 px-4 py-3 text-sm text-white" placeholder="Search name or email" /><button className="bg-[var(--accent)] px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-black">Search</button></form>
       {message && <p className="mt-4 text-xs uppercase tracking-[0.12em] text-[var(--accent-2)]">{message}</p>}

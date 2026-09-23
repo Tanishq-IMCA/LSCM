@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/Landing/Header';
 import { Footer } from '@/components/Landing/Footer';
@@ -9,8 +9,11 @@ import { CartPanel } from '@/components/store/CartPanel';
 import { useCart } from '@/contexts/CartContext';
 import { showNotice } from '@/components/ui/NexusNotice';
 import Link from 'next/link';
+import { apiGet } from '@/lib/api';
+import { ProductGallery } from '@/components/store/ProductGallery';
 
 type Product = {
+  id?: string;
   code: string;
   name: string;
   type: string;
@@ -18,6 +21,11 @@ type Product = {
   summary: string;
   includes: string[];
   featured?: boolean;
+  page?: 'services' | 'cars' | 'outfits';
+  subtype?: string;
+  description?: string;
+  images?: string[];
+  stock?: number | null;
 };
 
 const PRODUCTS: Product[] = [
@@ -124,18 +132,25 @@ const OUTFIT_CATEGORIES = [
 ];
 
 function matchesPage(product: Product, page: string) {
-  if (page === 'Account') return product.type === 'Account Boosting' || product.type === 'VIP Membership';
-  if (page === 'Custom') return product.type === 'Custom Services' || product.type === 'Add-ons' || product.type === 'Methods & Access';
+  const type = product.subtype || product.type;
+  if (page === 'Account') return type === 'Account Boosting' || type === 'VIP Membership';
+  if (page === 'Custom') return type === 'Custom Services' || type === 'Add-ons' || type === 'Methods & Access';
   return true;
 }
 
 export default function StorePage() {
+  const [catalogue, setCatalogue] = useState<Product[]>(PRODUCTS);
   const [activePage, setActivePage] = useState('All');
   const [activeCatalog, setActiveCatalog] = useState<'services' | 'cars' | 'outfits'>('services');
   const [activeType, setActiveType] = useState('All types');
   const [query, setQuery] = useState('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const { addItem } = useCart();
+  useEffect(() => {
+    void apiGet<{ products: Product[] }>('/api/products').then(result => {
+      if (result.products?.length) setCatalogue(result.products);
+    }).catch(() => undefined);
+  }, []);
 
   const addProductToCart = async (product: Product) => {
     try {
@@ -162,18 +177,20 @@ export default function StorePage() {
   };
 
   const types = useMemo(
-    () => ['All types', ...Array.from(new Set(PRODUCTS.map((product) => product.type)))],
-    [],
+    () => ['All types', ...Array.from(new Set(catalogue.filter(product => !product.page || product.page === 'services').map(product => product.subtype || product.type)))],
+    [catalogue],
   );
   const visibleProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return PRODUCTS.filter((product) => {
-      const searchable = `${product.code} ${product.name} ${product.type} ${product.summary} ${product.includes.join(' ')}`.toLowerCase();
+    return catalogue.filter((product) => {
+      const searchable = `${product.code} ${product.name} ${product.subtype || product.type} ${product.description || product.summary} ${product.includes?.join(' ') || ''}`.toLowerCase();
       return matchesPage(product, activePage)
-        && (activeType === 'All types' || product.type === activeType)
+        && (!product.page || product.page === 'services')
+        && (activeType === 'All types' || (product.subtype || product.type) === activeType)
         && (!normalized || searchable.includes(normalized));
     });
-  }, [activePage, activeType, query]);
+  }, [activePage, activeType, query, catalogue]);
+  const carProducts = catalogue.filter(product => product.page === 'cars');
 
   return (
     <main className="min-h-screen pt-24">
@@ -215,15 +232,13 @@ export default function StorePage() {
                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>Vehicle listings are being prepared. Join Discord for custom requests and live modded car availability.</p>
              </div>
              <div className="grid gap-4 md:grid-cols-2">
-               {VEHICLE_CATEGORIES.map((category) => (
-                 <article key={category.title} className="store-card min-h-[250px]">
-                   <img src="/grayscalemini.png" alt="" className="mb-8 h-12 w-auto opacity-35 grayscale" />
-                   <div>
-                     <span className="store-card__badge">Coming soon</span>
-                     <h3 className="mt-5 text-xl uppercase tracking-[0.08em] text-white" style={{ fontFamily: 'var(--font-display)' }}>{category.title}</h3>
-                     <p className="mt-3 text-sm leading-6 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>{category.detail}</p>
-                   </div>
+               {carProducts.length ? carProducts.map(product => (
+                 <article key={product.id} className="store-card min-h-[250px] overflow-hidden">
+                   <ProductGallery images={product.images} name={product.name} className="h-44 w-full border-0" />
+                   <div className="pt-6"><span className="store-card__badge">{product.subtype}</span><h3 className="mt-5 text-xl uppercase tracking-[0.08em] text-white">{product.name}</h3><p className="mt-3 text-sm leading-6 text-white/40">{product.description}</p><button type="button" onClick={() => void addProductToCart(product)} className="mt-6 w-full border border-[var(--accent)]/40 px-4 py-3 text-[10px] uppercase tracking-[0.24em] text-white/70">Add to cart · ${product.price}</button></div>
                  </article>
+               )) : VEHICLE_CATEGORIES.map(category => (
+                 <article key={category.title} className="store-card min-h-[250px]"><img src="/grayscalemini.png" alt="" className="mb-8 h-12 w-auto opacity-35 grayscale" /><div><span className="store-card__badge">Coming soon</span><h3 className="mt-5 text-xl uppercase tracking-[0.08em] text-white">{category.title}</h3><p className="mt-3 text-sm leading-6 text-white/40">{category.detail}</p></div></article>
                ))}
              </div>
              <Link href="https://discord.gg/wy5ws9vVMs" target="_blank" className="mt-8 inline-flex border border-[var(--accent)]/50 px-5 py-3 text-[10px] uppercase tracking-[0.22em] text-white/70 hover:bg-[var(--accent)]/15 hover:text-white" style={{ fontFamily: 'var(--font-display)' }}>Request a car on Discord</Link>
@@ -300,13 +315,14 @@ export default function StorePage() {
             <motion.article layout key={product.code} className={`store-card ${product.featured ? 'store-card--featured' : ''}`}>
               <div>
                 <div className="flex items-start justify-between gap-4">
-                  <span className="text-[9px] uppercase tracking-[0.26em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>{product.type}</span>
+                  <span className="text-[9px] uppercase tracking-[0.26em]" style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>{product.subtype || product.type}</span>
                   {product.featured && <span className="store-card__badge">Featured</span>}
                 </div>
                 <h3 className="mt-6 text-xl uppercase tracking-[0.08em] text-white" style={{ fontFamily: 'var(--font-display)' }}>{product.name}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>{product.summary}</p>
+                {product.images?.length ? <ProductGallery images={product.images} name={product.name} className="mt-5 h-40 border-0" /> : null}
+                <p className="mt-3 text-sm leading-6 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>{product.description || product.summary}</p>
                 <ul className="mt-5 space-y-2 border-t border-white/[0.08] pt-5">
-                  {product.includes.map((item) => <li key={item} className="flex gap-2 text-xs leading-5 text-white/55"><span style={{ color: 'var(--accent)' }}>+</span>{item}</li>)}
+                  {(product.includes || []).map((item) => <li key={item} className="flex gap-2 text-xs leading-5 text-white/55"><span style={{ color: 'var(--accent)' }}>+</span>{item}</li>)}
                 </ul>
                 <button
                   type="button"

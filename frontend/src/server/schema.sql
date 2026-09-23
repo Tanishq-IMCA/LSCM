@@ -136,6 +136,27 @@ CREATE TABLE IF NOT EXISTS lscm_discord_chat_messages (
   fetched_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS lscm_products (
+  id TEXT PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  page TEXT NOT NULL CHECK (page IN ('services', 'cars', 'outfits')),
+  subtype TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  price NUMERIC(12, 2) NOT NULL DEFAULT 0 CHECK (price >= 0),
+  stock INTEGER CHECK (stock IS NULL OR stock >= 0),
+  featured BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lscm_product_images (
+  id TEXT PRIMARY KEY,
+  product_id TEXT NOT NULL REFERENCES lscm_products(id) ON DELETE CASCADE,
+  image_path TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
 CREATE INDEX IF NOT EXISTS lscm_sessions_user_id_idx ON lscm_sessions (user_id);
 CREATE INDEX IF NOT EXISTS lscm_sessions_expires_at_idx ON lscm_sessions (expires_at);
 CREATE INDEX IF NOT EXISTS lscm_cart_items_user_id_idx ON lscm_cart_items (user_id);
@@ -148,3 +169,4 @@ CREATE INDEX IF NOT EXISTS lscm_discord_announcements_created_at_idx ON lscm_dis
 CREATE INDEX IF NOT EXISTS lscm_discord_moderator_scans_generated_at_idx ON lscm_discord_moderator_scans (generated_at DESC);
 CREATE INDEX IF NOT EXISTS lscm_discord_chat_channels_updated_at_idx ON lscm_discord_chat_channels (updated_at DESC);
 CREATE INDEX IF NOT EXISTS lscm_discord_chat_messages_channel_created_at_idx ON lscm_discord_chat_messages (channel_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS lscm_product_images_product_idx ON lscm_product_images (product_id, sort_order);
