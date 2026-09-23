@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { randomUUID } from 'crypto';
 import { currentUser } from '@/server/auth';
 import { query } from '@/server/db';
+import { getProductByCode } from '@/server/products';
 
 const MAX_CART_QUANTITY = 20;
 
@@ -44,13 +45,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'POST') {
       const productCode = String(req.body?.productCode || '').trim().slice(0, 80);
-      const productName = String(req.body?.productName || '').trim().slice(0, 160);
-      const category = String(req.body?.category || '').trim().slice(0, 100);
-      const unitPrice = Number(req.body?.unitPrice);
-      const imagePath = String(req.body?.imagePath || '/grayscalemini.png').trim().slice(0, 240);
-      if (!productCode || !productName || !category || !Number.isFinite(unitPrice) || unitPrice < 0) {
+      const product = productCode ? await getProductByCode(productCode) : null;
+      if (!product) {
         return res.status(400).json({ success: false, message: 'Invalid cart item.' });
       }
+      const productName = product.name;
+      const category = product.subtype || product.page;
+      const unitPrice = product.price;
+      const imagePath = product.images[0] || '/grayscalemini.png';
 
       const total = await query<{ total_quantity: string }>(
         'SELECT COALESCE(SUM(quantity), 0)::int AS total_quantity FROM lscm_cart_items WHERE user_id = $1',

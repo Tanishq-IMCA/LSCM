@@ -38,6 +38,8 @@ export interface User {
   githubUsername?: string;
   avatarUrl?: string;
   role?: string;
+  banned?: boolean;
+  banReason?: string;
   createdAt: string;
 }
 

@@ -12,6 +12,8 @@ export type StoredUser = {
   bio: string;
   rockstarTag: string;
   role: 'admin' | 'user';
+  banned: boolean;
+  banReason: string;
   createdAt: string;
 };
 
@@ -91,6 +93,8 @@ export function toUser(row: Record<string, unknown>): StoredUser {
     bio: String(row.bio || ''),
     rockstarTag: String(row.rockstar_tag || ''),
     role: String(row.role || 'user').trim().toLowerCase() === 'admin' ? 'admin' : 'user',
+    banned: Boolean(row.banned),
+    banReason: String(row.ban_reason || ''),
     createdAt: new Date(String(row.created_at)).toISOString(),
   };
 }
@@ -109,7 +113,7 @@ export async function currentUser(req: NextApiRequest) {
   const sessionId = getSessionId(req);
   if (!sessionId) return null;
   const result = await query(
-    `SELECT u.id, u.email, u.display_name, u.bio, u.rockstar_tag, u.role, u.created_at
+    `SELECT u.id, u.email, u.display_name, u.bio, u.rockstar_tag, u.role, u.banned, u.ban_reason, u.created_at
      FROM lscm_sessions s
      JOIN lscm_users u ON u.id = s.user_id
      WHERE s.id = $1 AND s.expires_at > CURRENT_TIMESTAMP`,
@@ -123,7 +127,7 @@ export async function register(email: string, password: string, res: NextApiResp
   const result = await query(
     `INSERT INTO lscm_users (id, email, password_hash, password_fingerprint, display_name, role)
      VALUES ($1, $2, $3, $4, $5, 'user')
-     RETURNING id, email, display_name, bio, rockstar_tag, role, created_at`,
+      RETURNING id, email, display_name, bio, rockstar_tag, role, banned, ban_reason, created_at`,
     [id, email, hashPassword(password), passwordFingerprint(password), email.split('@')[0] || 'LSCM Member'],
   );
   const user = toUser(result.rows[0]);
@@ -133,7 +137,7 @@ export async function register(email: string, password: string, res: NextApiResp
 
 export async function login(email: string, password: string, res: NextApiResponse) {
   const result = await query(
-    `SELECT id, email, password_hash, display_name, bio, rockstar_tag, role, created_at
+    `SELECT id, email, password_hash, display_name, bio, rockstar_tag, role, banned, ban_reason, created_at
      FROM lscm_users WHERE email = $1`,
     [email],
   );
@@ -161,7 +165,7 @@ export async function changePassword(userId: string, lastPassword: string, newPa
 
 export async function resetPassword(email: string, lastPassword: string, newPassword: string, res: NextApiResponse) {
   const result = await query<StoredUser & { password_hash: string; password_fingerprint: string | null }>(
-    `SELECT id, email, password_hash, password_fingerprint, display_name, bio, rockstar_tag, role, created_at
+     `SELECT id, email, password_hash, password_fingerprint, display_name, bio, rockstar_tag, role, banned, ban_reason, created_at
      FROM lscm_users WHERE email = $1`,
     [email],
   );

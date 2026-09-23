@@ -92,6 +92,13 @@ export async function getProduct(id: string) {
   return result.rows[0] ? toProduct(result.rows[0]) : null;
 }
 
+export async function getProductByCode(code: string) {
+  await ensureProductSchema();
+  const selection = productSelect('WHERE p.code = $1');
+  const result = await query(selection.text, [code]);
+  return result.rows[0] ? toProduct(result.rows[0]) : null;
+}
+
 function productSelect(where: string) {
   return {
     text: `SELECT p.id, p.code, p.name, p.page, p.subtype, p.description, p.price, p.stock, p.featured, p.created_at,

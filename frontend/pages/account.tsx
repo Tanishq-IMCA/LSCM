@@ -175,7 +175,7 @@ export default function AccountPage() {
           </div>
           <button disabled={passwordSaving} className="mt-6 bg-[var(--accent)] px-6 py-3.5 text-[10px] uppercase tracking-[0.24em] text-black disabled:opacity-50">{passwordSaving ? 'Updating...' : 'Update password'}</button>
         </form>
-        <section className="mt-8 border border-white/[0.08] bg-white/[0.035] p-7">
+        <section id="orders" className="mt-8 border border-white/[0.08] bg-white/[0.035] p-7">
           <div className="flex items-end justify-between gap-4 border-b border-white/[0.08] pb-5">
             <div>
               <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]" style={{ fontFamily: 'var(--font-mono)' }}>LSCM // REQUESTS</p>

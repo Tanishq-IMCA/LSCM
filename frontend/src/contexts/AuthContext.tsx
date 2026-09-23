@@ -36,6 +36,8 @@ function normalizeBackendUser(raw: Record<string, unknown>): User {
     avatarUrl: (profile.avatar as string) || undefined,
     bio: (profile.bio as string) || undefined,
     role: (raw.role as string) || 'user',
+    banned: Boolean(raw.banned),
+    banReason: String(raw.banReason || ''),
     createdAt: (raw.createdAt as string) || new Date().toISOString(),
   };
 }

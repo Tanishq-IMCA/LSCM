@@ -37,6 +37,16 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
     router.push('/support');
   };
 
+  const handleOpenCart = () => {
+    onClose();
+    router.push('/cart');
+  };
+
+  const handleOpenOrders = () => {
+    onClose();
+    router.push('/account#orders');
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -74,6 +84,12 @@ export function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
               </div>
               <button onClick={handleOpenProfile} className="w-full text-left border border-white/10 bg-white/[0.03] px-4 py-3 text-xs uppercase tracking-[0.28em] text-white transition hover:border-white/25 hover:bg-white/[0.06]" style={{ borderRadius: '1px', fontFamily: 'var(--font-display)' }}>
                 Open Account
+              </button>
+              <button onClick={handleOpenCart} className="w-full text-left border border-white/10 bg-white/[0.03] px-4 py-3 text-xs uppercase tracking-[0.28em] text-white transition hover:border-white/25 hover:bg-white/[0.06]" style={{ borderRadius: '1px', fontFamily: 'var(--font-display)' }}>
+                My Cart
+              </button>
+              <button onClick={handleOpenOrders} className="w-full text-left border border-white/10 bg-white/[0.03] px-4 py-3 text-xs uppercase tracking-[0.28em] text-white transition hover:border-white/25 hover:bg-white/[0.06]" style={{ borderRadius: '1px', fontFamily: 'var(--font-display)' }}>
+                My Orders
               </button>
               <button onClick={handleOpenSupport} className="w-full text-left border border-white/10 bg-white/[0.03] px-4 py-3 text-xs uppercase tracking-[0.28em] text-white transition hover:border-white/25 hover:bg-white/[0.06]" style={{ borderRadius: '1px', fontFamily: 'var(--font-display)' }}>
                 Support

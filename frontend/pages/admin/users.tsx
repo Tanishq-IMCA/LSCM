@@ -8,7 +8,7 @@ import { apiGet, apiPatch } from '@/lib/api';
 import { currentUser } from '@/server/auth';
 import { isAdminUser } from '@/server/admin';
 
-type AdminUser = { id: string; email: string; display_name: string; role: 'admin' | 'user'; created_at: string };
+type AdminUser = { id: string; email: string; display_name: string; role: 'admin' | 'user'; banned: boolean; ban_reason: string; created_at: string };
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const user = await currentUser(req as never);
@@ -53,6 +53,24 @@ export default function AdminUsersPage() {
     }
   };
 
+  const updateBan = async (user: AdminUser) => {
+    const banned = !user.banned;
+    const banReason = banned ? (window.prompt('Optional ban description:', user.ban_reason || '') || '') : '';
+    setBusy(user.id);
+    setMessage('');
+    try {
+      const result = await apiPatch<{ success: boolean; user: AdminUser }>('/api/admin/users', {
+        id: user.id, role: user.role, banned, banReason,
+      });
+      setUsers(current => current.map(item => item.id === user.id ? result.user : item));
+      setMessage(`${user.display_name || user.email} is ${banned ? 'banned' : 'unbanned'}.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not update ban.');
+    } finally {
+      setBusy('');
+    }
+  };
+
   return (
     <main className="min-h-screen pt-24"><Header /><section className="mx-auto max-w-[1500px] px-6 py-16 md:px-10 xl:px-14">
       <div className="flex items-end justify-between gap-5"><div><Link href="/admin" className="text-[10px] uppercase tracking-[0.3em] text-white/35 hover:text-white/70">← Admin categories</Link><p className="mb-4 mt-8 text-[10px] uppercase tracking-[0.44em] text-[var(--accent)]">LSCM // ACCESS CONTROL</p><GlitchyText text="USER MANAGEMENT" as="h1" className="text-4xl uppercase tracking-[0.08em] text-white md:text-7xl" /><p className="mt-5 text-sm text-white/40">Manage account access without leaving the control panel.</p></div></div>
@@ -62,8 +80,8 @@ export default function AdminUsersPage() {
         <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-white/10 px-5 py-4 text-[9px] uppercase tracking-[0.2em] text-white/35 md:grid-cols-[1fr_220px]"><span>Member</span><span>Access</span></div>
         {loading ? <p className="p-10 text-center text-xs uppercase tracking-[0.18em] text-white/35">Loading users...</p> : users.length ? users.map(user => (
           <div key={user.id} className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-white/[0.07] px-5 py-4 last:border-0 md:grid-cols-[1fr_220px]">
-            <div className="min-w-0"><p className="truncate text-sm uppercase tracking-[0.08em] text-white">{user.display_name || 'Unnamed member'}</p><p className="mt-1 truncate text-[10px] text-white/35">{user.email}</p></div>
-            <select value={user.role} disabled={busy === user.id} onChange={event => void updateRole(user, event.target.value as AdminUser['role'])} className="input-glass px-3 py-2 text-[10px] uppercase tracking-[0.14em] text-white"><option value="user" className="bg-[#100b1d]">User</option><option value="admin" className="bg-[#100b1d]">Admin</option></select>
+            <div className="min-w-0"><p className="truncate text-sm uppercase tracking-[0.08em] text-white">{user.display_name || 'Unnamed member'} {user.banned && <span className="text-red-300/80">· BANNED</span>}</p><p className="mt-1 truncate text-[10px] text-white/35">{user.email}</p>{user.banned && user.ban_reason && <p className="mt-1 truncate text-[10px] text-red-200/45">{user.ban_reason}</p>}</div>
+            <div className="flex items-center gap-2"><select value={user.role} disabled={busy === user.id} onChange={event => void updateRole(user, event.target.value as AdminUser['role'])} className="input-glass px-3 py-2 text-[10px] uppercase tracking-[0.14em] text-white"><option value="user" className="bg-[#100b1d]">User</option><option value="admin" className="bg-[#100b1d]">Admin</option></select><button type="button" disabled={busy === user.id} onClick={() => void updateBan(user)} className={`border px-3 py-2 text-[10px] uppercase tracking-[0.14em] ${user.banned ? 'border-red-300/35 text-red-200/80' : 'border-yellow-200/25 text-yellow-100/70'}`}>{user.banned ? 'Unban' : 'Ban'}</button></div>
           </div>
         )) : <p className="p-10 text-center text-xs uppercase tracking-[0.18em] text-white/35">No users found.</p>}
       </section>

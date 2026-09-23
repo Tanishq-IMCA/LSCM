@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS lscm_users (
   bio TEXT NOT NULL DEFAULT '',
   rockstar_tag TEXT NOT NULL DEFAULT '',
   role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  banned BOOLEAN NOT NULL DEFAULT FALSE,
+  ban_reason TEXT NOT NULL DEFAULT '',
   support_read_receipts_enabled BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -156,6 +158,17 @@ CREATE TABLE IF NOT EXISTS lscm_product_images (
   image_path TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS lscm_site_settings (
+  id SMALLINT PRIMARY KEY CHECK (id = 1),
+  maintenance_mode BOOLEAN NOT NULL DEFAULT FALSE,
+  maintenance_message TEXT NOT NULL DEFAULT '',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO lscm_site_settings (id)
+VALUES (1)
+ON CONFLICT (id) DO NOTHING;
 
 CREATE INDEX IF NOT EXISTS lscm_sessions_user_id_idx ON lscm_sessions (user_id);
 CREATE INDEX IF NOT EXISTS lscm_sessions_expires_at_idx ON lscm_sessions (expires_at);

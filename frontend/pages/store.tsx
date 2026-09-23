@@ -157,8 +157,9 @@ export default function StorePage() {
       await addItem({
         productCode: product.code,
         productName: product.name,
-        category: product.type,
+        category: product.subtype || product.type || product.page || 'services',
         unitPrice: product.price,
+        imagePath: product.images?.[0] || '/grayscalemini.png',
       });
       showNotice('ADDED TO CART', `${product.name} is ready for your request.`, 'success');
     } catch (error) {
@@ -319,7 +320,7 @@ export default function StorePage() {
                   {product.featured && <span className="store-card__badge">Featured</span>}
                 </div>
                 <h3 className="mt-6 text-xl uppercase tracking-[0.08em] text-white" style={{ fontFamily: 'var(--font-display)' }}>{product.name}</h3>
-                {product.images?.length ? <ProductGallery images={product.images} name={product.name} className="mt-5 h-40 border-0" /> : null}
+                <ProductGallery images={product.images} name={product.name} className="mt-5 h-40 border-0" />
                 <p className="mt-3 text-sm leading-6 text-white/40" style={{ fontFamily: 'var(--font-body)' }}>{product.description || product.summary}</p>
                 <ul className="mt-5 space-y-2 border-t border-white/[0.08] pt-5">
                   {(product.includes || []).map((item) => <li key={item} className="flex gap-2 text-xs leading-5 text-white/55"><span style={{ color: 'var(--accent)' }}>+</span>{item}</li>)}

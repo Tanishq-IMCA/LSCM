@@ -62,6 +62,12 @@ export default function AdminHomePage() {
             <p className="mt-4 text-sm leading-7 text-white/40">Search members and switch account access between user and admin.</p>
             <span className="mt-7 inline-block text-[10px] uppercase tracking-[0.2em] text-white/60">Manage users →</span>
           </Link>
+          <Link href="/admin/administration" className="glass-panel p-8 transition hover:border-yellow-200/50 hover:bg-yellow-200/[0.04]">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-yellow-200/70">Category 06 · Control</p>
+            <h2 className="mt-4 text-3xl uppercase tracking-[0.08em] text-white">Administration</h2>
+            <p className="mt-4 text-sm leading-7 text-white/40">Toggle maintenance mode and control the public site access screen.</p>
+            <span className="mt-7 inline-block text-[10px] uppercase tracking-[0.2em] text-white/60">Open administration →</span>
+          </Link>
           <Link href="/admin/network" className="glass-panel relative h-fit self-start overflow-hidden p-8 transition hover:border-[var(--accent)]/50 hover:bg-white/[0.06]">
             <div className="store-hero__glow opacity-30" />
             <div className="relative z-10">

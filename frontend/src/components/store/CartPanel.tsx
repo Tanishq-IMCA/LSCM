@@ -6,10 +6,10 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 import { showNotice } from '@/components/ui/NexusNotice';
 
-export function CartPanel() {
+export function CartPanel({ initialOpen = false }: { initialOpen?: boolean }) {
   const { user } = useAuth();
   const { items, totalQuantity, totalPrice, isLoading, updateItem, removeItem, checkout } = useCart();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initialOpen);
   const [isCheckout, setIsCheckout] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 

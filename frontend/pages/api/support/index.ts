@@ -4,7 +4,7 @@ import { currentUser } from '@/server/auth';
 import { isAdminUser } from '@/server/admin';
 import { pool, query } from '@/server/db';
 
-const TOPICS = ['Order status', 'Delivery issue', 'Payment question', 'Account help', 'General question', 'Other'];
+const TOPICS = ['Order status', 'Delivery issue', 'Payment question', 'Account help', 'General question', 'Ban dispute', 'Other'];
 
 function serializeTicket(row: Record<string, unknown>, viewerId: string) {
   return {

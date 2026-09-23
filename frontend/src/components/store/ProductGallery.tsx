@@ -10,7 +10,7 @@ export function ProductGallery({ images, name, className = 'h-40' }: { images?: 
   }, [items.length]);
   return (
     <div className={`relative overflow-hidden border-b border-white/[0.08] bg-white/[0.025] ${className}`}>
-      <img src={items[active % items.length]} alt={name} className="h-full w-full object-cover opacity-75 transition duration-500" />
+      {items.map((image, index) => <img key={`${image}-${index}`} src={image} alt={index === active % items.length ? name : ''} aria-hidden={index !== active % items.length} className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${index === active % items.length ? 'opacity-75' : 'opacity-0'}`} />)}
       {items.length > 1 && <div className="absolute bottom-2 left-3 right-3 flex h-px gap-0.5">{items.map((_, index) => <span key={index} className={`h-px flex-1 ${index === active % items.length ? 'bg-[var(--accent)]' : 'bg-white/20'}`} />)}</div>}
     </div>
   );
